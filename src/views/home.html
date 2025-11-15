@@ -33,6 +33,28 @@
             box-shadow: 0 5px 20px rgba(0,0,0,0.15);
         }
 
+        .task-item {
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s;
+        }
+        .task-item:hover {
+            background: #f8f9fa;
+        }
+        .task-title {
+            cursor: pointer;
+        }
+        .task-priority {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: #ffc107;
+            cursor: pointer;
+            padding: 0;
+        }
+        .task-priority:hover {
+            color: #ffca2c;
+        }
+
         .notification-btn {
             position: relative;
             font-size: 1.5rem;
@@ -174,6 +196,8 @@
     </div>
 </div>
 
+<button class="btn btn-primary mb-3" id="createTaskBtn">Створити завдання</button>
+
 <h4 class="mb-3">📂 Категорії завдань</h4>
 <div id="categoriesList">
     <div class="text-center">
@@ -182,6 +206,57 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="createTaskModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Створити завдання</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createTaskForm">
+                    <div class="mb-3">
+                        <label for="taskTitle" class="form-label">Назва (обов'язково)</label>
+                        <input type="text" class="form-control" id="taskTitle" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="taskDescription" class="form-label">Опис (необов'язково)</label>
+                        <textarea class="form-control" id="taskDescription"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="taskDeadline" class="form-label">Термін виконання (необов'язково)</label>
+                        <input type="datetime-local" class="form-control" id="taskDeadline">
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="taskPriority">
+                        <label class="form-check-label" for="taskPriority">В пріоритеті (необов'язково)</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Створити</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="taskDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Деталі завдання</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Назва:</strong> <span id="detailTitle"></span></p>
+                <p><strong>Опис:</strong> <span id="detailDescription"></span></p>
+                <p><strong>Термін:</strong> <span id="detailDeadline"></span></p>
+                <p><strong>Статус:</strong> <span id="detailStatus"></span></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
     let notificationModalOpen = false;
@@ -208,22 +283,96 @@
         try {
             const response = await fetch('/api/categories');
             const data = await response.json();
-
             const categoriesList = document.getElementById('categoriesList');
-
             if (data.success && data.categories.length > 0) {
                 categoriesList.innerHTML = data.categories.map(category => `
-                    <div class="category-card">
-                        <h5 class="mb-0">${category.name}</h5>
-                    </div>
-                `).join('');
+        <div class="category-card" data-category-id="${category.id}">
+          <h5 class="mb-0">${category.name}</h5>
+          <div class="tasks-list d-none"></div>
+        </div>
+      `).join('');
+                document.querySelectorAll('.category-card').forEach(card => {
+                    card.addEventListener('click', async (e) => {
+                        if (e.target.closest('.task-complete, .task-priority, .task-title')) return;
+                        const tasksList = card.querySelector('.tasks-list');
+                        const id = card.dataset.categoryId;
+                        if (tasksList.classList.contains('d-none')) {
+                            await loadTasksForCategory(card, id);
+                            tasksList.classList.remove('d-none');
+                        } else {
+                            tasksList.classList.add('d-none');
+                        }
+                    });
+                });
             } else {
                 categoriesList.innerHTML = '<p class="text-muted text-center">Категорії не знайдено</p>';
             }
         } catch (err) {
             console.error('Помилка завантаження категорій: ', err);
-            document.getElementById('categoriesList').innerHTML =
-                '<p class="text-danger text-center">Помилка завантаження категорій</p>';
+            document.getElementById('categoriesList').innerHTML = '<p class="text-danger text-center">Помилка завантаження категорій</p>';
+        }
+    }
+
+    async function loadTasksForCategory(card, categoryId) {
+        const tasksList = card.querySelector('.tasks-list');
+        try {
+            const response = await fetch(`/api/tasks?category_id=${categoryId}`);
+            const data = await response.json();
+            if (data.success) {
+                tasksList.innerHTML = data.tasks.length > 0 ? data.tasks.map(task => {
+                    const isCompleted = task.status === 'completed';
+                    const strike = isCompleted ? 'text-decoration: line-through; color: #6c757d;' : '';
+                    const priorityStar = task.priority ? '★' : '☆';
+                    const created = new Date(task.created_at).toLocaleString('uk-UA');
+                    const updated = new Date(task.updated_at).toLocaleString('uk-UA');
+                    return `
+          <div class="task-item d-flex align-items-center gap-3 py-2" data-task-id="${task.id}">
+            <input type="checkbox" class="form-check-input task-complete m-0" ${isCompleted ? 'checked' : ''}>
+            <span class="task-title flex-grow-1" style="${strike}">${task.title}</span>
+            <button class="task-priority">${priorityStar}</button>
+            <small class="text-muted ms-auto">${created} / ${updated}</small>
+          </div>
+        `;
+                }).join('') : '<p class="text-muted text-center py-3">Немає завдань у цій категорії</p>';
+                tasksList.querySelectorAll('.task-complete').forEach(cb => {
+                    cb.addEventListener('change', async () => {
+                        const taskId = cb.closest('.task-item').dataset.taskId;
+                        await fetch(`/api/tasks/${taskId}/complete`, { method: 'PUT' });
+                        await loadTasksForCategory(card, categoryId);
+                        await loadUnreadCount();
+                    });
+                });
+                tasksList.querySelectorAll('.task-priority').forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        const taskId = btn.closest('.task-item').dataset.taskId;
+                        await fetch(`/api/tasks/${taskId}/priority`, { method: 'PUT' });
+                        await loadTasksForCategory(card, categoryId);
+                        await loadUnreadCount();
+                    });
+                });
+                tasksList.querySelectorAll('.task-title').forEach(title => {
+                    title.addEventListener('click', async () => {
+                        const taskId = title.closest('.task-item').dataset.taskId;
+                        try {
+                            const resp = await fetch(`/api/tasks/${taskId}`);
+                            const d = await resp.json();
+                            if (d.success) {
+                                document.getElementById('detailTitle').textContent = d.task.title;
+                                document.getElementById('detailDescription').textContent = d.task.description || 'Немає опису';
+                                document.getElementById('detailDeadline').textContent = d.task.deadline ? new Date(d.task.deadline).toLocaleString('uk-UA') : 'Немає терміну';
+                                document.getElementById('detailStatus').textContent = d.task.status === 'active' ? 'Активне' : 'Завершене';
+                                const detailModal = new bootstrap.Modal(document.getElementById('taskDetailModal'));
+                                detailModal.show();
+                            }
+                        } catch (err) {
+                            console.error('Помилка завантаження деталей: ', err);
+                        }
+                    });
+                });
+            }
+        } catch (err) {
+            console.error('Помилка завантаження завдань: ', err);
+            tasksList.innerHTML = '<p class="text-danger text-center py-3">Помилка завантаження завдань</p>';
         }
     }
 
@@ -368,6 +517,40 @@
 
     checkAuth();
     setInterval(loadUnreadCount, 30000);
+
+    document.getElementById('createTaskBtn').addEventListener('click', () => {
+        const createModal = new bootstrap.Modal(document.getElementById('createTaskModal'));
+        createModal.show();
+    });
+
+    document.getElementById('createTaskForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const title = document.getElementById('taskTitle').value;
+        const description = document.getElementById('taskDescription').value;
+        const deadline = document.getElementById('taskDeadline').value;
+        const priority = document.getElementById('taskPriority').checked;
+        if (!title) return alert('Назва обов\'язкова');
+        try {
+            const response = await fetch('/api/tasks', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, description, deadline, priority })
+            });
+            const data = await response.json();
+            if (data.success) {
+                const createModal = bootstrap.Modal.getInstance(document.getElementById('createTaskModal'));
+                createModal.hide();
+                document.getElementById('createTaskForm').reset();
+                await loadCategories();
+                await loadUnreadCount();
+            } else {
+                alert(data.error || 'Помилка створення');
+            }
+        } catch (err) {
+            console.error('Помилка створення: ', err);
+            alert('Помилка з\'єднання');
+        }
+    });
 </script>
 </body>
 </html>

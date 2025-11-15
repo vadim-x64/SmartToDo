@@ -4,7 +4,9 @@ const path = require('path');
 const authRoutes = require('./src/routes/auth');
 const categoryRoutes = require('./src/routes/categories');
 const notificationRoutes = require('./src/routes/notifications');
+const taskRoutes = require('./src/routes/tasks');
 const { requireAuth } = require('./src/middleware/authMiddleware');
+const { startDeadlineChecker } = require('./src/utilities/deadlineChecker');
 require('dotenv').config();
 
 const app = express();
@@ -27,6 +29,7 @@ app.use(session({
 app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/tasks', taskRoutes);
 
 app.get('/', (req, res) => {
     if (req.session.userId) {
@@ -55,6 +58,8 @@ app.get('/register', (req, res) => {
 app.get('/home', requireAuth, (req, res) => {
     res.sendFile(path.join(__dirname, 'src/views/home.html'));
 });
+
+startDeadlineChecker();
 
 app.listen(PORT, () => {
     console.log(`Сервер запущено на http://localhost:${PORT}`);
