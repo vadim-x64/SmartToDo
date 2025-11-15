@@ -9,12 +9,14 @@
         body {
             min-height: 100vh;
         }
+
         .welcome-card {
             background: white;
             border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
             margin-top: 50px;
         }
+
         .container .navbar-brand {
             color: black;
         }
@@ -24,25 +26,29 @@
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 15px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             cursor: pointer;
             transition: transform 0.2s;
         }
+
         .category-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
         }
 
         .task-item {
             border-bottom: 1px solid #f0f0f0;
             transition: background 0.2s;
         }
+
         .task-item:hover {
             background: #f8f9fa;
         }
+
         .task-title {
             cursor: pointer;
         }
+
         .task-priority {
             background: none;
             border: none;
@@ -51,8 +57,78 @@
             cursor: pointer;
             padding: 0;
         }
+
         .task-priority:hover {
             color: #ffca2c;
+        }
+
+
+
+        .task-delete {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            padding: 0;
+            font-size: 1.1rem;
+        }
+
+        .task-delete:hover {
+            color: #bb2d3b;
+        }
+
+        .delete-all-btn {
+            position: relative;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+
+        .task-select {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #28a745;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .task-select:hover {
+            background: #e8f5e9;
+            transform: scale(1.1);
+        }
+        .task-select.selected {
+            background: #28a745;
+            color: white;
+        }
+        .task-select.selected::before {
+            content: '✓';
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .selection-toolbar {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            border-radius: 50px;
+            padding: 15px 30px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            z-index: 998;
+            display: none;
+            align-items: center;
+            gap: 20px;
+        }
+        .selection-toolbar.show {
+            display: flex;
+        }
+        .selection-count {
+            font-weight: bold;
+            color: #28a745;
         }
 
         .notification-btn {
@@ -63,6 +139,7 @@
             cursor: pointer;
             margin-right: 15px;
         }
+
         .notification-badge {
             position: absolute;
             top: -5px;
@@ -78,6 +155,7 @@
             justify-content: center;
             font-weight: bold;
         }
+
         .notification-modal {
             position: fixed;
             top: 60px;
@@ -86,14 +164,16 @@
             max-height: 500px;
             background: white;
             border-radius: 10px;
-            box-shadow: 0 5px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
             z-index: 1000;
             display: none;
             overflow: hidden;
         }
+
         .notification-modal.show {
             display: block;
         }
+
         .notification-header {
             padding: 15px 20px;
             border-bottom: 1px solid #dee2e6;
@@ -101,10 +181,12 @@
             justify-content: space-between;
             align-items: center;
         }
+
         .notification-body {
             max-height: 400px;
             overflow-y: auto;
         }
+
         .notification-item {
             padding: 15px 20px;
             border-bottom: 1px solid #f0f0f0;
@@ -114,12 +196,15 @@
             align-items: start;
             gap: 10px;
         }
+
         .notification-item:hover {
             background: #f8f9fa;
         }
+
         .notification-item.unread {
             background: #e7f3ff;
         }
+
         .notification-dot {
             width: 8px;
             height: 8px;
@@ -128,28 +213,34 @@
             margin-top: 6px;
             flex-shrink: 0;
         }
+
         .notification-content {
             flex: 1;
         }
+
         .notification-message {
             margin: 0;
             font-size: 0.9rem;
         }
+
         .notification-time {
             font-size: 0.75rem;
             color: #6c757d;
             margin-top: 5px;
         }
+
         .empty-notifications {
             padding: 40px 20px;
             text-align: center;
             color: #6c757d;
         }
+
         .mark-all-read {
             color: #0d6efd;
             cursor: pointer;
             font-size: 0.9rem;
         }
+
         .mark-all-read:hover {
             text-decoration: underline;
         }
@@ -197,6 +288,16 @@
 </div>
 
 <button class="btn btn-primary mb-3" id="createTaskBtn">Створити завдання</button>
+<button class="btn btn-danger delete-all-btn" id="deleteAllBtn">Очистити всі завдання</button>
+<div class="selection-toolbar" id="selectionToolbar">
+    <span class="selection-count">Вибрано: <span id="selectedCount">0</span></span>
+    <button class="btn btn-sm btn-danger" id="deleteSelectedBtn">
+        🗑️ Видалити вибрані
+    </button>
+    <button class="btn btn-sm btn-secondary" id="cancelSelectionBtn">
+        Скасувати
+    </button>
+</div>
 
 <h4 class="mb-3">📂 Категорії завдань</h4>
 <div id="categoriesList">
@@ -243,14 +344,88 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Деталі завдання</h5>
+                <h5 class="modal-title">Редагувати завдання</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p><strong>Назва:</strong> <span id="detailTitle"></span></p>
-                <p><strong>Опис:</strong> <span id="detailDescription"></span></p>
-                <p><strong>Термін:</strong> <span id="detailDeadline"></span></p>
-                <p><strong>Статус:</strong> <span id="detailStatus"></span></p>
+                <form id="editTaskForm">
+                    <input type="hidden" id="editTaskId">
+                    <div class="mb-3">
+                        <label for="editTaskTitle" class="form-label">Назва (обов'язково)</label>
+                        <input type="text" class="form-control" id="editTaskTitle" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editTaskDescription" class="form-label">Опис (необов'язково)</label>
+                        <textarea class="form-control" id="editTaskDescription"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editTaskDeadline" class="form-label">Термін виконання (необов'язково)</label>
+                        <input type="datetime-local" class="form-control" id="editTaskDeadline">
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="editTaskPriority">
+                        <label class="form-check-label" for="editTaskPriority">В пріоритеті (необов'язково)</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Зберегти зміни</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteTaskModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Підтвердження видалення</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Ви впевнені, що хочете видалити це завдання?</p>
+                <p class="text-muted mb-0"><strong id="deleteTaskTitle"></strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteTask">Видалити</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteAllTasksModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">⚠️ Увага!</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Ви впевнені, що хочете видалити ВСІ завдання?</strong></p>
+                <p class="text-danger mb-0">Ця дія незворотна!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteAll">Видалити все</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteSelectedModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title">⚠️ Підтвердження видалення</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Ви впевнені, що хочете видалити вибрані завдання?</strong></p>
+                <p class="text-muted mb-0">Буде видалено: <strong id="deleteSelectedCount">0</strong> завдань</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteSelected">Видалити</button>
             </div>
         </div>
     </div>
@@ -259,6 +434,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+    let selectedTasks = new Set();
     let notificationModalOpen = false;
 
     async function checkAuth() {
@@ -280,17 +456,21 @@
     }
 
     async function loadCategories() {
+        clearSelection();
         try {
             const response = await fetch('/api/categories');
             const data = await response.json();
             const categoriesList = document.getElementById('categoriesList');
             if (data.success && data.categories.length > 0) {
                 categoriesList.innerHTML = data.categories.map(category => `
-        <div class="category-card" data-category-id="${category.id}">
-          <h5 class="mb-0">${category.name}</h5>
-          <div class="tasks-list d-none"></div>
-        </div>
-      `).join('');
+                <div class="category-card" data-category-id="${category.id}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">${category.name}</h5>
+                        <span class="badge bg-primary rounded-pill">${category.task_count}</span>
+                    </div>
+                    <div class="tasks-list d-none"></div>
+                </div>
+            `).join('');
                 document.querySelectorAll('.category-card').forEach(card => {
                     card.addEventListener('click', async (e) => {
                         if (e.target.closest('.task-complete, .task-priority, .task-title')) return;
@@ -326,18 +506,20 @@
                     const created = new Date(task.created_at).toLocaleString('uk-UA');
                     const updated = new Date(task.updated_at).toLocaleString('uk-UA');
                     return `
-          <div class="task-item d-flex align-items-center gap-3 py-2" data-task-id="${task.id}">
+        <div class="task-item d-flex align-items-center gap-3 py-2" data-task-id="${task.id}" data-task-title="${task.title}">
+            <div class="task-select" data-task-id="${task.id}"></div>
             <input type="checkbox" class="form-check-input task-complete m-0" ${isCompleted ? 'checked' : ''}>
             <span class="task-title flex-grow-1" style="${strike}">${task.title}</span>
             <button class="task-priority">${priorityStar}</button>
+            <button class="task-delete">🗑️</button>
             <small class="text-muted ms-auto">${created} / ${updated}</small>
-          </div>
-        `;
+        </div>
+    `;
                 }).join('') : '<p class="text-muted text-center py-3">Немає завдань у цій категорії</p>';
                 tasksList.querySelectorAll('.task-complete').forEach(cb => {
                     cb.addEventListener('change', async () => {
                         const taskId = cb.closest('.task-item').dataset.taskId;
-                        await fetch(`/api/tasks/${taskId}/complete`, { method: 'PUT' });
+                        await fetch(`/api/tasks/${taskId}/complete`, {method: 'PUT'});
                         await loadTasksForCategory(card, categoryId);
                         await loadUnreadCount();
                     });
@@ -345,7 +527,7 @@
                 tasksList.querySelectorAll('.task-priority').forEach(btn => {
                     btn.addEventListener('click', async () => {
                         const taskId = btn.closest('.task-item').dataset.taskId;
-                        await fetch(`/api/tasks/${taskId}/priority`, { method: 'PUT' });
+                        await fetch(`/api/tasks/${taskId}/priority`, {method: 'PUT'});
                         await loadTasksForCategory(card, categoryId);
                         await loadUnreadCount();
                     });
@@ -357,16 +539,75 @@
                             const resp = await fetch(`/api/tasks/${taskId}`);
                             const d = await resp.json();
                             if (d.success) {
-                                document.getElementById('detailTitle').textContent = d.task.title;
-                                document.getElementById('detailDescription').textContent = d.task.description || 'Немає опису';
-                                document.getElementById('detailDeadline').textContent = d.task.deadline ? new Date(d.task.deadline).toLocaleString('uk-UA') : 'Немає терміну';
-                                document.getElementById('detailStatus').textContent = d.task.status === 'active' ? 'Активне' : 'Завершене';
-                                const detailModal = new bootstrap.Modal(document.getElementById('taskDetailModal'));
-                                detailModal.show();
+                                document.getElementById('editTaskId').value = d.task.id;
+                                document.getElementById('editTaskTitle').value = d.task.title;
+                                document.getElementById('editTaskDescription').value = d.task.description || '';
+
+                                if (d.task.deadline) {
+                                    const deadlineDate = new Date(d.task.deadline);
+                                    const localDateTime = new Date(deadlineDate.getTime() - deadlineDate.getTimezoneOffset() * 60000)
+                                        .toISOString()
+                                        .slice(0, 16);
+                                    document.getElementById('editTaskDeadline').value = localDateTime;
+                                } else {
+                                    document.getElementById('editTaskDeadline').value = '';
+                                }
+
+                                document.getElementById('editTaskPriority').checked = d.task.priority;
+
+                                const editModal = new bootstrap.Modal(document.getElementById('taskDetailModal'));
+                                editModal.show();
                             }
                         } catch (err) {
                             console.error('Помилка завантаження деталей: ', err);
                         }
+                    });
+                });
+                tasksList.querySelectorAll('.task-delete').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        e.stopPropagation();
+                        const taskItem = btn.closest('.task-item');
+                        const taskId = taskItem.dataset.taskId;
+                        const taskTitle = taskItem.dataset.taskTitle;
+
+                        document.getElementById('deleteTaskTitle').textContent = taskTitle;
+
+                        const deleteModal = new bootstrap.Modal(document.getElementById('deleteTaskModal'));
+                        deleteModal.show();
+
+                        document.getElementById('confirmDeleteTask').onclick = async () => {
+                            try {
+                                const response = await fetch(`/api/tasks/${taskId}`, { method: 'DELETE' });
+                                const data = await response.json();
+
+                                if (data.success) {
+                                    deleteModal.hide();
+                                    await loadTasksForCategory(card, categoryId);
+                                    await loadUnreadCount();
+                                } else {
+                                    alert(data.error || 'Помилка видалення');
+                                }
+                            } catch (err) {
+                                console.error('Помилка видалення: ', err);
+                                alert('Помилка з\'єднання');
+                            }
+                        };
+                    });
+                });
+                tasksList.querySelectorAll('.task-select').forEach(selectBtn => {
+                    selectBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const taskId = selectBtn.dataset.taskId;
+
+                        if (selectedTasks.has(taskId)) {
+                            selectedTasks.delete(taskId);
+                            selectBtn.classList.remove('selected');
+                        } else {
+                            selectedTasks.add(taskId);
+                            selectBtn.classList.add('selected');
+                        }
+
+                        updateSelectionToolbar();
                     });
                 });
             }
@@ -508,7 +749,7 @@
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
         try {
-            await fetch('/api/auth/logout', { method: 'POST' });
+            await fetch('/api/auth/logout', {method: 'POST'});
             window.location.href = '/login';
         } catch (err) {
             console.error('Помилка виходу: ', err);
@@ -533,8 +774,8 @@
         try {
             const response = await fetch('/api/tasks', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, description, deadline, priority })
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({title, description, deadline, priority})
             });
             const data = await response.json();
             if (data.success) {
@@ -548,6 +789,131 @@
             }
         } catch (err) {
             console.error('Помилка створення: ', err);
+            alert('Помилка з\'єднання');
+        }
+    });
+
+    document.getElementById('deleteAllBtn').addEventListener('click', () => {
+        const deleteAllModal = new bootstrap.Modal(document.getElementById('deleteAllTasksModal'));
+        deleteAllModal.show();
+    });
+
+    document.getElementById('confirmDeleteAll').addEventListener('click', async () => {
+        try {
+            const response = await fetch('/api/tasks', { method: 'DELETE' });
+            const data = await response.json();
+
+            if (data.success) {
+                const deleteAllModal = bootstrap.Modal.getInstance(document.getElementById('deleteAllTasksModal'));
+                deleteAllModal.hide();
+
+                await loadCategories();
+                await loadUnreadCount();
+
+
+            } else {
+                alert(data.error || 'Помилка видалення');
+            }
+        } catch (err) {
+            console.error('Помилка видалення всіх завдань: ', err);
+            alert('Помилка з\'єднання');
+        }
+    });
+
+    function updateSelectionToolbar() {
+        const toolbar = document.getElementById('selectionToolbar');
+        const countSpan = document.getElementById('selectedCount');
+
+        countSpan.textContent = selectedTasks.size;
+
+        if (selectedTasks.size > 0) {
+            toolbar.classList.add('show');
+        } else {
+            toolbar.classList.remove('show');
+        }
+    }
+
+    function clearSelection() {
+        selectedTasks.clear();
+        document.querySelectorAll('.task-select.selected').forEach(sel => {
+            sel.classList.remove('selected');
+        });
+        updateSelectionToolbar();
+    }
+
+    document.getElementById('cancelSelectionBtn').addEventListener('click', () => {
+        clearSelection();
+    });
+
+    document.getElementById('deleteSelectedBtn').addEventListener('click', () => {
+        if (selectedTasks.size === 0) return;
+
+        document.getElementById('deleteSelectedCount').textContent = selectedTasks.size;
+        const deleteSelectedModal = new bootstrap.Modal(document.getElementById('deleteSelectedModal'));
+        deleteSelectedModal.show();
+    });
+
+    document.getElementById('confirmDeleteSelected').addEventListener('click', async () => {
+        try {
+            const taskIds = Array.from(selectedTasks);
+
+            const response = await fetch('/api/tasks/delete-selected', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ taskIds })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                const deleteSelectedModal = bootstrap.Modal.getInstance(document.getElementById('deleteSelectedModal'));
+                deleteSelectedModal.hide();
+
+                clearSelection();
+                await loadCategories();
+                await loadUnreadCount();
+
+
+            } else {
+                alert(data.error || 'Помилка видалення');
+            }
+        } catch (err) {
+            console.error('Помилка видалення вибраних завдань: ', err);
+            alert('Помилка з\'єднання');
+        }
+    });
+
+    document.getElementById('editTaskForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const taskId = document.getElementById('editTaskId').value;
+        const title = document.getElementById('editTaskTitle').value;
+        const description = document.getElementById('editTaskDescription').value;
+        const deadline = document.getElementById('editTaskDeadline').value;
+        const priority = document.getElementById('editTaskPriority').checked;
+
+        if (!title) return alert('Назва обов\'язкова');
+
+        try {
+            const response = await fetch(`/api/tasks/${taskId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, description, deadline, priority })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                const editModal = bootstrap.Modal.getInstance(document.getElementById('taskDetailModal'));
+                editModal.hide();
+                document.getElementById('editTaskForm').reset();
+                await loadCategories();
+                await loadUnreadCount();
+            } else {
+                alert(data.error || 'Помилка оновлення');
+            }
+        } catch (err) {
+            console.error('Помилка оновлення: ', err);
             alert('Помилка з\'єднання');
         }
     });

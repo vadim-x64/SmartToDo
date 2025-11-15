@@ -1,6 +1,6 @@
 const express = require('express');
 const pool = require('../config/db');
-const { notifyTaskCreated, notifyTaskUpdated, notifyTaskCompleted } = require('../utilities/notificationUtility');
+const { notifyTaskCreated, notifyTaskUpdated, notifyTaskCompleted, notifyTaskDeleted } = require('../utilities/notificationUtility');
 
 const router = express.Router();
 
@@ -95,6 +95,52 @@ router.post('/', async (req, res) => {
     }
 });
 
+router.put('/:id', async (req, res) => {
+    const taskId = req.params.id;
+    const userId = req.session.userId;
+    const { title, description, deadline, priority } = req.body;
+
+    try {
+        const taskRes = await pool.query(
+            'SELECT * FROM Tasks WHERE id = $1 AND user_id = $2',
+            [taskId, userId]
+        );
+
+        if (taskRes.rows.length === 0) {
+            return res.status(404).json({ error: 'Завдання не знайдено' });
+        }
+
+        const oldTask = taskRes.rows[0];
+
+        await pool.query(
+            'UPDATE Tasks SET title = $1, description = $2, deadline = $3, priority = $4, updated_at = CURRENT_TIMESTAMP WHERE id = $5',
+            [title, description || null, deadline ? new Date(deadline) : null, !!priority, taskId]
+        );
+
+        const plannedCatId = await getCategoryId('Заплановані');
+        const importantCatId = await getCategoryId('Важливі');
+
+        if (deadline && !oldTask.deadline) {
+            await assignCategory(taskId, plannedCatId);
+        } else if (!deadline && oldTask.deadline) {
+            await removeCategory(taskId, plannedCatId);
+        }
+
+        if (priority && !oldTask.priority) {
+            await assignCategory(taskId, importantCatId);
+        } else if (!priority && oldTask.priority) {
+            await removeCategory(taskId, importantCatId);
+        }
+
+        await notifyTaskUpdated(userId, title, taskId);
+
+        res.json({ success: true, message: 'Завдання оновлено' });
+    } catch (err) {
+        console.error('Помилка оновлення завдання: ', err);
+        res.status(500).json({ error: 'Помилка сервера' });
+    }
+});
+
 router.put('/:id/complete', async (req, res) => {
     const taskId = req.params.id;
     const userId = req.session.userId;
@@ -145,10 +191,111 @@ router.put('/:id/priority', async (req, res) => {
         } else {
             await removeCategory(taskId, importantCatId);
         }
-        await notifyTaskUpdated(userId, currentRes.rows[0].title, taskId);
+
         res.json({ success: true, newPriority });
     } catch (err) {
         console.error('Помилка оновлення пріоритету: ', err);
+        res.status(500).json({ error: 'Помилка сервера' });
+    }
+});
+
+router.delete('/:id', async (req, res) => {
+    const taskId = req.params.id;
+    const userId = req.session.userId;
+    try {
+        const taskRes = await pool.query(
+            'SELECT title FROM Tasks WHERE id = $1 AND user_id = $2',
+            [taskId, userId]
+        );
+
+        if (taskRes.rows.length === 0) {
+            return res.status(404).json({ error: 'Завдання не знайдено' });
+        }
+
+        const taskTitle = taskRes.rows[0].title;
+
+        await pool.query(
+            'DELETE FROM Tasks WHERE id = $1 AND user_id = $2',
+            [taskId, userId]
+        );
+
+        await notifyTaskDeleted(userId, taskTitle);
+
+        res.json({ success: true, message: 'Завдання видалено' });
+    } catch (err) {
+        console.error('Помилка видалення завдання: ', err);
+        res.status(500).json({ error: 'Помилка сервера' });
+    }
+});
+
+router.delete('/', async (req, res) => {
+    const userId = req.session.userId;
+    try {
+        const countRes = await pool.query(
+            'SELECT COUNT(*) as count FROM Tasks WHERE user_id = $1',
+            [userId]
+        );
+
+        const count = parseInt(countRes.rows[0].count);
+
+        if (count === 0) {
+            return res.json({ success: true, message: 'Немає завдань для видалення', count: 0 });
+        }
+
+        await pool.query(
+            'DELETE FROM Tasks WHERE user_id = $1',
+            [userId]
+        );
+
+        await pool.query(
+            'INSERT INTO Notifications (user_id, type, message) VALUES ($1, $2, $3)',
+            [userId, 'task_deleted', `Видалено всі завдання (${count} шт.)`]
+        );
+
+        res.json({ success: true, message: 'Всі завдання видалено', count });
+    } catch (err) {
+        console.error('Помилка видалення всіх завдань: ', err);
+        res.status(500).json({ error: 'Помилка сервера' });
+    }
+});
+
+router.post('/delete-selected', async (req, res) => {
+    const { taskIds } = req.body;
+    const userId = req.session.userId;
+
+    try {
+        if (!taskIds || !Array.isArray(taskIds) || taskIds.length === 0) {
+            return res.status(400).json({ error: 'Не вибрано завдань' });
+        }
+
+        const verifyRes = await pool.query(
+            'SELECT id FROM Tasks WHERE id = ANY($1) AND user_id = $2',
+            [taskIds, userId]
+        );
+
+        const validIds = verifyRes.rows.map(row => row.id);
+
+        if (validIds.length === 0) {
+            return res.status(404).json({ error: 'Завдання не знайдено' });
+        }
+
+        await pool.query(
+            'DELETE FROM Tasks WHERE id = ANY($1) AND user_id = $2',
+            [validIds, userId]
+        );
+
+        await pool.query(
+            'INSERT INTO Notifications (user_id, type, message) VALUES ($1, $2, $3)',
+            [userId, 'task_deleted', `Видалено вибрані завдання (${validIds.length} шт.)`]
+        );
+
+        res.json({
+            success: true,
+            message: 'Вибрані завдання видалено',
+            count: validIds.length
+        });
+    } catch (err) {
+        console.error('Помилка видалення вибраних завдань: ', err);
         res.status(500).json({ error: 'Помилка сервера' });
     }
 });
