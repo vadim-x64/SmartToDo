@@ -18,15 +18,148 @@
         .container .navbar-brand {
             color: black;
         }
+
+        .category-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .notification-btn {
+            position: relative;
+            font-size: 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-right: 15px;
+        }
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .notification-modal {
+            position: fixed;
+            top: 60px;
+            right: 20px;
+            width: 400px;
+            max-height: 500px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.3);
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+        }
+        .notification-modal.show {
+            display: block;
+        }
+        .notification-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .notification-body {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .notification-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: start;
+            gap: 10px;
+        }
+        .notification-item:hover {
+            background: #f8f9fa;
+        }
+        .notification-item.unread {
+            background: #e7f3ff;
+        }
+        .notification-dot {
+            width: 8px;
+            height: 8px;
+            background: #dc3545;
+            border-radius: 50%;
+            margin-top: 6px;
+            flex-shrink: 0;
+        }
+        .notification-content {
+            flex: 1;
+        }
+        .notification-message {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+        .notification-time {
+            font-size: 0.75rem;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        .empty-notifications {
+            padding: 40px 20px;
+            text-align: center;
+            color: #6c757d;
+        }
+        .mark-all-read {
+            color: #0d6efd;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .mark-all-read:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
 <nav class="navbar navbar-dark">
     <div class="container">
         <span class="navbar-brand">🎯 SmartToDo</span>
-        <button class="btn btn-outline-dark" id="logoutBtn">Вийти</button>
+        <div class="d-flex align-items-center">
+            <button class="notification-btn" id="notificationBtn">
+                🔔
+                <span class="notification-badge d-none" id="notificationBadge">0</span>
+            </button>
+            <button class="btn btn-outline-dark" id="logoutBtn">Вийти</button>
+        </div>
     </div>
 </nav>
+
+<div class="notification-modal" id="notificationModal">
+    <div class="notification-header">
+        <h5 class="mb-0">Сповіщення</h5>
+        <span class="mark-all-read" id="markAllRead">Позначити всі прочитаними</span>
+    </div>
+    <div class="notification-body" id="notificationBody">
+        <div class="text-center py-3">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Завантаження...</span>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="container">
     <div class="row justify-content-center">
@@ -41,7 +174,18 @@
     </div>
 </div>
 
+<h4 class="mb-3">📂 Категорії завдань</h4>
+<div id="categoriesList">
+    <div class="text-center">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Завантаження...</span>
+        </div>
+    </div>
+</div>
+
 <script>
+    let notificationModalOpen = false;
+
     async function checkAuth() {
         try {
             const response = await fetch('/api/auth/check');
@@ -52,11 +196,166 @@
             } else {
                 document.getElementById('welcomeMessage').textContent =
                     `Привіт, ${data.user.username}! Радий бачити тебе знову 👋`;
+                await loadCategories();
+                await loadUnreadCount();
             }
         } catch (err) {
             window.location.href = '/login';
         }
     }
+
+    async function loadCategories() {
+        try {
+            const response = await fetch('/api/categories');
+            const data = await response.json();
+
+            const categoriesList = document.getElementById('categoriesList');
+
+            if (data.success && data.categories.length > 0) {
+                categoriesList.innerHTML = data.categories.map(category => `
+                    <div class="category-card">
+                        <h5 class="mb-0">${category.name}</h5>
+                    </div>
+                `).join('');
+            } else {
+                categoriesList.innerHTML = '<p class="text-muted text-center">Категорії не знайдено</p>';
+            }
+        } catch (err) {
+            console.error('Помилка завантаження категорій: ', err);
+            document.getElementById('categoriesList').innerHTML =
+                '<p class="text-danger text-center">Помилка завантаження категорій</p>';
+        }
+    }
+
+    async function loadUnreadCount() {
+        try {
+            const response = await fetch('/api/notifications/unread-count');
+            const data = await response.json();
+
+            const badge = document.getElementById('notificationBadge');
+            if (data.success && data.count > 0) {
+                badge.textContent = data.count;
+                badge.classList.remove('d-none');
+            } else {
+                badge.classList.add('d-none');
+            }
+        } catch (err) {
+            console.error('Помилка завантаження кількості сповіщень: ', err);
+        }
+    }
+
+    async function loadNotifications() {
+        try {
+            const response = await fetch('/api/notifications');
+            const data = await response.json();
+            const body = document.getElementById('notificationBody');
+
+            if (data.success && data.notifications.length > 0) {
+                body.innerHTML = data.notifications.map(notif => {
+                    const date = new Date(notif.created_at);
+                    const timeAgo = formatTimeAgo(date);
+
+                    return `
+                        <div class="notification-item ${!notif.is_read ? 'unread' : ''}"
+                             data-id="${notif.id}"
+                             data-read="${notif.is_read}">
+                            ${!notif.is_read ? '<div class="notification-dot"></div>' : '<div style="width: 8px;"></div>'}
+                            <div class="notification-content">
+                                <p class="notification-message">${notif.message}</p>
+                                <div class="notification-time">${timeAgo}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                document.querySelectorAll('.notification-item').forEach(item => {
+                    item.addEventListener('click', async () => {
+                        const id = item.dataset.id;
+                        const isRead = item.dataset.read === 'true';
+
+                        if (!isRead) {
+                            await markAsRead(id);
+                            item.classList.remove('unread');
+                            item.querySelector('.notification-dot')?.remove();
+                            item.dataset.read = 'true';
+                            await loadUnreadCount();
+                        }
+                    });
+                });
+            } else {
+                body.innerHTML = `
+                    <div class="empty-notifications">
+                        <div style="font-size: 3rem;">📭</div>
+                        <p>Немає сповіщень</p>
+                    </div>
+                `;
+            }
+        } catch (err) {
+            console.error('Помилка завантаження сповіщень: ', err);
+            document.getElementById('notificationBody').innerHTML =
+                '<p class="text-danger text-center p-3">Помилка завантаження сповіщень</p>';
+        }
+    }
+
+    async function markAsRead(id) {
+        try {
+            await fetch(`/api/notifications/${id}/read`, {
+                method: 'PUT'
+            });
+        } catch (err) {
+            console.error('Помилка позначення як прочитане: ', err);
+        }
+    }
+
+    async function markAllAsRead() {
+        try {
+            await fetch('/api/notifications/mark-all-read', {
+                method: 'PUT'
+            });
+            await loadNotifications();
+            await loadUnreadCount();
+        } catch (err) {
+            console.error('Помилка позначення всіх як прочитані: ', err);
+        }
+    }
+
+    function formatTimeAgo(date) {
+        const seconds = Math.floor((new Date() - date) / 1000);
+
+        if (seconds < 60) return 'Щойно';
+        if (seconds < 3600) return `${Math.floor(seconds / 60)} хв тому`;
+        if (seconds < 86400) return `${Math.floor(seconds / 3600)} год тому`;
+        if (seconds < 604800) return `${Math.floor(seconds / 86400)} дн тому`;
+
+        return date.toLocaleDateString('uk-UA');
+    }
+
+    document.getElementById('notificationBtn').addEventListener('click', () => {
+        const modal = document.getElementById('notificationModal');
+        notificationModalOpen = !notificationModalOpen;
+
+        if (notificationModalOpen) {
+            modal.classList.add('show');
+            loadNotifications();
+        } else {
+            modal.classList.remove('show');
+        }
+    });
+
+    document.getElementById('markAllRead').addEventListener('click', (e) => {
+        e.stopPropagation();
+        markAllAsRead();
+    });
+
+    document.addEventListener('click', (e) => {
+        const modal = document.getElementById('notificationModal');
+        const btn = document.getElementById('notificationBtn');
+
+        if (notificationModalOpen && !modal.contains(e.target) && !btn.contains(e.target)) {
+            modal.classList.remove('show');
+            notificationModalOpen = false;
+        }
+    });
 
     document.getElementById('logoutBtn').addEventListener('click', async () => {
         try {
@@ -68,6 +367,7 @@
     });
 
     checkAuth();
+    setInterval(loadUnreadCount, 30000);
 </script>
 </body>
 </html>

@@ -9,7 +9,8 @@ const pool = new Pool({
     port: process.env.DB_PORT,
 });
 
-pool.on('connect', () => {
+pool.on('connect', (client) => {
+    client.query("SET timezone = 'Europe/Kiev'");
     console.log('Підключено до PostgreSQL!');
 });
 

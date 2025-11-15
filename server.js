@@ -2,6 +2,8 @@ const express = require('express');
 const session = require('express-session');
 const path = require('path');
 const authRoutes = require('./src/routes/auth');
+const categoryRoutes = require('./src/routes/categories');
+const notificationRoutes = require('./src/routes/notifications');
 const { requireAuth } = require('./src/middleware/authMiddleware');
 require('dotenv').config();
 
@@ -23,6 +25,8 @@ app.use(session({
 }));
 
 app.use('/api/auth', authRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 app.get('/', (req, res) => {
     if (req.session.userId) {

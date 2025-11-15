@@ -1,6 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const pool = require('../config/db');
+const { notifyLogin } = require('../utilities/notificationUtility');
 const router = express.Router();
 
 router.post('/register', async (req, res) => {
@@ -30,6 +31,11 @@ router.post('/register', async (req, res) => {
 
         req.session.userId = userResult.rows[0].id;
         req.session.username = userResult.rows[0].username;
+
+        await pool.query(
+            'INSERT INTO Notifications (user_id, type, message) VALUES ($1, $2, $3)',
+            [userResult.rows[0].id, 'user_login', `Вітаємо в SmartToDo! 🎉`]
+        );
 
         res.json({
             success: true,
@@ -65,6 +71,7 @@ router.post('/login', async (req, res) => {
 
         req.session.userId = user.id;
         req.session.username = user.username;
+        await notifyLogin(user.id, user.username);
 
         res.json({
             success: true,
