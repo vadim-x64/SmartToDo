@@ -518,3 +518,22 @@ document.addEventListener('DOMContentLoaded', () => {
         blob.style.setProperty('--transform-end', generateTransform());
     });
 });
+
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+    }
+}
+
+function toggleTheme() {
+    document.body.classList.toggle('dark-theme');
+    const isDark = document.body.classList.contains('dark-theme');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+}
+
+document.getElementById('themeToggleBtn').addEventListener('click', () => {
+    toggleTheme();
+});
+
+initTheme();
