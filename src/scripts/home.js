@@ -82,7 +82,7 @@ async function loadTasksForCategory(card, categoryId) {
             </div>
         </div>
     `;
-            }).join('') : '<p class="text-muted text-center py-3">Немає завдань у цій категорії</p>';
+            }).join('') : '<p class="text-muted text-center py-3">Немає завдань у цій категорії.</p>';
             tasksList.querySelectorAll('.task-complete').forEach(cb => {
                 cb.addEventListener('change', async () => {
                     const taskId = cb.closest('.task-item').dataset.taskId;

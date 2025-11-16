@@ -71,3 +71,13 @@ body {
     cursor: pointer;
     color: #000000;
 }
+
+@media screen and (max-width: 768px) {
+    body {
+        padding: 0;
+    }
+
+    .auth-card {
+        padding: 50px 20px;
+    }
+}
