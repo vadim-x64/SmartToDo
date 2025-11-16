@@ -57,6 +57,27 @@ async function loadCategories() {
     }
 }
 
+async function updateCategoryCounts() {
+    try {
+        const response = await fetch('/api/categories');
+        const data = await response.json();
+
+        if (data.success && data.categories.length > 0) {
+            data.categories.forEach(category => {
+                const card = document.querySelector(`.category-card[data-category-id="${category.id}"]`);
+                if (card) {
+                    const badge = card.querySelector('.badge');
+                    if (badge) {
+                        badge.textContent = category.task_count;
+                    }
+                }
+            });
+        }
+    } catch (err) {
+        console.error('Помилка оновлення лічильників: ', err);
+    }
+}
+
 async function loadTasksForCategory(card, categoryId) {
     const tasksList = card.querySelector('.tasks-list');
     try {
@@ -88,6 +109,7 @@ async function loadTasksForCategory(card, categoryId) {
                     const taskId = cb.closest('.task-item').dataset.taskId;
                     await fetch(`/api/tasks/${taskId}/complete`, {method: 'PUT'});
                     await loadTasksForCategory(card, categoryId);
+                    await updateCategoryCounts();
                     await loadUnreadCount();
                 });
             });
@@ -96,6 +118,7 @@ async function loadTasksForCategory(card, categoryId) {
                     const taskId = btn.closest('.task-item').dataset.taskId;
                     await fetch(`/api/tasks/${taskId}/priority`, {method: 'PUT'});
                     await loadTasksForCategory(card, categoryId);
+                    await updateCategoryCounts();
                     await loadUnreadCount();
                 });
             });
@@ -150,6 +173,7 @@ async function loadTasksForCategory(card, categoryId) {
                             if (data.success) {
                                 deleteModal.hide();
                                 await loadTasksForCategory(card, categoryId);
+                                await updateCategoryCounts();
                                 await loadUnreadCount();
                             } else {
                                 alert(data.error || 'Помилка видалення');
@@ -590,3 +614,19 @@ document.getElementById('importBtn').addEventListener('click', () => {
 
     input.click();
 });
+
+function setMinDateTime() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+    document.getElementById('taskDeadline').setAttribute('min', minDateTime);
+    document.getElementById('editTaskDeadline').setAttribute('min', minDateTime);
+}
+
+setMinDateTime();
+setInterval(setMinDateTime, 60000);

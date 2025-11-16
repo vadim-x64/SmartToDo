@@ -1,4 +1,5 @@
 const pool = require('../config/db');
+const { notifyDeadlineExpired } = require('./notificationUtility');
 
 async function checkExpiredDeadlines() {
     try {
@@ -26,6 +27,8 @@ async function checkExpiredDeadlines() {
                     [task.id, completedCat.rows[0].id]
                 );
             }
+
+            await notifyDeadlineExpired(task.user_id, task.title, task.id, task.deadline);
         }
 
         if (expired.rows.length > 0) {
@@ -38,7 +41,7 @@ async function checkExpiredDeadlines() {
 
 function startDeadlineChecker() {
     checkExpiredDeadlines();
-    setInterval(checkExpiredDeadlines, 5 * 60 * 1000);
+    setInterval(checkExpiredDeadlines, 0);
 }
 
 module.exports = { startDeadlineChecker };

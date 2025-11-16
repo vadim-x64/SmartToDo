@@ -41,6 +41,19 @@ async function notifyDeadlineApproaching(userId, taskTitle, taskId, hoursLeft) {
     await createNotification(userId, 'deadline_approaching', message, taskId);
 }
 
+async function notifyDeadlineExpired(userId, taskTitle, taskId, deadline) {
+    const deadlineDate = new Date(deadline);
+    const formattedDate = deadlineDate.toLocaleString('uk-UA', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    const message = `Завдання не виконано, дедлайн закінчився в ${formattedDate} ⏰`;
+    await createNotification(userId, 'deadline_expired', message, taskId);
+}
+
 module.exports = {
     createNotification,
     notifyLogin,
@@ -48,5 +61,6 @@ module.exports = {
     notifyTaskDeleted,
     notifyTaskUpdated,
     notifyTaskCompleted,
-    notifyDeadlineApproaching
+    notifyDeadlineApproaching,
+    notifyDeadlineExpired
 };
