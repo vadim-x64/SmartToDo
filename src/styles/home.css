@@ -377,3 +377,91 @@ h4 {
     border-color: #000000;
     border-right-color: transparent;
 }
+
+@media screen and (max-width: 768px) {
+    .header-card {
+        height: auto;
+        border-radius: 0 0 10% 10%;
+    }
+
+    .header-content-wrapper {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    #welcomeMessage {
+        font-size: 16px;
+    }
+
+    .notification-modal {
+        right: 10px;
+        left: 10px;
+        width: auto;
+    }
+
+    .notification-header h5 {
+        font-size: 16px;
+    }
+
+    .mark-all-read {
+        text-align: right;
+    }
+
+    .actions-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    #createTaskBtn {
+        font-size: 28px;
+    }
+
+    .task-item {
+        padding: 10px 0;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .task-select.selected::before {
+        font-size: 12px;
+    }
+
+    .task-title {
+        flex: 1 1 100%;
+        order: 1;
+    }
+
+    .txt-muted {
+        flex: 1 1 100%;
+        order: 2;
+    }
+
+    .txt-muted small {
+        font-size: 12px;
+    }
+
+    .selection-toolbar {
+        bottom: 25px;
+        left: 10px;
+        right: 10px;
+        transform: none;
+    }
+
+    .modal-dialog {
+        margin: 10px;
+    }
+
+    .modal-footer {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .modal-footer .btn {
+        width: 100%;
+        margin: auto;
+    }
+
+    .btn-square {
+        font-size: 16px;
+    }
+}
