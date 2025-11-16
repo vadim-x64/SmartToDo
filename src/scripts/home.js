@@ -537,3 +537,56 @@ document.getElementById('themeToggleBtn').addEventListener('click', () => {
 });
 
 initTheme();
+
+document.getElementById('exportBtn').addEventListener('click', async () => {
+    try {
+        const response = await fetch('/api/tasks/export');
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `tasks_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+        await loadUnreadCount();
+    } catch (err) {
+        console.error('Помилка експорту: ', err);
+    }
+});
+
+document.getElementById('importBtn').addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+
+    input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        try {
+            const text = await file.text();
+            const tasks = JSON.parse(text);
+
+            const response = await fetch('/api/tasks/import', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tasks })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                await loadCategories();
+                await loadUnreadCount();
+            } else {
+                alert(data.error || 'Помилка імпорту');
+            }
+        } catch (err) {
+            console.error('Помилка імпорту: ', err);
+        }
+    };
+
+    input.click();
+});

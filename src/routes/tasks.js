@@ -52,6 +52,85 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.get('/export', async (req, res) => {
+    const userId = req.session.userId;
+    try {
+        const result = await pool.query(
+            'SELECT title, description, deadline, priority, status FROM Tasks WHERE user_id = $1',
+            [userId]
+        );
+
+        await pool.query(
+            'INSERT INTO Notifications (user_id, type, message) VALUES ($1, $2, $3)',
+            [userId, 'task_updated', `Експортовано ${result.rows.length} завдань`]
+        );
+
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Disposition', 'attachment; filename=tasks.json');
+        res.json(result.rows);
+    } catch (err) {
+        console.error('Помилка експорту: ', err);
+        res.status(500).json({ error: 'Помилка експорту' });
+    }
+});
+
+router.post('/import', async (req, res) => {
+    const userId = req.session.userId;
+    const { tasks } = req.body;
+
+    try {
+        if (!Array.isArray(tasks) || tasks.length === 0) {
+            return res.status(400).json({ error: 'Невірний формат файлу' });
+        }
+
+        let imported = 0;
+        const myCatId = await getCategoryId('Мої');
+
+        for (const task of tasks) {
+            if (!task.title) continue;
+
+            const result = await pool.query(
+                'INSERT INTO Tasks (user_id, title, description, deadline, priority, status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+                [
+                    userId,
+                    task.title,
+                    task.description || null,
+                    task.deadline ? new Date(task.deadline) : null,
+                    !!task.priority,
+                    task.status || 'active'
+                ]
+            );
+
+            await assignCategory(result.rows[0].id, myCatId);
+
+            if (task.deadline) {
+                const plannedCatId = await getCategoryId('Заплановані');
+                await assignCategory(result.rows[0].id, plannedCatId);
+            }
+            if (task.priority) {
+                const importantCatId = await getCategoryId('Важливі');
+                await assignCategory(result.rows[0].id, importantCatId);
+            }
+            if (task.status === 'completed') {
+                const completedCatId = await getCategoryId('Завершені');
+                await assignCategory(result.rows[0].id, completedCatId);
+            }
+
+            imported++;
+        }
+
+        await pool.query(
+            'INSERT INTO Notifications (user_id, type, message) VALUES ($1, $2, $3)',
+            [userId, 'task_created', `Імпортовано ${imported} завдань`]
+        );
+
+        res.json({ success: true, imported });
+    } catch (err) {
+        console.error('Помилка імпорту: ', err);
+        res.status(500).json({ error: 'Помилка імпорту' });
+    }
+});
+
 router.get('/:id', async (req, res) => {
     const userId = req.session.userId;
     const taskId = req.params.id;
