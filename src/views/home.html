@@ -5,312 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartToDo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            min-height: 100vh;
-        }
-
-        .welcome-card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            margin-top: 50px;
-        }
-
-        .container .navbar-brand {
-            color: black;
-        }
-
-        .category-card {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .category-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .task-item {
-            border-bottom: 1px solid #f0f0f0;
-            transition: background 0.2s;
-        }
-
-        .task-item:hover {
-            background: #f8f9fa;
-        }
-
-        .task-title {
-            cursor: pointer;
-        }
-
-        .task-priority {
-            background: none;
-            border: none;
-            font-size: 1.2rem;
-            color: #ffc107;
-            cursor: pointer;
-            padding: 0;
-        }
-
-        .task-priority:hover {
-            color: #ffca2c;
-        }
-
-
-
-        .task-delete {
-            background: none;
-            border: none;
-            color: #dc3545;
-            cursor: pointer;
-            padding: 0;
-            font-size: 1.1rem;
-        }
-
-        .task-delete:hover {
-            color: #bb2d3b;
-        }
-
-        .delete-all-btn {
-            position: relative;
-            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
-        }
-
-        .task-select {
-            width: 20px;
-            height: 20px;
-            border: 2px solid #28a745;
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: white;
-            transition: all 0.2s;
-            flex-shrink: 0;
-        }
-        .task-select:hover {
-            background: #e8f5e9;
-            transform: scale(1.1);
-        }
-        .task-select.selected {
-            background: #28a745;
-            color: white;
-        }
-        .task-select.selected::before {
-            content: '✓';
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .selection-toolbar {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: white;
-            border-radius: 50px;
-            padding: 15px 30px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-            z-index: 998;
-            display: none;
-            align-items: center;
-            gap: 20px;
-        }
-        .selection-toolbar.show {
-            display: flex;
-        }
-        .selection-count {
-            font-weight: bold;
-            color: #28a745;
-        }
-
-        .notification-btn {
-            position: relative;
-            font-size: 1.5rem;
-            background: none;
-            border: none;
-            cursor: pointer;
-            margin-right: 15px;
-        }
-
-        .notification-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #dc3545;
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 0.7rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-
-        .notification-modal {
-            position: fixed;
-            top: 60px;
-            right: 20px;
-            width: 400px;
-            max-height: 500px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
-            display: none;
-            overflow: hidden;
-        }
-
-        .notification-modal.show {
-            display: block;
-        }
-
-        .notification-header {
-            padding: 15px 20px;
-            border-bottom: 1px solid #dee2e6;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .notification-body {
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .notification-item {
-            padding: 15px 20px;
-            border-bottom: 1px solid #f0f0f0;
-            cursor: pointer;
-            transition: background 0.2s;
-            display: flex;
-            align-items: start;
-            gap: 10px;
-        }
-
-        .notification-item:hover {
-            background: #f8f9fa;
-        }
-
-        .notification-item.unread {
-            background: #e7f3ff;
-        }
-
-        .notification-dot {
-            width: 8px;
-            height: 8px;
-            background: #dc3545;
-            border-radius: 50%;
-            margin-top: 6px;
-            flex-shrink: 0;
-        }
-
-        .notification-content {
-            flex: 1;
-        }
-
-        .notification-message {
-            margin: 0;
-            font-size: 0.9rem;
-        }
-
-        .notification-time {
-            font-size: 0.75rem;
-            color: #6c757d;
-            margin-top: 5px;
-        }
-
-        .empty-notifications {
-            padding: 40px 20px;
-            text-align: center;
-            color: #6c757d;
-        }
-
-        .mark-all-read {
-            color: #0d6efd;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-
-        .mark-all-read:hover {
-            text-decoration: underline;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="icon" href="/static/logotype.png" type="image/png">
 </head>
 <body>
-<nav class="navbar navbar-dark">
-    <div class="container">
-        <span class="navbar-brand">🎯 SmartToDo</span>
-        <div class="d-flex align-items-center">
-            <button class="notification-btn" id="notificationBtn">
-                🔔
-                <span class="notification-badge d-none" id="notificationBadge">0</span>
-            </button>
-            <button class="btn btn-outline-dark" id="logoutBtn">Вийти</button>
+
+<div class="container main-container">
+    <div class="header-card">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+                <div class="logo-placeholder">
+                    <img src="/static/logotype.png" alt="...">
+                </div>
+            </div>
+            <div class="title">
+                <h3 class="mb-0">SmartToDo</h3>
+                <span id="welcomeMessage">Завантаження...</span>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <button class="notification-btn" id="notificationBtn">
+                    🔔
+                    <span class="notification-badge d-none" id="notificationBadge">0</span>
+                </button>
+            </div>
         </div>
     </div>
-</nav>
-
-<div class="notification-modal" id="notificationModal">
-    <div class="notification-header">
-        <h5 class="mb-0">Сповіщення</h5>
-        <span class="mark-all-read" id="markAllRead">Позначити всі прочитаними</span>
+    <div class="notification-modal" id="notificationModal">
+        <div class="notification-header">
+            <h5 class="mb-0">Сповіщення</h5>
+            <span class="mark-all-read" id="markAllRead">Позначити всі прочитаними</span>
+        </div>
+        <div class="notification-body" id="notificationBody">
+            <div class="text-center py-3">
+                <div class="spinner-border text-dark" role="status">
+                    <span class="visually-hidden">Завантаження...</span>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="notification-body" id="notificationBody">
-        <div class="text-center py-3">
-            <div class="spinner-border text-primary" role="status">
+    <div class="actions-grid">
+        <button class="btn btn-outline-primary btn-square" id="createTaskBtn">+</button>
+        <button class="btn btn-outline-secondary btn-square" id="deleteAllBtn">Очистити всі завдання</button>
+        <button class="btn btn-outline-secondary btn-square" id="">Експорт</button>
+        <button class="btn btn-outline-secondary btn-square" id="">Імпорт</button>
+        <button class="btn btn-outline-secondary btn-square" id="">Змінити тему</button>
+        <button class="btn btn-outline-danger btn-square" id="logoutBtn">Вийти</button>
+    </div>
+    <div class="selection-toolbar" id="selectionToolbar">
+        <span class="selection-count">Вибрано: <span id="selectedCount">0</span></span>
+        <button class="btn btn-sm btn-outline-secondary btn-square" id="cancelSelectionBtn">Скасувати</button>
+        <button class="btn btn-sm btn-outline-danger btn-square" id="deleteSelectedBtn">Видалити</button>
+    </div>
+    <h4 class="mb-3">Категорії завдань</h4>
+    <div id="categoriesList">
+        <div class="text-center">
+            <div class="spinner-border text-dark" role="status">
                 <span class="visually-hidden">Завантаження...</span>
             </div>
         </div>
     </div>
 </div>
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="welcome-card p-5 text-center">
-                <h1 class="display-4 mb-4">🎉 Вітаємо в програмі!</h1>
-                <p class="lead" id="welcomeMessage">Завантаження...</p>
-                <hr class="my-4">
-                <p class="text-muted">Тут скоро з'явиться ваш менеджер завдань</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<button class="btn btn-primary mb-3" id="createTaskBtn">Створити завдання</button>
-<button class="btn btn-danger delete-all-btn" id="deleteAllBtn">Очистити всі завдання</button>
-<div class="selection-toolbar" id="selectionToolbar">
-    <span class="selection-count">Вибрано: <span id="selectedCount">0</span></span>
-    <button class="btn btn-sm btn-danger" id="deleteSelectedBtn">
-        🗑️ Видалити вибрані
-    </button>
-    <button class="btn btn-sm btn-secondary" id="cancelSelectionBtn">
-        Скасувати
-    </button>
-</div>
-
-<h4 class="mb-3">📂 Категорії завдань</h4>
-<div id="categoriesList">
-    <div class="text-center">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Завантаження...</span>
-        </div>
-    </div>
-</div>
-
 <div class="modal fade" id="createTaskModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content modal-square">
             <div class="modal-header">
                 <h5 class="modal-title">Створити завдання</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -318,22 +76,22 @@
             <div class="modal-body">
                 <form id="createTaskForm">
                     <div class="mb-3">
-                        <label for="taskTitle" class="form-label">Назва (обов'язково)</label>
-                        <input type="text" class="form-control" id="taskTitle" required>
+                        <label for="taskTitle" class="form-label">Назва *</label>
+                        <input type="text" class="form-control input-square" id="taskTitle" required>
                     </div>
                     <div class="mb-3">
-                        <label for="taskDescription" class="form-label">Опис (необов'язково)</label>
-                        <textarea class="form-control" id="taskDescription"></textarea>
+                        <label for="taskDescription" class="form-label">Опис</label>
+                        <textarea class="form-control input-square" id="taskDescription"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="taskDeadline" class="form-label">Термін виконання (необов'язково)</label>
-                        <input type="datetime-local" class="form-control" id="taskDeadline">
+                        <label for="taskDeadline" class="form-label">Термін виконання</label>
+                        <input type="datetime-local" class="form-control input-square" id="taskDeadline">
                     </div>
                     <div class="form-check mb-3">
                         <input class="form-check-input" type="checkbox" id="taskPriority">
-                        <label class="form-check-label" for="taskPriority">В пріоритеті (необов'язково)</label>
+                        <label class="form-check-label" for="taskPriority">В пріоритеті</label>
                     </div>
-                    <button type="submit" class="btn btn-primary">Створити</button>
+                    <button type="submit" class="btn btn-outline-secondary btn-square">Створити</button>
                 </form>
             </div>
         </div>
@@ -342,7 +100,7 @@
 
 <div class="modal fade" id="taskDetailModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content modal-square">
             <div class="modal-header">
                 <h5 class="modal-title">Редагувати завдання</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -351,22 +109,22 @@
                 <form id="editTaskForm">
                     <input type="hidden" id="editTaskId">
                     <div class="mb-3">
-                        <label for="editTaskTitle" class="form-label">Назва (обов'язково)</label>
-                        <input type="text" class="form-control" id="editTaskTitle" required>
+                        <label for="editTaskTitle" class="form-label">Назва *</label>
+                        <input type="text" class="form-control input-square" id="editTaskTitle" required>
                     </div>
                     <div class="mb-3">
-                        <label for="editTaskDescription" class="form-label">Опис (необов'язково)</label>
-                        <textarea class="form-control" id="editTaskDescription"></textarea>
+                        <label for="editTaskDescription" class="form-label">Опис</label>
+                        <textarea class="form-control input-square" id="editTaskDescription"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="editTaskDeadline" class="form-label">Термін виконання (необов'язково)</label>
-                        <input type="datetime-local" class="form-control" id="editTaskDeadline">
+                        <label for="editTaskDeadline" class="form-label">Термін виконання</label>
+                        <input type="datetime-local" class="form-control input-square" id="editTaskDeadline">
                     </div>
                     <div class="form-check mb-3">
                         <input class="form-check-input" type="checkbox" id="editTaskPriority">
-                        <label class="form-check-label" for="editTaskPriority">В пріоритеті (необов'язково)</label>
+                        <label class="form-check-label" for="editTaskPriority">В пріоритеті</label>
                     </div>
-                    <button type="submit" class="btn btn-primary">Зберегти зміни</button>
+                    <button type="submit" class="btn btn-outline-secondary btn-square">Зберегти зміни</button>
                 </form>
             </div>
         </div>
@@ -375,7 +133,7 @@
 
 <div class="modal fade" id="deleteTaskModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content modal-square">
             <div class="modal-header">
                 <h5 class="modal-title">Підтвердження видалення</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -385,8 +143,8 @@
                 <p class="text-muted mb-0"><strong id="deleteTaskTitle"></strong></p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteTask">Видалити</button>
+                <button type="button" class="btn btn-outline-secondary btn-square" data-bs-dismiss="modal">Скасувати</button>
+                <button type="button" class="btn btn-outline-danger btn-square" id="confirmDeleteTask">Видалити</button>
             </div>
         </div>
     </div>
@@ -394,19 +152,18 @@
 
 <div class="modal fade" id="deleteAllTasksModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title">⚠️ Увага!</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+        <div class="modal-content modal-square">
+            <div class="modal-header">
+                <h5 class="modal-title">Увага!</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p><strong>Ви впевнені, що хочете видалити ВСІ завдання?</strong></p>
-                <p class="text-danger mb-0">Ця дія незворотна!</p>
+                <p><strong>Ви впевнені, що хочете видалити всі завдання?</strong></p>
+                <p class="text-muted mb-0">В такому разі всі завдання буде знищено!</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteAll">Видалити все</button>
+                <button type="button" class="btn btn-outline-secondary btn-square" data-bs-dismiss="modal">Скасувати</button>
+                <button type="button" class="btn btn-outline-danger btn-square" id="confirmDeleteAll">Видалити все</button>
             </div>
         </div>
     </div>
@@ -414,9 +171,9 @@
 
 <div class="modal fade" id="deleteSelectedModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-warning">
-                <h5 class="modal-title">⚠️ Підтвердження видалення</h5>
+        <div class="modal-content modal-square">
+            <div class="modal-header">
+                <h5 class="modal-title">Підтвердження видалення</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -424,499 +181,15 @@
                 <p class="text-muted mb-0">Буде видалено: <strong id="deleteSelectedCount">0</strong> завдань</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteSelected">Видалити</button>
+                <button type="button" class="btn btn-outline-secondary btn-square" data-bs-dismiss="modal">Скасувати</button>
+                <button type="button" class="btn btn-outline-danger btn-square" id="confirmDeleteSelected">Видалити</button>
             </div>
         </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/home.js"></script>
 
-<script>
-    let selectedTasks = new Set();
-    let notificationModalOpen = false;
-
-    async function checkAuth() {
-        try {
-            const response = await fetch('/api/auth/check');
-            const data = await response.json();
-
-            if (!data.authenticated) {
-                window.location.href = '/login';
-            } else {
-                document.getElementById('welcomeMessage').textContent =
-                    `Привіт, ${data.user.username}! Радий бачити тебе знову 👋`;
-                await loadCategories();
-                await loadUnreadCount();
-            }
-        } catch (err) {
-            window.location.href = '/login';
-        }
-    }
-
-    async function loadCategories() {
-        clearSelection();
-        try {
-            const response = await fetch('/api/categories');
-            const data = await response.json();
-            const categoriesList = document.getElementById('categoriesList');
-            if (data.success && data.categories.length > 0) {
-                categoriesList.innerHTML = data.categories.map(category => `
-                <div class="category-card" data-category-id="${category.id}">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">${category.name}</h5>
-                        <span class="badge bg-primary rounded-pill">${category.task_count}</span>
-                    </div>
-                    <div class="tasks-list d-none"></div>
-                </div>
-            `).join('');
-                document.querySelectorAll('.category-card').forEach(card => {
-                    card.addEventListener('click', async (e) => {
-                        if (e.target.closest('.task-complete, .task-priority, .task-title')) return;
-                        const tasksList = card.querySelector('.tasks-list');
-                        const id = card.dataset.categoryId;
-                        if (tasksList.classList.contains('d-none')) {
-                            await loadTasksForCategory(card, id);
-                            tasksList.classList.remove('d-none');
-                        } else {
-                            tasksList.classList.add('d-none');
-                        }
-                    });
-                });
-            } else {
-                categoriesList.innerHTML = '<p class="text-muted text-center">Категорії не знайдено</p>';
-            }
-        } catch (err) {
-            console.error('Помилка завантаження категорій: ', err);
-            document.getElementById('categoriesList').innerHTML = '<p class="text-danger text-center">Помилка завантаження категорій</p>';
-        }
-    }
-
-    async function loadTasksForCategory(card, categoryId) {
-        const tasksList = card.querySelector('.tasks-list');
-        try {
-            const response = await fetch(`/api/tasks?category_id=${categoryId}`);
-            const data = await response.json();
-            if (data.success) {
-                tasksList.innerHTML = data.tasks.length > 0 ? data.tasks.map(task => {
-                    const isCompleted = task.status === 'completed';
-                    const strike = isCompleted ? 'text-decoration: line-through; color: #6c757d;' : '';
-                    const priorityStar = task.priority ? '★' : '☆';
-                    const created = new Date(task.created_at).toLocaleString('uk-UA');
-                    const updated = new Date(task.updated_at).toLocaleString('uk-UA');
-                    return `
-        <div class="task-item d-flex align-items-center gap-3 py-2" data-task-id="${task.id}" data-task-title="${task.title}">
-            <div class="task-select" data-task-id="${task.id}"></div>
-            <input type="checkbox" class="form-check-input task-complete m-0" ${isCompleted ? 'checked' : ''}>
-            <span class="task-title flex-grow-1" style="${strike}">${task.title}</span>
-            <button class="task-priority">${priorityStar}</button>
-            <button class="task-delete">🗑️</button>
-            <small class="text-muted ms-auto">${created} / ${updated}</small>
-        </div>
-    `;
-                }).join('') : '<p class="text-muted text-center py-3">Немає завдань у цій категорії</p>';
-                tasksList.querySelectorAll('.task-complete').forEach(cb => {
-                    cb.addEventListener('change', async () => {
-                        const taskId = cb.closest('.task-item').dataset.taskId;
-                        await fetch(`/api/tasks/${taskId}/complete`, {method: 'PUT'});
-                        await loadTasksForCategory(card, categoryId);
-                        await loadUnreadCount();
-                    });
-                });
-                tasksList.querySelectorAll('.task-priority').forEach(btn => {
-                    btn.addEventListener('click', async () => {
-                        const taskId = btn.closest('.task-item').dataset.taskId;
-                        await fetch(`/api/tasks/${taskId}/priority`, {method: 'PUT'});
-                        await loadTasksForCategory(card, categoryId);
-                        await loadUnreadCount();
-                    });
-                });
-                tasksList.querySelectorAll('.task-title').forEach(title => {
-                    title.addEventListener('click', async () => {
-                        const taskId = title.closest('.task-item').dataset.taskId;
-                        try {
-                            const resp = await fetch(`/api/tasks/${taskId}`);
-                            const d = await resp.json();
-                            if (d.success) {
-                                document.getElementById('editTaskId').value = d.task.id;
-                                document.getElementById('editTaskTitle').value = d.task.title;
-                                document.getElementById('editTaskDescription').value = d.task.description || '';
-
-                                if (d.task.deadline) {
-                                    const deadlineDate = new Date(d.task.deadline);
-                                    const localDateTime = new Date(deadlineDate.getTime() - deadlineDate.getTimezoneOffset() * 60000)
-                                        .toISOString()
-                                        .slice(0, 16);
-                                    document.getElementById('editTaskDeadline').value = localDateTime;
-                                } else {
-                                    document.getElementById('editTaskDeadline').value = '';
-                                }
-
-                                document.getElementById('editTaskPriority').checked = d.task.priority;
-
-                                const editModal = new bootstrap.Modal(document.getElementById('taskDetailModal'));
-                                editModal.show();
-                            }
-                        } catch (err) {
-                            console.error('Помилка завантаження деталей: ', err);
-                        }
-                    });
-                });
-                tasksList.querySelectorAll('.task-delete').forEach(btn => {
-                    btn.addEventListener('click', async (e) => {
-                        e.stopPropagation();
-                        const taskItem = btn.closest('.task-item');
-                        const taskId = taskItem.dataset.taskId;
-                        const taskTitle = taskItem.dataset.taskTitle;
-
-                        document.getElementById('deleteTaskTitle').textContent = taskTitle;
-
-                        const deleteModal = new bootstrap.Modal(document.getElementById('deleteTaskModal'));
-                        deleteModal.show();
-
-                        document.getElementById('confirmDeleteTask').onclick = async () => {
-                            try {
-                                const response = await fetch(`/api/tasks/${taskId}`, { method: 'DELETE' });
-                                const data = await response.json();
-
-                                if (data.success) {
-                                    deleteModal.hide();
-                                    await loadTasksForCategory(card, categoryId);
-                                    await loadUnreadCount();
-                                } else {
-                                    alert(data.error || 'Помилка видалення');
-                                }
-                            } catch (err) {
-                                console.error('Помилка видалення: ', err);
-                                alert('Помилка з\'єднання');
-                            }
-                        };
-                    });
-                });
-                tasksList.querySelectorAll('.task-select').forEach(selectBtn => {
-                    selectBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const taskId = selectBtn.dataset.taskId;
-
-                        if (selectedTasks.has(taskId)) {
-                            selectedTasks.delete(taskId);
-                            selectBtn.classList.remove('selected');
-                        } else {
-                            selectedTasks.add(taskId);
-                            selectBtn.classList.add('selected');
-                        }
-
-                        updateSelectionToolbar();
-                    });
-                });
-            }
-        } catch (err) {
-            console.error('Помилка завантаження завдань: ', err);
-            tasksList.innerHTML = '<p class="text-danger text-center py-3">Помилка завантаження завдань</p>';
-        }
-    }
-
-    async function loadUnreadCount() {
-        try {
-            const response = await fetch('/api/notifications/unread-count');
-            const data = await response.json();
-
-            const badge = document.getElementById('notificationBadge');
-            if (data.success && data.count > 0) {
-                badge.textContent = data.count;
-                badge.classList.remove('d-none');
-            } else {
-                badge.classList.add('d-none');
-            }
-        } catch (err) {
-            console.error('Помилка завантаження кількості сповіщень: ', err);
-        }
-    }
-
-    async function loadNotifications() {
-        try {
-            const response = await fetch('/api/notifications');
-            const data = await response.json();
-            const body = document.getElementById('notificationBody');
-
-            if (data.success && data.notifications.length > 0) {
-                body.innerHTML = data.notifications.map(notif => {
-                    const date = new Date(notif.created_at);
-                    const timeAgo = formatTimeAgo(date);
-
-                    return `
-                        <div class="notification-item ${!notif.is_read ? 'unread' : ''}"
-                             data-id="${notif.id}"
-                             data-read="${notif.is_read}">
-                            ${!notif.is_read ? '<div class="notification-dot"></div>' : '<div style="width: 8px;"></div>'}
-                            <div class="notification-content">
-                                <p class="notification-message">${notif.message}</p>
-                                <div class="notification-time">${timeAgo}</div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-
-                document.querySelectorAll('.notification-item').forEach(item => {
-                    item.addEventListener('click', async () => {
-                        const id = item.dataset.id;
-                        const isRead = item.dataset.read === 'true';
-
-                        if (!isRead) {
-                            await markAsRead(id);
-                            item.classList.remove('unread');
-                            item.querySelector('.notification-dot')?.remove();
-                            item.dataset.read = 'true';
-                            await loadUnreadCount();
-                        }
-                    });
-                });
-            } else {
-                body.innerHTML = `
-                    <div class="empty-notifications">
-                        <div style="font-size: 3rem;">📭</div>
-                        <p>Немає сповіщень</p>
-                    </div>
-                `;
-            }
-        } catch (err) {
-            console.error('Помилка завантаження сповіщень: ', err);
-            document.getElementById('notificationBody').innerHTML =
-                '<p class="text-danger text-center p-3">Помилка завантаження сповіщень</p>';
-        }
-    }
-
-    async function markAsRead(id) {
-        try {
-            await fetch(`/api/notifications/${id}/read`, {
-                method: 'PUT'
-            });
-        } catch (err) {
-            console.error('Помилка позначення як прочитане: ', err);
-        }
-    }
-
-    async function markAllAsRead() {
-        try {
-            await fetch('/api/notifications/mark-all-read', {
-                method: 'PUT'
-            });
-            await loadNotifications();
-            await loadUnreadCount();
-        } catch (err) {
-            console.error('Помилка позначення всіх як прочитані: ', err);
-        }
-    }
-
-    function formatTimeAgo(date) {
-        const seconds = Math.floor((new Date() - date) / 1000);
-
-        if (seconds < 60) return 'Щойно';
-        if (seconds < 3600) return `${Math.floor(seconds / 60)} хв тому`;
-        if (seconds < 86400) return `${Math.floor(seconds / 3600)} год тому`;
-        if (seconds < 604800) return `${Math.floor(seconds / 86400)} дн тому`;
-
-        return date.toLocaleDateString('uk-UA');
-    }
-
-    document.getElementById('notificationBtn').addEventListener('click', () => {
-        const modal = document.getElementById('notificationModal');
-        notificationModalOpen = !notificationModalOpen;
-
-        if (notificationModalOpen) {
-            modal.classList.add('show');
-            loadNotifications();
-        } else {
-            modal.classList.remove('show');
-        }
-    });
-
-    document.getElementById('markAllRead').addEventListener('click', (e) => {
-        e.stopPropagation();
-        markAllAsRead();
-    });
-
-    document.addEventListener('click', (e) => {
-        const modal = document.getElementById('notificationModal');
-        const btn = document.getElementById('notificationBtn');
-
-        if (notificationModalOpen && !modal.contains(e.target) && !btn.contains(e.target)) {
-            modal.classList.remove('show');
-            notificationModalOpen = false;
-        }
-    });
-
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-        try {
-            await fetch('/api/auth/logout', {method: 'POST'});
-            window.location.href = '/login';
-        } catch (err) {
-            console.error('Помилка виходу: ', err);
-        }
-    });
-
-    checkAuth();
-    setInterval(loadUnreadCount, 30000);
-
-    document.getElementById('createTaskBtn').addEventListener('click', () => {
-        const createModal = new bootstrap.Modal(document.getElementById('createTaskModal'));
-        createModal.show();
-    });
-
-    document.getElementById('createTaskForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const title = document.getElementById('taskTitle').value;
-        const description = document.getElementById('taskDescription').value;
-        const deadline = document.getElementById('taskDeadline').value;
-        const priority = document.getElementById('taskPriority').checked;
-        if (!title) return alert('Назва обов\'язкова');
-        try {
-            const response = await fetch('/api/tasks', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({title, description, deadline, priority})
-            });
-            const data = await response.json();
-            if (data.success) {
-                const createModal = bootstrap.Modal.getInstance(document.getElementById('createTaskModal'));
-                createModal.hide();
-                document.getElementById('createTaskForm').reset();
-                await loadCategories();
-                await loadUnreadCount();
-            } else {
-                alert(data.error || 'Помилка створення');
-            }
-        } catch (err) {
-            console.error('Помилка створення: ', err);
-            alert('Помилка з\'єднання');
-        }
-    });
-
-    document.getElementById('deleteAllBtn').addEventListener('click', () => {
-        const deleteAllModal = new bootstrap.Modal(document.getElementById('deleteAllTasksModal'));
-        deleteAllModal.show();
-    });
-
-    document.getElementById('confirmDeleteAll').addEventListener('click', async () => {
-        try {
-            const response = await fetch('/api/tasks', { method: 'DELETE' });
-            const data = await response.json();
-
-            if (data.success) {
-                const deleteAllModal = bootstrap.Modal.getInstance(document.getElementById('deleteAllTasksModal'));
-                deleteAllModal.hide();
-
-                await loadCategories();
-                await loadUnreadCount();
-
-
-            } else {
-                alert(data.error || 'Помилка видалення');
-            }
-        } catch (err) {
-            console.error('Помилка видалення всіх завдань: ', err);
-            alert('Помилка з\'єднання');
-        }
-    });
-
-    function updateSelectionToolbar() {
-        const toolbar = document.getElementById('selectionToolbar');
-        const countSpan = document.getElementById('selectedCount');
-
-        countSpan.textContent = selectedTasks.size;
-
-        if (selectedTasks.size > 0) {
-            toolbar.classList.add('show');
-        } else {
-            toolbar.classList.remove('show');
-        }
-    }
-
-    function clearSelection() {
-        selectedTasks.clear();
-        document.querySelectorAll('.task-select.selected').forEach(sel => {
-            sel.classList.remove('selected');
-        });
-        updateSelectionToolbar();
-    }
-
-    document.getElementById('cancelSelectionBtn').addEventListener('click', () => {
-        clearSelection();
-    });
-
-    document.getElementById('deleteSelectedBtn').addEventListener('click', () => {
-        if (selectedTasks.size === 0) return;
-
-        document.getElementById('deleteSelectedCount').textContent = selectedTasks.size;
-        const deleteSelectedModal = new bootstrap.Modal(document.getElementById('deleteSelectedModal'));
-        deleteSelectedModal.show();
-    });
-
-    document.getElementById('confirmDeleteSelected').addEventListener('click', async () => {
-        try {
-            const taskIds = Array.from(selectedTasks);
-
-            const response = await fetch('/api/tasks/delete-selected', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ taskIds })
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                const deleteSelectedModal = bootstrap.Modal.getInstance(document.getElementById('deleteSelectedModal'));
-                deleteSelectedModal.hide();
-
-                clearSelection();
-                await loadCategories();
-                await loadUnreadCount();
-
-
-            } else {
-                alert(data.error || 'Помилка видалення');
-            }
-        } catch (err) {
-            console.error('Помилка видалення вибраних завдань: ', err);
-            alert('Помилка з\'єднання');
-        }
-    });
-
-    document.getElementById('editTaskForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const taskId = document.getElementById('editTaskId').value;
-        const title = document.getElementById('editTaskTitle').value;
-        const description = document.getElementById('editTaskDescription').value;
-        const deadline = document.getElementById('editTaskDeadline').value;
-        const priority = document.getElementById('editTaskPriority').checked;
-
-        if (!title) return alert('Назва обов\'язкова');
-
-        try {
-            const response = await fetch(`/api/tasks/${taskId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, description, deadline, priority })
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                const editModal = bootstrap.Modal.getInstance(document.getElementById('taskDetailModal'));
-                editModal.hide();
-                document.getElementById('editTaskForm').reset();
-                await loadCategories();
-                await loadUnreadCount();
-            } else {
-                alert(data.error || 'Помилка оновлення');
-            }
-        } catch (err) {
-            console.error('Помилка оновлення: ', err);
-            alert('Помилка з\'єднання');
-        }
-    });
-</script>
 </body>
 </html>

@@ -15,6 +15,10 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use('/static', express.static(path.join(__dirname, 'src/resources')));
+app.use('/css', express.static(path.join(__dirname, 'src/styles')));
+app.use('/js', express.static(path.join(__dirname, 'src/scripts')));
+
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
