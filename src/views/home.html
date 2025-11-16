@@ -53,8 +53,10 @@
     </div>
     <div class="selection-toolbar" id="selectionToolbar">
         <span class="selection-count">Вибрано: <span id="selectedCount">0</span></span>
-        <button class="btn btn-sm btn-outline-secondary btn-square" id="cancelSelectionBtn">Скасувати</button>
-        <button class="btn btn-sm btn-outline-danger btn-square" id="deleteSelectedBtn">Видалити</button>
+        <div class="selection-buttons">
+            <button class="btn btn-sm btn-outline-secondary btn-square" id="cancelSelectionBtn">Скасувати</button>
+            <button class="btn btn-sm btn-outline-danger btn-square" id="deleteSelectedBtn">Видалити</button>
+        </div>
     </div>
     <h4 class="mb-3">Категорії завдань</h4>
     <div id="categoriesList">
@@ -183,6 +185,25 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary btn-square" data-bs-dismiss="modal">Скасувати</button>
                 <button type="button" class="btn btn-outline-danger btn-square" id="confirmDeleteSelected">Видалити</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="logoutModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content modal-square">
+            <div class="modal-header">
+                <h5 class="modal-title">Підтвердження виходу</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Ви впевнені, що хочете вийти з акаунту?</strong></p>
+                <p class="text-muted mb-0">Вам потрібно буде увійти знову, щоб переглянути свої завдання!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary btn-square" data-bs-dismiss="modal">Скасувати</button>
+                <button type="button" class="btn btn-outline-danger btn-square" id="confirmLogout">Вийти</button>
             </div>
         </div>
     </div>

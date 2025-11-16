@@ -314,12 +314,20 @@ document.addEventListener('click', (e) => {
     }
 });
 
-document.getElementById('logoutBtn').addEventListener('click', async () => {
+document.getElementById('logoutBtn').addEventListener('click', () => {
+    const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
+    logoutModal.show();
+});
+
+document.getElementById('confirmLogout').addEventListener('click', async () => {
     try {
         await fetch('/api/auth/logout', {method: 'POST'});
         window.location.href = '/login';
     } catch (err) {
         console.error('Помилка виходу: ', err);
+        const logoutModal = bootstrap.Modal.getInstance(document.getElementById('logoutModal'));
+        if (logoutModal) logoutModal.hide();
+        alert('Помилка з\'єднання');
     }
 });
 

@@ -6,7 +6,6 @@
 body {
     margin: 0;
     padding: 0;
-    overflow-y: scroll;
 }
 
 .main-container {
@@ -23,8 +22,8 @@ body {
 }
 
 .logo-placeholder img {
-    width: 70px;
-    height: 70px;
+    width: 80px;
+    height: 80px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -259,8 +258,18 @@ body {
     padding: 25px;
     z-index: 998;
     display: none;
-    align-items: center;
+    align-items: stretch;
+    flex-direction: column;
     gap: 20px;
+}
+
+.selection-toolbar .btn {
+    flex: 1;
+}
+
+.selection-buttons {
+    display: flex;
+    gap: 10px;
 }
 
 .selection-toolbar.show {
