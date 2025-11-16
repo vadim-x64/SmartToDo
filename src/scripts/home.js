@@ -10,7 +10,7 @@ async function checkAuth() {
             window.location.href = '/login';
         } else {
             document.getElementById('welcomeMessage').textContent =
-                `Привіт, ${data.user.username}! Час перевірити свої справи...`;
+                `Привіт, ${data.user.username}! Настав момент організувати свій день.`;
             await loadCategories();
             await loadUnreadCount();
         }
@@ -487,4 +487,34 @@ document.getElementById('editTaskForm').addEventListener('submit', async (e) => 
         console.error('Помилка оновлення: ', err);
         alert('Помилка з\'єднання');
     }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const blobs = document.querySelectorAll('.blob');
+    const container = document.querySelector('.animated-bg-container');
+
+    function getRandom(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    function generateTransform() {
+        const scale = getRandom(1, 2);
+        const x = getRandom(-100, container.offsetWidth - 100);
+        const y = getRandom(-100, container.offsetHeight - 100);
+        const rotate = getRandom(0, 360);
+        return `translate(${x}px, ${y}px) scale(${scale}) rotate(${rotate}deg)`;
+    }
+
+    blobs.forEach(blob => {
+        const size = getRandom(150, 300);
+        blob.style.setProperty('--size', `${size}px`);
+
+        const duration = getRandom(10, 20);
+        blob.style.setProperty('--duration', `${duration}s`);
+
+        const direction = Math.random() > 0.5 ? 'alternate' : 'alternate-reverse';
+        blob.style.setProperty('--direction', direction);
+        blob.style.setProperty('--transform-start', generateTransform());
+        blob.style.setProperty('--transform-end', generateTransform());
+    });
 });

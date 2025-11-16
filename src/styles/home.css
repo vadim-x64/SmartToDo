@@ -8,22 +8,63 @@ body {
     padding: 0;
 }
 
+h4 {
+    text-align: center;
+}
+
 .main-container {
     max-width: 1000px;
     margin: auto;
 }
 
 .header-card {
-    background: linear-gradient(#ff6868, #92ff7b);
+    background-color: #000000;
     padding: 50px 25px;
     margin-bottom: 50px;
-    height: 220px;
+    height: 250px;
     border-radius: 0 0 50% 50%;
+    position: relative;
+    overflow: hidden;
+}
+
+.header-content-wrapper {
+    position: relative;
+    z-index: 10;
+}
+
+.animated-bg-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    filter: blur(50px);
+}
+
+.blob {
+    position: absolute;
+    background: #29CAFF;
+    border-radius: 50%;
+    opacity: 1;
+    will-change: transform;
+    width: var(--size, 150px);
+    height: var(--size, 150px);
+    top: var(--y, 0px);
+    left: var(--x, 0px);
+    transform: var(--transform-start);
+    animation: moveBlob var(--duration, 5s) linear var(--direction, alternate) infinite;
+}
+
+@keyframes moveBlob {
+    100% {
+        transform: var(--transform-end);
+    }
 }
 
 .logo-placeholder img {
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -31,6 +72,16 @@ body {
 
 .title {
     text-align: center;
+    color: #FFFFFF;
+    backdrop-filter: blur(100px);
+    padding: 20px;
+    border-radius: 200px;
+    box-shadow: 0 -10px 50px 5px rgba(0, 0, 0, 0.3);
+    max-width: 700px;
+}
+
+.title h3 {
+    font-weight: bold;
 }
 
 #welcomeMessage {
@@ -41,7 +92,7 @@ body {
 
 .notification-btn {
     position: relative;
-    font-size: 24px;
+    font-size: 36px;
     background-color: transparent;
     border: none;
     cursor: pointer;
@@ -65,7 +116,7 @@ body {
 
 .notification-modal {
     position: fixed;
-    top: 110px;
+    top: 130px;
     right: 50px;
     width: 400px;
     max-height: 500px;
