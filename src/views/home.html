@@ -57,6 +57,10 @@
     </div>
     <div class="selection-toolbar" id="selectionToolbar">
         <span class="selection-count">Вибрано: <span id="selectedCount">0</span></span>
+        <div class="select-btns">
+            <button class="btn btn-sm btn-secondary btn-square" id="selectAllBtn" title="Вибрати всі завдання.">▣</button>
+            <button class="btn btn-sm btn-success btn-square" id="completeAllSelectedBtn" title="Позначити як виконані.">🗹️</button>
+        </div>
         <div class="selection-buttons">
             <button class="btn btn-sm btn-outline-secondary btn-square" id="cancelSelectionBtn">Скасувати</button>
             <button class="btn btn-sm btn-outline-danger btn-square" id="deleteSelectedBtn">Видалити</button>
@@ -156,7 +160,8 @@
                 <p class="text-muted mb-0"><strong id="deleteTaskTitle"></strong></p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary btn-square" data-bs-dismiss="modal">Скасувати</button>
+                <button type="button" class="btn btn-outline-secondary btn-square" data-bs-dismiss="modal">Скасувати
+                </button>
                 <button type="button" class="btn btn-outline-danger btn-square" id="confirmDeleteTask">Видалити</button>
             </div>
         </div>
@@ -175,8 +180,10 @@
                 <p class="text-muted mb-0">В такому разі всі завдання буде знищено!</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary btn-square" data-bs-dismiss="modal">Скасувати</button>
-                <button type="button" class="btn btn-outline-danger btn-square" id="confirmDeleteAll">Видалити все</button>
+                <button type="button" class="btn btn-outline-secondary btn-square" data-bs-dismiss="modal">Скасувати
+                </button>
+                <button type="button" class="btn btn-outline-danger btn-square" id="confirmDeleteAll">Видалити все
+                </button>
             </div>
         </div>
     </div>
@@ -194,8 +201,10 @@
                 <p class="text-muted mb-0">Буде видалено: <strong id="deleteSelectedCount">0</strong> завдань</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary btn-square" data-bs-dismiss="modal">Скасувати</button>
-                <button type="button" class="btn btn-outline-danger btn-square" id="confirmDeleteSelected">Видалити</button>
+                <button type="button" class="btn btn-outline-secondary btn-square" data-bs-dismiss="modal">Скасувати
+                </button>
+                <button type="button" class="btn btn-outline-danger btn-square" id="confirmDeleteSelected">Видалити
+                </button>
             </div>
         </div>
     </div>
@@ -213,7 +222,8 @@
                 <p class="text-muted mb-0">Вам потрібно буде увійти знову, щоб переглянути свої завдання!</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary btn-square" data-bs-dismiss="modal">Скасувати</button>
+                <button type="button" class="btn btn-outline-secondary btn-square" data-bs-dismiss="modal">Скасувати
+                </button>
                 <button type="button" class="btn btn-outline-danger btn-square" id="confirmLogout">Вийти</button>
             </div>
         </div>

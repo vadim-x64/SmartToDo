@@ -840,5 +840,51 @@ function setMinDateTime() {
     document.getElementById('editTaskDeadline').setAttribute('min', minDateTime);
 }
 
+// Вибрати всі завдання
+document.getElementById('selectAllBtn').addEventListener('click', () => {
+    const allTaskSelectors = document.querySelectorAll('.task-select');
+
+    allTaskSelectors.forEach(selector => {
+        const taskId = selector.dataset.taskId;
+        if (!selectedTasks.has(taskId)) {
+            selectedTasks.add(taskId);
+            selector.classList.add('selected');
+        }
+    });
+
+    updateSelectionToolbar();
+});
+
+// Позначити всі виділені завдання як виконані
+document.getElementById('completeAllSelectedBtn').addEventListener('click', async () => {
+    if (selectedTasks.size === 0) return;
+
+    try {
+        const taskIds = Array.from(selectedTasks);
+
+        // Виконуємо запити для кожного завдання
+        const promises = taskIds.map(taskId =>
+            fetch(`/api/tasks/${taskId}/complete`, { method: 'PUT' })
+        );
+
+        await Promise.all(promises);
+
+        // Оновлюємо інтерфейс
+        clearSelection();
+
+        const query = document.getElementById('searchInput').value.trim();
+        if (query.length > 0) {
+            await searchTasks(query);
+        }
+
+        await loadCategories();
+        await loadUnreadCount();
+
+    } catch (err) {
+        console.error('Помилка позначення завдань як виконаних: ', err);
+        alert('Помилка з\'єднання');
+    }
+});
+
 setMinDateTime();
 setInterval(setMinDateTime, 60000);

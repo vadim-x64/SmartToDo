@@ -338,23 +338,24 @@ h4 {
     position: fixed;
     bottom: 50px;
     left: 50%;
+    min-width: 100px;
     transform: translateX(-50%);
     background-color: #FFFFFF;
     border: 1px solid #000000;
     border-radius: 5px;
-    padding: 25px;
+    padding: 20px;
     z-index: 998;
     display: none;
     align-items: stretch;
     flex-direction: column;
-    gap: 20px;
+    gap: 10px;
 }
 
 .selection-toolbar .btn {
     flex: 1;
 }
 
-.selection-buttons {
+.selection-buttons, .select-btns {
     display: flex;
     gap: 10px;
 }
@@ -701,6 +702,16 @@ body.dark-theme .selection-toolbar {
 
 body.dark-theme .selection-count {
     color: #E0E7FF;
+}
+
+body.dark-theme .btn-outline-success {
+    color: #66BB6A;
+    border-color: #66BB6A;
+}
+
+body.dark-theme .btn-outline-success:hover {
+    background-color: #66BB6A;
+    color: #FFFFFF;
 }
 
 body.dark-theme .modal-content {
