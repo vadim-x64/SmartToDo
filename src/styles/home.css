@@ -1,6 +1,7 @@
 * {
     box-sizing: border-box;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 body {
@@ -217,6 +218,41 @@ h4 {
     padding: 15px;
 }
 
+.search-container {
+    max-width: 100%;
+}
+
+#searchResults {
+    border: 1px solid #000000;
+    border-radius: 5px;
+    padding: 20px;
+}
+
+#searchResults h5 {
+    color: #000000;
+}
+
+#searchResultsList .task-item {
+    padding: 15px;
+}
+
+#searchResultsList .task-item:hover {
+    background-color: #EEEEEE;
+}
+
+#searchResultsList .task-item .badge {
+    background-color: #000000;
+    border-radius: 10px;
+    padding: 5px;
+    font-size: 10px;
+}
+
+.no-results {
+    text-align: center;
+    color: #AAAAAA;
+    padding: 20px;
+}
+
 .category-card {
     border: 1px solid #000000;
     border-radius: 5px;
@@ -412,6 +448,42 @@ h4 {
         gap: 10px;
     }
 
+    #searchResults h5 {
+        font-size: 16px;
+    }
+
+    #searchResultsList .task-item {
+        padding: 10px 0;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    #searchResultsList .task-select {
+        order: 0;
+    }
+
+    #searchResultsList .task-complete {
+        order: 1;
+    }
+
+    #searchResultsList .task-item > div:nth-child(3) {
+        flex: 1 1 100%;
+        order: 2;
+    }
+
+    #searchResultsList .task-priority {
+        order: 3;
+    }
+
+    #searchResultsList .task-delete {
+        order: 4;
+    }
+
+    #searchResultsList .txt-muted {
+        flex: 1 1 100%;
+        order: 5;
+    }
+
     #createTaskBtn {
         font-size: 28px;
     }
@@ -543,6 +615,32 @@ body.dark-theme .btn-outline-danger {
 body.dark-theme .btn-outline-danger:hover {
     background-color: #EF5350;
     color: #FFFFFF;
+}
+
+body.dark-theme #searchResults {
+    background-color: #1B263B;
+    border-color: #415A77;
+}
+
+body.dark-theme #searchResults h5 {
+    color: #E0E7FF;
+}
+
+body.dark-theme #searchResultsList .task-item {
+    border-color: #415A77;
+}
+
+body.dark-theme #searchResultsList .task-item:hover {
+    background-color: #243447;
+}
+
+body.dark-theme .no-results {
+    color: #778899;
+}
+
+body.dark-theme #searchResultsList .badge {
+    background-color: #415A77 !important;
+    color: #E0E7FF;
 }
 
 body.dark-theme .category-card {

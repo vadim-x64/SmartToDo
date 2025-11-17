@@ -131,6 +131,52 @@ router.post('/import', async (req, res) => {
     }
 });
 
+router.get('/search', async (req, res) => {
+    const userId = req.session.userId;
+    const query = req.query.q;
+
+    try {
+        if (!query || query.trim().length === 0) {
+            return res.json({ success: true, tasks: [] });
+        }
+
+        const result = await pool.query(
+            `SELECT * FROM Tasks 
+             WHERE user_id = $1 
+             AND (title ILIKE $2 OR description ILIKE $2)
+             ORDER BY priority DESC, created_at DESC`,
+            [userId, `%${query}%`]
+        );
+
+        res.json({ success: true, tasks: result.rows });
+    } catch (err) {
+        console.error('Помилка пошуку завдань: ', err);
+        res.status(500).json({ error: 'Помилка сервера' });
+    }
+});
+
+router.get('/:id/categories', async (req, res) => {
+    const userId = req.session.userId;
+    const taskId = req.params.id;
+
+    try {
+        const result = await pool.query(
+            `SELECT c.id, c.name 
+             FROM Categories c
+             INNER JOIN TaskCategories tc ON c.id = tc.category_id
+             INNER JOIN Tasks t ON tc.task_id = t.id
+             WHERE t.id = $1 AND t.user_id = $2
+             ORDER BY c.id`,
+            [taskId, userId]
+        );
+
+        res.json({ success: true, categories: result.rows });
+    } catch (err) {
+        console.error('Помилка отримання категорій завдання: ', err);
+        res.status(500).json({ error: 'Помилка сервера' });
+    }
+});
+
 router.get('/:id', async (req, res) => {
     const userId = req.session.userId;
     const taskId = req.params.id;

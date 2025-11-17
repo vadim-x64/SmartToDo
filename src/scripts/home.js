@@ -1,5 +1,209 @@
 let selectedTasks = new Set();
 let notificationModalOpen = false;
+let searchTimeout = null;
+
+document.getElementById('searchInput').addEventListener('input', (e) => {
+    clearTimeout(searchTimeout);
+    const query = e.target.value.trim();
+
+    if (query.length === 0) {
+        hideSearchResults();
+        return;
+    }
+
+    searchTimeout = setTimeout(() => {
+        searchTasks(query);
+    }, 300);
+});
+
+async function searchTasks(query) {
+    try {
+        const response = await fetch(`/api/tasks/search?q=${encodeURIComponent(query)}`);
+        const data = await response.json();
+
+        if (data.success) {
+            await displaySearchResults(data.tasks, query);
+        }
+    } catch (err) {
+        console.error('Помилка пошуку: ', err);
+    }
+}
+
+async function displaySearchResults(tasks, query) {
+    const searchResults = document.getElementById('searchResults');
+    const searchResultsList = document.getElementById('searchResultsList');
+    const searchCount = document.getElementById('searchCount');
+
+    searchCount.textContent = tasks.length;
+
+    if (tasks.length === 0) {
+        searchResultsList.innerHTML = '<div class="no-results">Нічого не знайдено</div>';
+        searchResults.classList.remove('d-none');
+        return;
+    }
+
+    const tasksWithCategories = await Promise.all(tasks.map(async (task) => {
+        try {
+            const response = await fetch(`/api/tasks/${task.id}/categories`);
+            const data = await response.json();
+            task.categories = data.success ? data.categories : [];
+        } catch (err) {
+            task.categories = [];
+        }
+        return task;
+    }));
+
+    searchResultsList.innerHTML = tasksWithCategories.map(task => {
+        const isCompleted = task.status === 'completed';
+        const strike = isCompleted ? 'text-decoration: line-through; color: #AAAAAA;' : '';
+        const priorityStar = task.priority ? '★' : '☆';
+        const created = new Date(task.created_at).toLocaleString('uk-UA');
+        const updated = new Date(task.updated_at).toLocaleString('uk-UA');
+
+        const categoryBadges = task.categories
+            .map(cat => `<span class="badge me-1">${cat.name}</span>`)
+            .join('');
+
+        return `
+            <div class="task-item d-flex align-items-center gap-3" data-task-id="${task.id}" data-task-title="${task.title}">
+                <div class="task-select" data-task-id="${task.id}"></div>
+                <input type="checkbox" class="form-check-input task-complete m-0" ${isCompleted ? 'checked' : ''}>
+                <div class="flex-grow-1">
+                    <span class="task-title d-block" style="${strike}">${highlightMatch(task.title, query)}</span>
+                    <div class="mt-1">${categoryBadges}</div>
+                </div>
+                <button class="task-priority">${priorityStar}</button>
+                <button class="task-delete">❌️</button>
+                <div class="txt-muted">
+                    <small class="text-muted">Створено: ${created}</small>
+                    <small class="text-muted">Оновлено: ${updated}</small>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    searchResults.classList.remove('d-none');
+    attachSearchResultsHandlers();
+}
+
+function highlightMatch(text, query) {
+    const regex = new RegExp(`(${query})`, 'gi');
+    return text.replace(regex, '<mark>$1</mark>');
+}
+
+function hideSearchResults() {
+    document.getElementById('searchResults').classList.add('d-none');
+    document.getElementById('searchResultsList').innerHTML = '';
+}
+
+function attachSearchResultsHandlers() {
+    const searchResultsList = document.getElementById('searchResultsList');
+
+    searchResultsList.querySelectorAll('.task-select').forEach(selectBtn => {
+        selectBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const taskId = selectBtn.dataset.taskId;
+
+            if (selectedTasks.has(taskId)) {
+                selectedTasks.delete(taskId);
+                selectBtn.classList.remove('selected');
+            } else {
+                selectedTasks.add(taskId);
+                selectBtn.classList.add('selected');
+            }
+
+            updateSelectionToolbar();
+        });
+    });
+
+    searchResultsList.querySelectorAll('.task-complete').forEach(cb => {
+        cb.addEventListener('change', async () => {
+            const taskId = cb.closest('.task-item').dataset.taskId;
+            await fetch(`/api/tasks/${taskId}/complete`, {method: 'PUT'});
+            const query = document.getElementById('searchInput').value.trim();
+            await searchTasks(query);
+            await updateCategoryCounts();
+            await loadUnreadCount();
+        });
+    });
+
+    searchResultsList.querySelectorAll('.task-priority').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const taskId = btn.closest('.task-item').dataset.taskId;
+            await fetch(`/api/tasks/${taskId}/priority`, {method: 'PUT'});
+            const query = document.getElementById('searchInput').value.trim();
+            await searchTasks(query);
+            await updateCategoryCounts();
+            await loadUnreadCount();
+        });
+    });
+
+    searchResultsList.querySelectorAll('.task-title').forEach(title => {
+        title.addEventListener('click', async () => {
+            const taskId = title.closest('.task-item').dataset.taskId;
+            try {
+                const resp = await fetch(`/api/tasks/${taskId}`);
+                const d = await resp.json();
+                if (d.success) {
+                    document.getElementById('editTaskId').value = d.task.id;
+                    document.getElementById('editTaskTitle').value = d.task.title;
+                    document.getElementById('editTaskDescription').value = d.task.description || '';
+
+                    if (d.task.deadline) {
+                        const deadlineDate = new Date(d.task.deadline);
+                        const localDateTime = new Date(deadlineDate.getTime() - deadlineDate.getTimezoneOffset() * 60000)
+                            .toISOString()
+                            .slice(0, 16);
+                        document.getElementById('editTaskDeadline').value = localDateTime;
+                    } else {
+                        document.getElementById('editTaskDeadline').value = '';
+                    }
+
+                    document.getElementById('editTaskPriority').checked = d.task.priority;
+
+                    const editModal = new bootstrap.Modal(document.getElementById('taskDetailModal'));
+                    editModal.show();
+                }
+            } catch (err) {
+                console.error('Помилка завантаження деталей: ', err);
+            }
+        });
+    });
+
+    searchResultsList.querySelectorAll('.task-delete').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const taskItem = btn.closest('.task-item');
+            const taskId = taskItem.dataset.taskId;
+            const taskTitle = taskItem.dataset.taskTitle;
+
+            document.getElementById('deleteTaskTitle').textContent = taskTitle;
+
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteTaskModal'));
+            deleteModal.show();
+
+            document.getElementById('confirmDeleteTask').onclick = async () => {
+                try {
+                    const response = await fetch(`/api/tasks/${taskId}`, {method: 'DELETE'});
+                    const data = await response.json();
+
+                    if (data.success) {
+                        deleteModal.hide();
+                        const query = document.getElementById('searchInput').value.trim();
+                        await searchTasks(query);
+                        await loadCategories();
+                        await loadUnreadCount();
+                    } else {
+                        alert(data.error || 'Помилка видалення');
+                    }
+                } catch (err) {
+                    console.error('Помилка видалення: ', err);
+                    alert('Помилка з\'єднання');
+                }
+            };
+        });
+    });
+}
 
 async function checkAuth() {
     try {
@@ -478,6 +682,8 @@ document.getElementById('confirmDeleteSelected').addEventListener('click', async
     }
 });
 
+const originalEditTaskFormHandler = document.getElementById('editTaskForm').onsubmit;
+
 document.getElementById('editTaskForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -502,6 +708,12 @@ document.getElementById('editTaskForm').addEventListener('submit', async (e) => 
             const editModal = bootstrap.Modal.getInstance(document.getElementById('taskDetailModal'));
             editModal.hide();
             document.getElementById('editTaskForm').reset();
+
+            const query = document.getElementById('searchInput').value.trim();
+            if (query.length > 0) {
+                await searchTasks(query);
+            }
+
             await loadCategories();
             await loadUnreadCount();
         } else {
