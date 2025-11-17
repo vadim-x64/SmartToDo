@@ -471,8 +471,8 @@ async function loadUnreadCount() {
     try {
         const response = await fetch('/api/notifications/unread-count');
         const data = await response.json();
-
         const badge = document.getElementById('notificationBadge');
+
         if (data.success && data.count > 0) {
             badge.textContent = data.count;
             badge.classList.remove('d-none');
