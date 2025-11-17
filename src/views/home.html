@@ -6,7 +6,7 @@
     <title>SmartToDo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/home.css">
-    <link rel="icon" href="/static/logotype.png" type="image/png">
+    <link rel="icon" href="/static/icon.png" type="image/png">
 </head>
 <body>
 
@@ -67,11 +67,26 @@
         </div>
     </div>
     <h4 class="mb-3">Скоординуйте свій час у щоденних справах і проєктах.</h4>
-    <div class="search-container mb-4">
-        <input type="text" class="form-control" id="searchInput" placeholder="Пошук завдання">
+    <div class="search-sort-container mb-4">
+        <div class="search-wrapper">
+            <input type="text" class="form-control" id="searchInput" placeholder="Пошук завдання">
+        </div>
+        <div class="sort-wrapper">
+            <select class="form-select" id="sortSelect">
+                <option value="">Без сортування</option>
+                <option value="created_desc">Дата створення (нові → старі)</option>
+                <option value="created_asc">Дата створення (старі → нові)</option>
+                <option value="deadline_asc">Термін виконання (близькі → далекі)</option>
+                <option value="deadline_desc">Термін виконання (далекі → близькі)</option>
+                <option value="priority_desc">Пріоритет (високий → низький)</option>
+                <option value="priority_asc">Пріоритет (низький → високий)</option>
+                <option value="status_active">Статус (активні спочатку)</option>
+                <option value="status_completed">Статус (завершені спочатку)</option>
+            </select>
+        </div>
     </div>
     <div id="searchResults" class="d-none mb-4">
-        <h5 class="mb-3">Результати пошуку (<span id="searchCount">0</span>)</h5>
+        <h5 class="mb-3">Результати (<span id="searchCount">0</span>)</h5>
         <div id="searchResultsList"></div>
     </div>
     <div id="categoriesList">

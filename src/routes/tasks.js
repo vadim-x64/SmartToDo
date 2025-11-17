@@ -155,6 +155,56 @@ router.get('/search', async (req, res) => {
     }
 });
 
+router.get('/sorted', async (req, res) => {
+    const userId = req.session.userId;
+    const sortValue = req.query.sort;
+
+    try {
+        if (!sortValue) {
+            return res.json({ success: true, tasks: [] });
+        }
+
+        let orderBy = '';
+
+        switch (sortValue) {
+            case 'created_desc':
+                orderBy = 'ORDER BY t.created_at DESC';
+                break;
+            case 'created_asc':
+                orderBy = 'ORDER BY t.created_at ASC';
+                break;
+            case 'deadline_asc':
+                orderBy = 'ORDER BY t.deadline ASC NULLS LAST';
+                break;
+            case 'deadline_desc':
+                orderBy = 'ORDER BY t.deadline DESC NULLS LAST';
+                break;
+            case 'priority_desc':
+                orderBy = 'ORDER BY t.priority DESC, t.created_at DESC';
+                break;
+            case 'priority_asc':
+                orderBy = 'ORDER BY t.priority ASC, t.created_at DESC';
+                break;
+            case 'status_active':
+                orderBy = 'ORDER BY CASE WHEN t.status = \'active\' THEN 0 ELSE 1 END, t.created_at DESC';
+                break;
+            case 'status_completed':
+                orderBy = 'ORDER BY CASE WHEN t.status = \'completed\' THEN 0 ELSE 1 END, t.created_at DESC';
+                break;
+            default:
+                orderBy = 'ORDER BY t.created_at DESC';
+        }
+
+        const query = `SELECT t.* FROM Tasks t WHERE t.user_id = $1 ${orderBy}`;
+        const result = await pool.query(query, [userId]);
+
+        res.json({ success: true, tasks: result.rows });
+    } catch (err) {
+        console.error('Помилка сортування завдань: ', err);
+        res.status(500).json({ error: 'Помилка сервера' });
+    }
+});
+
 router.get('/:id/categories', async (req, res) => {
     const userId = req.session.userId;
     const taskId = req.params.id;

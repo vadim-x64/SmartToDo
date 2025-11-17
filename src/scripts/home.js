@@ -1,6 +1,36 @@
 let selectedTasks = new Set();
 let notificationModalOpen = false;
 let searchTimeout = null;
+let sortTimeout = null;
+let currentSort = '';
+
+document.getElementById('sortSelect').addEventListener('change', async (e) => {
+    clearTimeout(sortTimeout);
+    const sortValue = e.target.value;
+    currentSort = sortValue;
+
+    if (!sortValue) {
+        hideSearchResults();
+        return;
+    }
+
+    sortTimeout = setTimeout(() => {
+        sortTasks(sortValue);
+    }, 300);
+});
+
+async function sortTasks(sortValue) {
+    try {
+        const response = await fetch(`/api/tasks/sorted?sort=${encodeURIComponent(sortValue)}`);
+        const data = await response.json();
+
+        if (data.success) {
+            await displaySearchResults(data.tasks, '', true);
+        }
+    } catch (err) {
+        console.error('Помилка сортування: ', err);
+    }
+}
 
 document.getElementById('searchInput').addEventListener('input', (e) => {
     clearTimeout(searchTimeout);
@@ -29,7 +59,7 @@ async function searchTasks(query) {
     }
 }
 
-async function displaySearchResults(tasks, query) {
+async function displaySearchResults(tasks, query = '', isSorting = false) {
     const searchResults = document.getElementById('searchResults');
     const searchResultsList = document.getElementById('searchResultsList');
     const searchCount = document.getElementById('searchCount');
@@ -59,18 +89,22 @@ async function displaySearchResults(tasks, query) {
         const priorityStar = task.priority ? '★' : '☆';
         const created = new Date(task.created_at).toLocaleString('uk-UA');
         const updated = new Date(task.updated_at).toLocaleString('uk-UA');
+        const deadlineInfo = task.deadline ? `<small class="text-muted d-block">Термін: ${new Date(task.deadline).toLocaleString('uk-UA')}</small>` : '';
 
         const categoryBadges = task.categories
             .map(cat => `<span class="badge me-1">${cat.name}</span>`)
             .join('');
+
+        const titleText = isSorting ? task.title : highlightMatch(task.title, query);
 
         return `
             <div class="task-item d-flex align-items-center gap-3" data-task-id="${task.id}" data-task-title="${task.title}">
                 <div class="task-select" data-task-id="${task.id}"></div>
                 <input type="checkbox" class="form-check-input task-complete m-0" ${isCompleted ? 'checked' : ''}>
                 <div class="flex-grow-1">
-                    <span class="task-title d-block" style="${strike}">${highlightMatch(task.title, query)}</span>
+                    <span class="task-title d-block" style="${strike}">${titleText}</span>
                     <div class="mt-1">${categoryBadges}</div>
+                    ${deadlineInfo}
                 </div>
                 <button class="task-priority">${priorityStar}</button>
                 <button class="task-delete">❌️</button>
@@ -94,6 +128,8 @@ function highlightMatch(text, query) {
 function hideSearchResults() {
     document.getElementById('searchResults').classList.add('d-none');
     document.getElementById('searchResultsList').innerHTML = '';
+    document.getElementById('sortSelect').value = '';
+    currentSort = '';
 }
 
 function attachSearchResultsHandlers() {
@@ -840,7 +876,6 @@ function setMinDateTime() {
     document.getElementById('editTaskDeadline').setAttribute('min', minDateTime);
 }
 
-// Вибрати всі завдання
 document.getElementById('selectAllBtn').addEventListener('click', () => {
     const allTaskSelectors = document.querySelectorAll('.task-select');
 
@@ -855,7 +890,6 @@ document.getElementById('selectAllBtn').addEventListener('click', () => {
     updateSelectionToolbar();
 });
 
-// Позначити всі виділені завдання як виконані
 document.getElementById('completeAllSelectedBtn').addEventListener('click', async () => {
     if (selectedTasks.size === 0) return;
 
