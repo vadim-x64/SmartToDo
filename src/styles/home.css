@@ -147,12 +147,12 @@ h4 {
 }
 
 .notification-item {
-    padding: 10px 20px;
+    padding: 10px 30px;
     border-bottom: 1px solid #CCCCCC;
     cursor: pointer;
     display: flex;
     align-items: start;
-    gap: 10px;
+    position: relative;
 }
 
 .notification-item.unread {
@@ -160,12 +160,14 @@ h4 {
 }
 
 .notification-dot {
-    width: 10px;
-    height: 10px;
+    width: 7px;
+    height: 7px;
     background-color: #FF0000;
     border-radius: 50px;
-    margin-top: 20px;
     flex-shrink: 0;
+    position: absolute;
+    left: 13px;
+    top: 17px;
 }
 
 .notification-content {
