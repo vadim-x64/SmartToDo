@@ -2,6 +2,8 @@
   <dictionary name="project">
     <words>
       <w>btns</w>
+      <w>initdb</w>
+      <w>isready</w>
     </words>
   </dictionary>
 </component>
