@@ -3,6 +3,8 @@ let notificationModalOpen = false;
 let searchTimeout = null;
 let sortTimeout = null;
 let currentSort = '';
+const notificationSound = new Audio('/static/notification.mp3');
+let lastNotificationCount = 0;
 
 document.getElementById('sortSelect').addEventListener('change', async (e) => {
     clearTimeout(sortTimeout);
@@ -177,9 +179,11 @@ function attachSearchResultsHandlers() {
     searchResultsList.querySelectorAll('.task-title').forEach(title => {
         title.addEventListener('click', async () => {
             const taskId = title.closest('.task-item').dataset.taskId;
+
             try {
                 const resp = await fetch(`/api/tasks/${taskId}`);
                 const d = await resp.json();
+
                 if (d.success) {
                     document.getElementById('editTaskId').value = d.task.id;
                     document.getElementById('editTaskTitle').value = d.task.title;
@@ -261,10 +265,12 @@ async function checkAuth() {
 
 async function loadCategories() {
     clearSelection();
+
     try {
         const response = await fetch('/api/categories');
         const data = await response.json();
         const categoriesList = document.getElementById('categoriesList');
+
         if (data.success && data.categories.length > 0) {
             categoriesList.innerHTML = data.categories.map(category => `
                 <div class="category-card" data-category-id="${category.id}">
@@ -275,11 +281,14 @@ async function loadCategories() {
                     <div class="tasks-list d-none"></div>
                 </div>
             `).join('');
+
             document.querySelectorAll('.category-card').forEach(card => {
                 card.addEventListener('click', async (e) => {
                     if (e.target.closest('.task-complete, .task-priority, .task-title')) return;
+
                     const tasksList = card.querySelector('.tasks-list');
                     const id = card.dataset.categoryId;
+
                     if (tasksList.classList.contains('d-none')) {
                         await loadTasksForCategory(card, id);
                         tasksList.classList.remove('d-none');
@@ -305,8 +314,10 @@ async function updateCategoryCounts() {
         if (data.success && data.categories.length > 0) {
             data.categories.forEach(category => {
                 const card = document.querySelector(`.category-card[data-category-id="${category.id}"]`);
+
                 if (card) {
                     const badge = card.querySelector('.badge');
+
                     if (badge) {
                         badge.textContent = category.task_count;
                     }
@@ -320,9 +331,11 @@ async function updateCategoryCounts() {
 
 async function loadTasksForCategory(card, categoryId) {
     const tasksList = card.querySelector('.tasks-list');
+
     try {
         const response = await fetch(`/api/tasks?category_id=${categoryId}`);
         const data = await response.json();
+
         if (data.success) {
             tasksList.innerHTML = data.tasks.length > 0 ? data.tasks.map(task => {
                 const isCompleted = task.status === 'completed';
@@ -342,8 +355,8 @@ async function loadTasksForCategory(card, categoryId) {
                 <small class="text-muted ms-auto">Оновлено: ${updated}</small>
             </div>
         </div>
-    `;
-            }).join('') : '<p class="text-muted text-center py-3">Немає завдань у цій категорії.</p>';
+    `;}).join('') : '<p class="text-muted text-center py-3">Немає завдань у цій категорії.</p>';
+
             tasksList.querySelectorAll('.task-complete').forEach(cb => {
                 cb.addEventListener('change', async () => {
                     const taskId = cb.closest('.task-item').dataset.taskId;
@@ -353,6 +366,7 @@ async function loadTasksForCategory(card, categoryId) {
                     await loadUnreadCount();
                 });
             });
+
             tasksList.querySelectorAll('.task-priority').forEach(btn => {
                 btn.addEventListener('click', async () => {
                     const taskId = btn.closest('.task-item').dataset.taskId;
@@ -362,12 +376,15 @@ async function loadTasksForCategory(card, categoryId) {
                     await loadUnreadCount();
                 });
             });
+
             tasksList.querySelectorAll('.task-title').forEach(title => {
                 title.addEventListener('click', async () => {
                     const taskId = title.closest('.task-item').dataset.taskId;
+
                     try {
                         const resp = await fetch(`/api/tasks/${taskId}`);
                         const d = await resp.json();
+
                         if (d.success) {
                             document.getElementById('editTaskId').value = d.task.id;
                             document.getElementById('editTaskTitle').value = d.task.title;
@@ -393,6 +410,7 @@ async function loadTasksForCategory(card, categoryId) {
                     }
                 });
             });
+
             tasksList.querySelectorAll('.task-delete').forEach(btn => {
                 btn.addEventListener('click', async (e) => {
                     e.stopPropagation();
@@ -425,6 +443,7 @@ async function loadTasksForCategory(card, categoryId) {
                     };
                 });
             });
+
             tasksList.querySelectorAll('.task-select').forEach(selectBtn => {
                 selectBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -457,13 +476,28 @@ async function loadUnreadCount() {
         if (data.success && data.count > 0) {
             badge.textContent = data.count;
             badge.classList.remove('d-none');
+
+            if (data.count > lastNotificationCount) {
+                notificationSound.play().catch(err => {
+                    console.log('Не вдалось відтворити звук:', err);
+                });
+            }
+
+            lastNotificationCount = data.count;
         } else {
             badge.classList.add('d-none');
+            lastNotificationCount = 0;
         }
     } catch (err) {
         console.error('Помилка завантаження кількості сповіщень: ', err);
     }
 }
+
+checkAuth().then(() => {
+    loadUnreadCount().then(data => {
+        lastNotificationCount = data?.count || 0;
+    });
+});
 
 async function loadNotifications() {
     try {
@@ -609,14 +643,18 @@ document.getElementById('createTaskForm').addEventListener('submit', async (e) =
     const description = document.getElementById('taskDescription').value;
     const deadline = document.getElementById('taskDeadline').value;
     const priority = document.getElementById('taskPriority').checked;
+
     if (!title) return alert('Назва обов\'язкова');
+
     try {
         const response = await fetch('/api/tasks', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({title, description, deadline, priority})
         });
+
         const data = await response.json();
+
         if (data.success) {
             const createModal = bootstrap.Modal.getInstance(document.getElementById('createTaskModal'));
             createModal.hide();
@@ -707,6 +745,7 @@ document.getElementById('confirmDeleteSelected').addEventListener('click', async
             deleteSelectedModal.hide();
 
             clearSelection();
+
             await loadCategories();
             await loadUnreadCount();
         } else {
@@ -746,6 +785,7 @@ document.getElementById('editTaskForm').addEventListener('submit', async (e) => 
             document.getElementById('editTaskForm').reset();
 
             const query = document.getElementById('searchInput').value.trim();
+
             if (query.length > 0) {
                 await searchTasks(query);
             }
@@ -793,6 +833,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initTheme() {
     const savedTheme = localStorage.getItem('theme');
+
     if (savedTheme === 'dark') {
         document.body.classList.add('dark-theme');
     }
@@ -835,6 +876,7 @@ document.getElementById('importBtn').addEventListener('click', () => {
 
     input.onchange = async (e) => {
         const file = e.target.files[0];
+
         if (!file) return;
 
         try {
@@ -843,8 +885,8 @@ document.getElementById('importBtn').addEventListener('click', () => {
 
             const response = await fetch('/api/tasks/import', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ tasks })
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({tasks})
             });
 
             const data = await response.json();
@@ -896,24 +938,21 @@ document.getElementById('completeAllSelectedBtn').addEventListener('click', asyn
     try {
         const taskIds = Array.from(selectedTasks);
 
-        // Виконуємо запити для кожного завдання
         const promises = taskIds.map(taskId =>
-            fetch(`/api/tasks/${taskId}/complete`, { method: 'PUT' })
+            fetch(`/api/tasks/${taskId}/complete`, {method: 'PUT'})
         );
 
         await Promise.all(promises);
-
-        // Оновлюємо інтерфейс
         clearSelection();
 
         const query = document.getElementById('searchInput').value.trim();
+
         if (query.length > 0) {
             await searchTasks(query);
         }
 
         await loadCategories();
         await loadUnreadCount();
-
     } catch (err) {
         console.error('Помилка позначення завдань як виконаних: ', err);
         alert('Помилка з\'єднання');

@@ -12,32 +12,32 @@ async function createNotification(userId, type, message, taskId = null) {
 }
 
 async function notifyLogin(userId, username) {
-    const message = `Ви увійшли в систему як ${username}`;
+    const message = `Ви увійшли в систему як ${username}.`;
     await createNotification(userId, 'user_login', message);
 }
 
 async function notifyTaskCreated(userId, taskTitle, taskId) {
-    const message = `Створено нове завдання: "${taskTitle}"`;
+    const message = `Створено нове завдання: "${taskTitle}".`;
     await createNotification(userId, 'task_created', message, taskId);
 }
 
 async function notifyTaskDeleted(userId, taskTitle) {
-    const message = `Видалено завдання: "${taskTitle}"`;
+    const message = `Завдання "${taskTitle}" було видалено.`;
     await createNotification(userId, 'task_deleted', message);
 }
 
 async function notifyTaskUpdated(userId, taskTitle, taskId) {
-    const message = `Оновлено завдання: "${taskTitle}"`;
+    const message = `Завдання "${taskTitle}" було оновлено.`;
     await createNotification(userId, 'task_updated', message, taskId);
 }
 
 async function notifyTaskCompleted(userId, taskTitle, taskId) {
-    const message = `Завдання виконано: "${taskTitle}" ✓`;
+    const message = `Завдання "${taskTitle}" виконано.`;
     await createNotification(userId, 'task_completed', message, taskId);
 }
 
 async function notifyDeadlineApproaching(userId, taskTitle, taskId, hoursLeft) {
-    const message = `Увага! До завершення "${taskTitle}" залишилось ${hoursLeft} год`;
+    const message = `Увага! До завершення "${taskTitle}" залишилось ${hoursLeft} год.`;
     await createNotification(userId, 'deadline_approaching', message, taskId);
 }
 
@@ -50,7 +50,8 @@ async function notifyDeadlineExpired(userId, taskTitle, taskId, deadline) {
         hour: '2-digit',
         minute: '2-digit'
     });
-    const message = `Завдання не виконано, дедлайн закінчився в ${formattedDate} ⏰`;
+
+    const message = `Завдання ${taskTitle} автоматично завершено.`;
     await createNotification(userId, 'deadline_expired', message, taskId);
 }
 

@@ -4,7 +4,6 @@ const { notifyDeadlineExpired } = require('./notificationUtility');
 async function checkExpiredDeadlines() {
     try {
         const now = new Date();
-
         const expired = await pool.query(
             `SELECT t.id, t.user_id, t.title 
              FROM Tasks t 
@@ -21,6 +20,7 @@ async function checkExpiredDeadlines() {
             );
 
             const completedCat = await pool.query('SELECT id FROM Categories WHERE name = $1', ['Завершені']);
+
             if (completedCat.rows.length > 0) {
                 await pool.query(
                     'INSERT INTO TaskCategories (task_id, category_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
@@ -35,13 +35,13 @@ async function checkExpiredDeadlines() {
             console.log(`Автоматично завершено ${expired.rows.length} прострочених завдань`);
         }
     } catch (err) {
-        console.error('Помилка перевірки прострочених завдань:', err);
+        console.error('Помилка перевірки прострочених завдань: ', err);
     }
 }
 
 function startDeadlineChecker() {
     checkExpiredDeadlines();
-    setInterval(checkExpiredDeadlines, 0);
+    setInterval(checkExpiredDeadlines, 1000);
 }
 
 module.exports = { startDeadlineChecker };

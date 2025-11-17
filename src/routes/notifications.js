@@ -5,13 +5,11 @@ const router = express.Router();
 router.get('/', async (req, res) => {
     try {
         const userId = req.session.userId;
-
         const result = await pool.query(
-            `SELECT id, type, message, is_read, created_at 
-             FROM Notifications 
-             WHERE user_id = $1 
-             ORDER BY created_at DESC 
-             LIMIT 50`,
+            `SELECT id, type, message, is_read, created_at
+             FROM Notifications
+             WHERE user_id = $1
+             ORDER BY created_at DESC`,
             [userId]
         );
 
@@ -21,14 +19,13 @@ router.get('/', async (req, res) => {
         });
     } catch (err) {
         console.error('Помилка отримання сповіщень: ', err);
-        res.status(500).json({ error: 'Помилка сервера' });
+        res.status(500).json({error: 'Помилка сервера'});
     }
 });
 
 router.get('/unread-count', async (req, res) => {
     try {
         const userId = req.session.userId;
-
         const result = await pool.query(
             'SELECT COUNT(*) as count FROM Notifications WHERE user_id = $1 AND is_read = FALSE',
             [userId]
@@ -40,7 +37,7 @@ router.get('/unread-count', async (req, res) => {
         });
     } catch (err) {
         console.error('Помилка підрахунку сповіщень: ', err);
-        res.status(500).json({ error: 'Помилка сервера' });
+        res.status(500).json({error: 'Помилка сервера'});
     }
 });
 
@@ -54,10 +51,10 @@ router.put('/:id/read', async (req, res) => {
             [notificationId, userId]
         );
 
-        res.json({ success: true });
+        res.json({success: true});
     } catch (err) {
         console.error('Помилка оновлення сповіщення: ', err);
-        res.status(500).json({ error: 'Помилка сервера' });
+        res.status(500).json({error: 'Помилка сервера'});
     }
 });
 
@@ -70,10 +67,10 @@ router.put('/mark-all-read', async (req, res) => {
             [userId]
         );
 
-        res.json({ success: true });
+        res.json({success: true});
     } catch (err) {
         console.error('Помилка оновлення сповіщень: ', err);
-        res.status(500).json({ error: 'Помилка сервера' });
+        res.status(500).json({error: 'Помилка сервера'});
     }
 });
 

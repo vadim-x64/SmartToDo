@@ -1,4 +1,4 @@
-const { Pool } = require('pg');
+const {Pool} = require('pg');
 require('dotenv').config();
 
 const pool = new Pool({
@@ -11,7 +11,6 @@ const pool = new Pool({
 
 pool.on('connect', (client) => {
     client.query("SET timezone = 'Europe/Kiev'");
-    console.log('Підключено до PostgreSQL!');
 });
 
 module.exports = pool;

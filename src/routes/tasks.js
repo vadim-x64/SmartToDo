@@ -1,6 +1,11 @@
 const express = require('express');
 const pool = require('../config/db');
-const { notifyTaskCreated, notifyTaskUpdated, notifyTaskCompleted, notifyTaskDeleted } = require('../utilities/notificationUtility');
+const {
+    notifyTaskCreated,
+    notifyTaskUpdated,
+    notifyTaskCompleted,
+    notifyTaskDeleted
+} = require('../utilities/notificationUtility');
 
 const router = express.Router();
 
@@ -27,9 +32,11 @@ async function removeCategory(taskId, catId) {
 router.get('/', async (req, res) => {
     const userId = req.session.userId;
     const categoryId = req.query.category_id;
+
     try {
         let query = 'SELECT t.* FROM Tasks t';
         let params = [userId];
+
         if (categoryId) {
             const catCheck = await pool.query('SELECT name FROM Categories WHERE id = $1', [categoryId]);
             const isCompletedCategory = catCheck.rows[0]?.name === 'Завершені';
@@ -43,17 +50,21 @@ router.get('/', async (req, res) => {
         } else {
             query += ' WHERE t.user_id = $1';
         }
+
         query += ' ORDER BY t.priority DESC, t.created_at DESC';
+
         const result = await pool.query(query, params);
-        res.json({ success: true, tasks: result.rows });
+
+        res.json({success: true, tasks: result.rows});
     } catch (err) {
         console.error('Помилка отримання завдань: ', err);
-        res.status(500).json({ error: 'Помилка сервера' });
+        res.status(500).json({error: 'Помилка сервера'});
     }
 });
 
 router.get('/export', async (req, res) => {
     const userId = req.session.userId;
+
     try {
         const result = await pool.query(
             'SELECT title, description, deadline, priority, status FROM Tasks WHERE user_id = $1',
@@ -62,25 +73,25 @@ router.get('/export', async (req, res) => {
 
         await pool.query(
             'INSERT INTO Notifications (user_id, type, message) VALUES ($1, $2, $3)',
-            [userId, 'task_updated', `Експортовано ${result.rows.length} завдань`]
+            [userId, 'task_updated', `Експортовано ${result.rows.length} завдань.`]
         );
 
         res.setHeader('Content-Type', 'application/json');
-        res.setHeader('Content-Disposition', 'attachment; filename=tasks.json');
+        res.setHeader('Content-Disposition', 'attachment; filename=exportedTasks.json');
         res.json(result.rows);
     } catch (err) {
         console.error('Помилка експорту: ', err);
-        res.status(500).json({ error: 'Помилка експорту' });
+        res.status(500).json({error: 'Помилка експорту'});
     }
 });
 
 router.post('/import', async (req, res) => {
     const userId = req.session.userId;
-    const { tasks } = req.body;
+    const {tasks} = req.body;
 
     try {
         if (!Array.isArray(tasks) || tasks.length === 0) {
-            return res.status(400).json({ error: 'Невірний формат файлу' });
+            return res.status(400).json({error: 'Невірний формат файлу'});
         }
 
         let imported = 0;
@@ -107,10 +118,12 @@ router.post('/import', async (req, res) => {
                 const plannedCatId = await getCategoryId('Заплановані');
                 await assignCategory(result.rows[0].id, plannedCatId);
             }
+
             if (task.priority) {
                 const importantCatId = await getCategoryId('Важливі');
                 await assignCategory(result.rows[0].id, importantCatId);
             }
+
             if (task.status === 'completed') {
                 const completedCatId = await getCategoryId('Завершені');
                 await assignCategory(result.rows[0].id, completedCatId);
@@ -121,13 +134,13 @@ router.post('/import', async (req, res) => {
 
         await pool.query(
             'INSERT INTO Notifications (user_id, type, message) VALUES ($1, $2, $3)',
-            [userId, 'task_created', `Імпортовано ${imported} завдань`]
+            [userId, 'task_created', `Імпортовано ${imported} завдань.`]
         );
 
-        res.json({ success: true, imported });
+        res.json({success: true, imported});
     } catch (err) {
         console.error('Помилка імпорту: ', err);
-        res.status(500).json({ error: 'Помилка імпорту' });
+        res.status(500).json({error: 'Помилка імпорту'});
     }
 });
 
@@ -137,21 +150,22 @@ router.get('/search', async (req, res) => {
 
     try {
         if (!query || query.trim().length === 0) {
-            return res.json({ success: true, tasks: [] });
+            return res.json({success: true, tasks: []});
         }
 
         const result = await pool.query(
-            `SELECT * FROM Tasks 
-             WHERE user_id = $1 
-             AND (title ILIKE $2 OR description ILIKE $2)
+            `SELECT *
+             FROM Tasks
+             WHERE user_id = $1
+               AND (title ILIKE $2 OR description ILIKE $2)
              ORDER BY priority DESC, created_at DESC`,
             [userId, `%${query}%`]
         );
 
-        res.json({ success: true, tasks: result.rows });
+        res.json({success: true, tasks: result.rows});
     } catch (err) {
         console.error('Помилка пошуку завдань: ', err);
-        res.status(500).json({ error: 'Помилка сервера' });
+        res.status(500).json({error: 'Помилка сервера'});
     }
 });
 
@@ -161,7 +175,7 @@ router.get('/sorted', async (req, res) => {
 
     try {
         if (!sortValue) {
-            return res.json({ success: true, tasks: [] });
+            return res.json({success: true, tasks: []});
         }
 
         let orderBy = '';
@@ -195,13 +209,15 @@ router.get('/sorted', async (req, res) => {
                 orderBy = 'ORDER BY t.created_at DESC';
         }
 
-        const query = `SELECT t.* FROM Tasks t WHERE t.user_id = $1 ${orderBy}`;
+        const query = `SELECT t.*
+                       FROM Tasks t
+                       WHERE t.user_id = $1 ${orderBy}`;
         const result = await pool.query(query, [userId]);
 
-        res.json({ success: true, tasks: result.rows });
+        res.json({success: true, tasks: result.rows});
     } catch (err) {
         console.error('Помилка сортування завдань: ', err);
-        res.status(500).json({ error: 'Помилка сервера' });
+        res.status(500).json({error: 'Помилка сервера'});
     }
 });
 
@@ -211,69 +227,80 @@ router.get('/:id/categories', async (req, res) => {
 
     try {
         const result = await pool.query(
-            `SELECT c.id, c.name 
+            `SELECT c.id, c.name
              FROM Categories c
-             INNER JOIN TaskCategories tc ON c.id = tc.category_id
-             INNER JOIN Tasks t ON tc.task_id = t.id
-             WHERE t.id = $1 AND t.user_id = $2
+                      INNER JOIN TaskCategories tc ON c.id = tc.category_id
+                      INNER JOIN Tasks t ON tc.task_id = t.id
+             WHERE t.id = $1
+               AND t.user_id = $2
              ORDER BY c.id`,
             [taskId, userId]
         );
 
-        res.json({ success: true, categories: result.rows });
+        res.json({success: true, categories: result.rows});
     } catch (err) {
         console.error('Помилка отримання категорій завдання: ', err);
-        res.status(500).json({ error: 'Помилка сервера' });
+        res.status(500).json({error: 'Помилка сервера'});
     }
 });
 
 router.get('/:id', async (req, res) => {
     const userId = req.session.userId;
     const taskId = req.params.id;
+
     try {
         const result = await pool.query(
             'SELECT * FROM Tasks WHERE id = $1 AND user_id = $2',
             [taskId, userId]
         );
-        if (result.rows.length === 0) return res.status(404).json({ error: 'Завдання не знайдено' });
-        res.json({ success: true, task: result.rows[0] });
+
+        if (result.rows.length === 0) return res.status(404).json({error: 'Завдання не знайдено'});
+
+        res.json({success: true, task: result.rows[0]});
     } catch (err) {
         console.error('Помилка отримання завдання: ', err);
-        res.status(500).json({ error: 'Помилка сервера' });
+        res.status(500).json({error: 'Помилка сервера'});
     }
 });
 
 router.post('/', async (req, res) => {
-    const { title, description, deadline, priority } = req.body;
+    const {title, description, deadline, priority} = req.body;
     const userId = req.session.userId;
+
     try {
         const result = await pool.query(
             'INSERT INTO Tasks (user_id, title, description, deadline, priority) VALUES ($1, $2, $3, $4, $5) RETURNING *',
             [userId, title, description || null, deadline ? new Date(deadline) : null, !!priority]
         );
+
         const task = result.rows[0];
         const myCatId = await getCategoryId('Мої');
+
         await assignCategory(task.id, myCatId);
+
         if (deadline) {
             const plannedCatId = await getCategoryId('Заплановані');
             await assignCategory(task.id, plannedCatId);
         }
+
         if (priority) {
             const importantCatId = await getCategoryId('Важливі');
             await assignCategory(task.id, importantCatId);
         }
+
         await notifyTaskCreated(userId, title, task.id);
-        res.json({ success: true, task });
+
+        res.json({success: true, task});
     } catch (err) {
         console.error('Помилка створення завдання: ', err);
-        res.status(500).json({ error: 'Помилка сервера' });
+        res.status(500).json({error: 'Помилка сервера'});
     }
 });
 
 router.put('/:id', async (req, res) => {
     const taskId = req.params.id;
     const userId = req.session.userId;
-    const { title, description, deadline, priority } = req.body;
+    const {title, description, deadline, priority} = req.body;
 
     try {
         const taskRes = await pool.query(
@@ -282,7 +309,7 @@ router.put('/:id', async (req, res) => {
         );
 
         if (taskRes.rows.length === 0) {
-            return res.status(404).json({ error: 'Завдання не знайдено' });
+            return res.status(404).json({error: 'Завдання не знайдено'});
         }
 
         const oldTask = taskRes.rows[0];
@@ -309,29 +336,35 @@ router.put('/:id', async (req, res) => {
 
         await notifyTaskUpdated(userId, title, taskId);
 
-        res.json({ success: true, message: 'Завдання оновлено' });
+        res.json({success: true, message: 'Завдання оновлено'});
     } catch (err) {
         console.error('Помилка оновлення завдання: ', err);
-        res.status(500).json({ error: 'Помилка сервера' });
+        res.status(500).json({error: 'Помилка сервера'});
     }
 });
 
 router.put('/:id/complete', async (req, res) => {
     const taskId = req.params.id;
     const userId = req.session.userId;
+
     try {
         const currentRes = await pool.query(
             'SELECT status, title FROM Tasks WHERE id = $1 AND user_id = $2',
             [taskId, userId]
         );
-        if (currentRes.rows.length === 0) return res.status(404).json({ error: 'Завдання не знайдено' });
+
+        if (currentRes.rows.length === 0) return res.status(404).json({error: 'Завдання не знайдено'});
+
         const currentStatus = currentRes.rows[0].status;
         const newStatus = currentStatus === 'active' ? 'completed' : 'active';
+
         await pool.query(
             'UPDATE Tasks SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
             [newStatus, taskId]
         );
+
         const completedCatId = await getCategoryId('Завершені');
+
         if (newStatus === 'completed') {
             await assignCategory(taskId, completedCatId);
             await notifyTaskCompleted(userId, currentRes.rows[0].title, taskId);
@@ -339,44 +372,52 @@ router.put('/:id/complete', async (req, res) => {
             await removeCategory(taskId, completedCatId);
             await notifyTaskUpdated(userId, currentRes.rows[0].title, taskId);
         }
-        res.json({ success: true, newStatus });
+
+        res.json({success: true, newStatus});
     } catch (err) {
         console.error('Помилка оновлення статусу: ', err);
-        res.status(500).json({ error: 'Помилка сервера' });
+        res.status(500).json({error: 'Помилка сервера'});
     }
 });
 
 router.put('/:id/priority', async (req, res) => {
     const taskId = req.params.id;
     const userId = req.session.userId;
+
     try {
         const currentRes = await pool.query(
             'SELECT priority, title FROM Tasks WHERE id = $1 AND user_id = $2',
             [taskId, userId]
         );
-        if (currentRes.rows.length === 0) return res.status(404).json({ error: 'Завдання не знайдено' });
+
+        if (currentRes.rows.length === 0) return res.status(404).json({error: 'Завдання не знайдено'});
+
         const newPriority = !currentRes.rows[0].priority;
+
         await pool.query(
             'UPDATE Tasks SET priority = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
             [newPriority, taskId]
         );
+
         const importantCatId = await getCategoryId('Важливі');
+
         if (newPriority) {
             await assignCategory(taskId, importantCatId);
         } else {
             await removeCategory(taskId, importantCatId);
         }
 
-        res.json({ success: true, newPriority });
+        res.json({success: true, newPriority});
     } catch (err) {
         console.error('Помилка оновлення пріоритету: ', err);
-        res.status(500).json({ error: 'Помилка сервера' });
+        res.status(500).json({error: 'Помилка сервера'});
     }
 });
 
 router.delete('/:id', async (req, res) => {
     const taskId = req.params.id;
     const userId = req.session.userId;
+
     try {
         const taskRes = await pool.query(
             'SELECT title FROM Tasks WHERE id = $1 AND user_id = $2',
@@ -384,7 +425,7 @@ router.delete('/:id', async (req, res) => {
         );
 
         if (taskRes.rows.length === 0) {
-            return res.status(404).json({ error: 'Завдання не знайдено' });
+            return res.status(404).json({error: 'Завдання не знайдено'});
         }
 
         const taskTitle = taskRes.rows[0].title;
@@ -396,15 +437,16 @@ router.delete('/:id', async (req, res) => {
 
         await notifyTaskDeleted(userId, taskTitle);
 
-        res.json({ success: true, message: 'Завдання видалено' });
+        res.json({success: true, message: 'Завдання видалено'});
     } catch (err) {
         console.error('Помилка видалення завдання: ', err);
-        res.status(500).json({ error: 'Помилка сервера' });
+        res.status(500).json({error: 'Помилка сервера'});
     }
 });
 
 router.delete('/', async (req, res) => {
     const userId = req.session.userId;
+
     try {
         const countRes = await pool.query(
             'SELECT COUNT(*) as count FROM Tasks WHERE user_id = $1',
@@ -414,7 +456,7 @@ router.delete('/', async (req, res) => {
         const count = parseInt(countRes.rows[0].count);
 
         if (count === 0) {
-            return res.json({ success: true, message: 'Немає завдань для видалення', count: 0 });
+            return res.json({success: true, message: 'Немає завдань для видалення', count: 0});
         }
 
         await pool.query(
@@ -424,23 +466,23 @@ router.delete('/', async (req, res) => {
 
         await pool.query(
             'INSERT INTO Notifications (user_id, type, message) VALUES ($1, $2, $3)',
-            [userId, 'task_deleted', `Видалено всі завдання (${count} шт.)`]
+            [userId, 'task_deleted', `Видалено всі ${count} завдань.`]
         );
 
-        res.json({ success: true, message: 'Всі завдання видалено', count });
+        res.json({success: true, message: 'Всі завдання видалено', count});
     } catch (err) {
         console.error('Помилка видалення всіх завдань: ', err);
-        res.status(500).json({ error: 'Помилка сервера' });
+        res.status(500).json({error: 'Помилка сервера'});
     }
 });
 
 router.post('/delete-selected', async (req, res) => {
-    const { taskIds } = req.body;
+    const {taskIds} = req.body;
     const userId = req.session.userId;
 
     try {
         if (!taskIds || !Array.isArray(taskIds) || taskIds.length === 0) {
-            return res.status(400).json({ error: 'Не вибрано завдань' });
+            return res.status(400).json({error: 'Не вибрано завдань'});
         }
 
         const verifyRes = await pool.query(
@@ -451,7 +493,7 @@ router.post('/delete-selected', async (req, res) => {
         const validIds = verifyRes.rows.map(row => row.id);
 
         if (validIds.length === 0) {
-            return res.status(404).json({ error: 'Завдання не знайдено' });
+            return res.status(404).json({error: 'Завдання не знайдено'});
         }
 
         await pool.query(
@@ -461,7 +503,7 @@ router.post('/delete-selected', async (req, res) => {
 
         await pool.query(
             'INSERT INTO Notifications (user_id, type, message) VALUES ($1, $2, $3)',
-            [userId, 'task_deleted', `Видалено вибрані завдання (${validIds.length} шт.)`]
+            [userId, 'task_deleted', `Видалено вибрані ${validIds.length} завдань.`]
         );
 
         res.json({
@@ -471,7 +513,7 @@ router.post('/delete-selected', async (req, res) => {
         });
     } catch (err) {
         console.error('Помилка видалення вибраних завдань: ', err);
-        res.status(500).json({ error: 'Помилка сервера' });
+        res.status(500).json({error: 'Помилка сервера'});
     }
 });
 

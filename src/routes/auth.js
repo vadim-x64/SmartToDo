@@ -1,11 +1,11 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const pool = require('../config/db');
-const { notifyLogin } = require('../utilities/notificationUtility');
+const {notifyLogin} = require('../utilities/notificationUtility');
 const router = express.Router();
 
 router.post('/register', async (req, res) => {
-    const { firstName, lastName, dateOfBirth, username, password } = req.body;
+    const {firstName, lastName, dateOfBirth, username, password} = req.body;
 
     try {
         const userCheck = await pool.query(
@@ -14,7 +14,7 @@ router.post('/register', async (req, res) => {
         );
 
         if (userCheck.rows.length > 0) {
-            return res.status(400).json({ error: 'Користувач з таким іменем вже існує' });
+            return res.status(400).json({error: 'Користувач з таким іменем вже існує'});
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -34,23 +34,22 @@ router.post('/register', async (req, res) => {
 
         await pool.query(
             'INSERT INTO Notifications (user_id, type, message) VALUES ($1, $2, $3)',
-            [userResult.rows[0].id, 'user_login', `Вітаємо в SmartToDo! 🎉`]
+            [userResult.rows[0].id, 'user_login', `Здійснено вхід у програму`]
         );
 
         res.json({
             success: true,
             message: 'Реєстрація успішна',
-            user: { id: userResult.rows[0].id, username: userResult.rows[0].username }
+            user: {id: userResult.rows[0].id, username: userResult.rows[0].username}
         });
-
     } catch (err) {
         console.error('Помилка реєстрації: ', err);
-        res.status(500).json({ error: 'Помилка сервера при реєстрації' });
+        res.status(500).json({error: 'Помилка сервера при реєстрації'});
     }
 });
 
 router.post('/login', async (req, res) => {
-    const { username, password } = req.body;
+    const {username, password} = req.body;
 
     try {
         const result = await pool.query(
@@ -59,14 +58,14 @@ router.post('/login', async (req, res) => {
         );
 
         if (result.rows.length === 0) {
-            return res.status(401).json({ error: 'Невірне ім\'я користувача або пароль' });
+            return res.status(401).json({error: 'Невірне ім\'я користувача або пароль'});
         }
 
         const user = result.rows[0];
         const isValidPassword = await bcrypt.compare(password, user.password);
 
         if (!isValidPassword) {
-            return res.status(401).json({ error: 'Невірне ім\'я користувача або пароль' });
+            return res.status(401).json({error: 'Невірне ім\'я користувача або пароль'});
         }
 
         req.session.userId = user.id;
@@ -76,21 +75,20 @@ router.post('/login', async (req, res) => {
         res.json({
             success: true,
             message: 'Авторизація успішна',
-            user: { id: user.id, username: user.username }
+            user: {id: user.id, username: user.username}
         });
-
     } catch (err) {
         console.error('Помилка авторизації: ', err);
-        res.status(500).json({ error: 'Помилка сервера при авторизації' });
+        res.status(500).json({error: 'Помилка сервера при авторизації'});
     }
 });
 
 router.post('/logout', (req, res) => {
     req.session.destroy((err) => {
         if (err) {
-            return res.status(500).json({ error: 'Помилка виходу' });
+            return res.status(500).json({error: 'Помилка виходу'});
         }
-        res.json({ success: true, message: 'Вихід успішний' });
+        res.json({success: true, message: 'Вихід успішний'});
     });
 });
 
@@ -98,10 +96,10 @@ router.get('/check', (req, res) => {
     if (req.session.userId) {
         res.json({
             authenticated: true,
-            user: { id: req.session.userId, username: req.session.username }
+            user: {id: req.session.userId, username: req.session.username}
         });
     } else {
-        res.json({ authenticated: false });
+        res.json({authenticated: false});
     }
 });
 
