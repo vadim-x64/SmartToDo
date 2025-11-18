@@ -253,8 +253,15 @@ async function checkAuth() {
         if (!data.authenticated) {
             window.location.href = '/login';
         } else {
-            document.getElementById('welcomeMessage').textContent =
-                `Привіт, ${data.user.username}! Настав момент організувати свій день.`;
+            const username = data.user.username;
+
+            document.getElementById('welcomeMessage').innerHTML =
+                `Привіт, <span class="username-link">${username}</span>! Настав час організувати свій день.`;
+
+            document.querySelector('.username-link').addEventListener('click', () => {
+                window.location.href = '/account';
+            });
+
             await loadCategories();
             await loadUnreadCount();
         }
@@ -477,7 +484,7 @@ async function loadUnreadCount() {
             badge.textContent = data.count;
             badge.classList.remove('d-none');
 
-            if (data.count > lastNotificationCount) {
+            if (data.count > lastNotificationCount && lastNotificationCount !== 0) {
                 notificationSound.play().catch(err => {
                     console.log('Не вдалось відтворити звук:', err);
                 });
@@ -493,10 +500,19 @@ async function loadUnreadCount() {
     }
 }
 
-checkAuth().then(() => {
-    loadUnreadCount().then(data => {
-        lastNotificationCount = data?.count || 0;
-    });
+checkAuth().then(async () => {
+    const response = await fetch('/api/notifications/unread-count');
+    const data = await response.json();
+    const badge = document.getElementById('notificationBadge');
+
+    if (data.success && data.count > 0) {
+        badge.textContent = data.count;
+        badge.classList.remove('d-none');
+        lastNotificationCount = data.count;
+    } else {
+        badge.classList.add('d-none');
+        lastNotificationCount = 0;
+    }
 });
 
 async function loadNotifications() {

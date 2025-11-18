@@ -91,6 +91,12 @@ h4 {
     padding: 0;
 }
 
+.username-link {
+    cursor: pointer;
+    text-decoration: underline;
+    font-weight: bold;
+}
+
 .notification-btn {
     position: relative;
     font-size: 36px;

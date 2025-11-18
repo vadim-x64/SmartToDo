@@ -63,6 +63,10 @@ app.get('/home', requireAuth, (req, res) => {
     res.sendFile(path.join(__dirname, 'src/views/home.html'));
 });
 
+app.get('/account', requireAuth, (req, res) => {
+    res.sendFile(path.join(__dirname, 'src/views/account.html'));
+});
+
 startDeadlineChecker();
 
 app.listen(PORT, () => {
