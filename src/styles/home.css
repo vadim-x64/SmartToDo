@@ -426,6 +426,11 @@ h4 {
     border: 1px solid #000000;
 }
 
+#taskDescription,
+#editTaskDescription {
+    min-height: 100px;
+}
+
 .form-control:focus, .form-check-input:focus {
     border-color: #000000;
     box-shadow: none;
@@ -576,6 +581,11 @@ h4 {
 
     .btn-square {
         font-size: 16px;
+    }
+
+    #taskDescription,
+    #editTaskDescription {
+        min-height: 300px;
     }
 }
 
