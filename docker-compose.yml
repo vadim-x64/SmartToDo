@@ -24,7 +24,7 @@ services:
   app:
     build: .
     container_name: smarttodo_app
-    restart: always
+    restart: no
     env_file:
       - .env.docker
     ports:
