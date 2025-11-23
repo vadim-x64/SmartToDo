@@ -72,6 +72,26 @@ body {
     color: #000000;
 }
 
+.form-check-input {
+    border: 1px solid #000000;
+    cursor: pointer;
+}
+
+.form-check-input:checked {
+    background-color: #000000;
+    border-color: #000000;
+}
+
+.form-check-input:focus {
+    box-shadow: none;
+    border-color: #000000;
+}
+
+.form-check-label {
+    cursor: pointer;
+    user-select: none;
+}
+
 @media screen and (max-width: 768px) {
     body {
         padding: 0;
@@ -143,6 +163,24 @@ body.dark-theme .auth-footer p a:hover {
 }
 
 body.dark-theme .password-toggle {
+    color: #E0E7FF;
+}
+
+body.dark-theme .form-check-input {
+    background-color: #0D1B2A;
+    border-color: #415A77;
+}
+
+body.dark-theme .form-check-input:checked {
+    background-color: #64B5F6;
+    border-color: #64B5F6;
+}
+
+body.dark-theme .form-check-input:focus {
+    border-color: #64B5F6;
+}
+
+body.dark-theme .form-check-label {
     color: #E0E7FF;
 }
 

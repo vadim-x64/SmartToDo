@@ -3,6 +3,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
+    const rememberMe = document.getElementById('rememberMe').checked;
     const errorDiv = document.getElementById('errorMessage');
 
     try {
@@ -15,6 +16,16 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         const data = await response.json();
 
         if (response.ok) {
+            if (rememberMe) {
+                localStorage.setItem('rememberedUsername', username);
+                localStorage.setItem('rememberedPassword', password);
+                localStorage.setItem('rememberMe', 'true');
+            } else {
+                localStorage.removeItem('rememberedUsername');
+                localStorage.removeItem('rememberedPassword');
+                localStorage.removeItem('rememberMe');
+            }
+
             window.location.href = '/home';
         } else {
             errorDiv.textContent = data.error;
@@ -50,4 +61,20 @@ function initTheme() {
     }
 }
 
+function loadRememberedCredentials() {
+    const rememberMe = localStorage.getItem('rememberMe');
+
+    if (rememberMe === 'true') {
+        const username = localStorage.getItem('rememberedUsername');
+        const password = localStorage.getItem('rememberedPassword');
+
+        if (username && password) {
+            document.getElementById('username').value = username;
+            document.getElementById('password').value = password;
+            document.getElementById('rememberMe').checked = true;
+        }
+    }
+}
+
 initTheme();
+loadRememberedCredentials();
