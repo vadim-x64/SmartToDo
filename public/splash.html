@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartToDo</title>
+    <link rel="icon" href="/static/icon.png" type="image/png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .gradient-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ffffff 0%, #e3f2fd 100%);
+            z-index: 1;
+        }
+
+        .gradient-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.6;
+            animation: float linear infinite;
+        }
+
+        .blob1 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #bbdefb 0%, transparent 70%);
+            top: 20%;
+            left: 10%;
+            animation-duration: 25s;
+        }
+
+        .blob2 {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, #90caf9 0%, transparent 70%);
+            bottom: 15%;
+            right: 15%;
+            animation-duration: 30s;
+            animation-delay: -10s;
+        }
+
+        .blob3 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, #e3f2fd 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            animation-duration: 35s;
+            animation-delay: -20s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            25% {
+                transform: translate(50px, -30px) scale(1.1);
+            }
+            50% {
+                transform: translate(-30px, 40px) scale(0.9);
+            }
+            75% {
+                transform: translate(40px, 20px) scale(1.05);
+            }
+        }
+
+        .splash-container {
+            text-align: center;
+            z-index: 10;
+            position: relative;
+        }
+
+        .logo {
+            width: 150px;
+            height: 150px;
+            margin-bottom: 30px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(144, 202, 249, 0.3);
+            border-top-color: #42a5f5;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        .loading-text {
+            color: #1976d2;
+            margin-top: 20px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 20px rgba(66, 165, 245, 0.3));
+            }
+            50% {
+                transform: scale(1.05);
+                filter: drop-shadow(0 0 30px rgba(66, 165, 245, 0.5));
+            }
+        }
+
+        .fade-out {
+            animation: fadeOut 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            .logo {
+                width: 120px;
+                height: 120px;
+            }
+
+            .blob1 {
+                width: 300px;
+                height: 300px;
+                filter: blur(60px);
+            }
+
+            .blob2 {
+                width: 250px;
+                height: 250px;
+                filter: blur(60px);
+            }
+
+            .blob3 {
+                width: 200px;
+                height: 200px;
+                filter: blur(60px);
+            }
+
+            .loading-text {
+                font-size: 13px;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .logo {
+                width: 100px;
+                height: 100px;
+            }
+
+            .blob1 {
+                width: 250px;
+                height: 250px;
+                filter: blur(50px);
+            }
+
+            .blob2 {
+                width: 200px;
+                height: 200px;
+                filter: blur(50px);
+            }
+
+            .blob3 {
+                width: 180px;
+                height: 180px;
+                filter: blur(50px);
+            }
+
+            .spinner {
+                width: 40px;
+                height: 40px;
+                border-width: 3px;
+            }
+
+            .loading-text {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="gradient-bg">
+    <div class="gradient-blob blob1"></div>
+    <div class="gradient-blob blob2"></div>
+    <div class="gradient-blob blob3"></div>
+</div>
+
+<div class="splash-container" id="splashContainer">
+    <img src="/static/icon.png" alt="SmartToDo" class="logo">
+    <div class="spinner"></div>
+    <div class="loading-text">Завантаження...</div>
+</div>
+
+<script>
+    async function checkServerHealth() {
+        try {
+            const response = await fetch('/api/health', {
+                method: 'GET',
+                cache: 'no-cache'
+            });
+            return response.ok;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    async function waitForServer() {
+        const maxAttempts = 30;
+        let attempts = 0;
+
+        while (attempts < maxAttempts) {
+            const isReady = await checkServerHealth();
+
+            if (isReady) {
+                document.getElementById('splashContainer').classList.add('fade-out');
+                document.querySelector('.gradient-bg').classList.add('fade-out');
+
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 0);
+                return;
+            }
+
+            await new Promise(resolve => setTimeout(resolve, 0));
+            attempts++;
+        }
+
+        window.location.href = '/login';
+    }
+
+    waitForServer();
+</script>
+</body>
+</html>
