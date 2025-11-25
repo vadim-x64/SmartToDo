@@ -18,7 +18,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/static', express.static(path.join(__dirname, 'src/resources')));
 app.use('/css', express.static(path.join(__dirname, 'src/styles')));
 app.use('/js', express.static(path.join(__dirname, 'src/scripts')));
-app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(session({
     secret: process.env.SESSION_SECRET,
@@ -66,10 +65,6 @@ app.get('/home', requireAuth, (req, res) => {
 
 app.get('/account', requireAuth, (req, res) => {
     res.sendFile(path.join(__dirname, 'src/views/account.html'));
-});
-
-app.get('/api/health', (req, res) => {
-    res.status(200).json({ status: 'ok' });
 });
 
 startDeadlineChecker();
