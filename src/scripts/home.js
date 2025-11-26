@@ -23,11 +23,12 @@ document.getElementById('sortSelect').addEventListener('change', async (e) => {
 
 async function sortTasks(sortValue) {
     try {
-        const response = await fetch(`/api/tasks/sorted?sort=${encodeURIComponent(sortValue)}`);
+        const query = document.getElementById('searchInput').value.trim();
+        const response = await fetch(`/api/tasks/sorted?sort=${encodeURIComponent(sortValue)}&q=${encodeURIComponent(query)}`);
         const data = await response.json();
 
         if (data.success) {
-            await displaySearchResults(data.tasks, '', true);
+            await displaySearchResults(data.tasks, query, true);
         }
     } catch (err) {
         console.error('Помилка сортування: ', err);
@@ -50,11 +51,17 @@ document.getElementById('searchInput').addEventListener('input', (e) => {
 
 async function searchTasks(query) {
     try {
-        const response = await fetch(`/api/tasks/search?q=${encodeURIComponent(query)}`);
-        const data = await response.json();
+        const currentSort = document.getElementById('sortSelect').value;
 
-        if (data.success) {
-            await displaySearchResults(data.tasks, query);
+        if (currentSort) {
+            await sortTasks(currentSort);
+        } else {
+            const response = await fetch(`/api/tasks/search?q=${encodeURIComponent(query)}`);
+            const data = await response.json();
+
+            if (data.success) {
+                await displaySearchResults(data.tasks, query);
+            }
         }
     } catch (err) {
         console.error('Помилка пошуку: ', err);

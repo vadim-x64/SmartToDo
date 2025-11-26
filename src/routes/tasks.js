@@ -172,10 +172,21 @@ router.get('/search', async (req, res) => {
 router.get('/sorted', async (req, res) => {
     const userId = req.session.userId;
     const sortValue = req.query.sort;
+    const query = req.query.q || '';
 
     try {
         if (!sortValue) {
             return res.json({success: true, tasks: []});
+        }
+
+        let whereClause = 't.user_id = $1';
+        let params = [userId];
+        let paramIndex = 2;
+
+        if (query.trim().length > 0) {
+            whereClause += ` AND (t.title ILIKE $${paramIndex} OR t.description ILIKE $${paramIndex})`;
+            params.push(`%${query}%`);
+            paramIndex++;
         }
 
         let orderBy = '';
@@ -188,31 +199,35 @@ router.get('/sorted', async (req, res) => {
                 orderBy = 'ORDER BY t.created_at ASC';
                 break;
             case 'deadline_asc':
+                whereClause += ' AND t.deadline IS NOT NULL';
                 orderBy = 'ORDER BY t.deadline ASC NULLS LAST';
                 break;
             case 'deadline_desc':
+                whereClause += ' AND t.deadline IS NOT NULL';
                 orderBy = 'ORDER BY t.deadline DESC NULLS LAST';
                 break;
             case 'priority_desc':
-                orderBy = 'ORDER BY t.priority DESC, t.created_at DESC';
+                whereClause += ' AND t.priority = true';
+                orderBy = 'ORDER BY t.created_at DESC';
                 break;
             case 'priority_asc':
-                orderBy = 'ORDER BY t.priority ASC, t.created_at DESC';
+                whereClause += ' AND t.priority = false';
+                orderBy = 'ORDER BY t.created_at DESC';
                 break;
             case 'status_active':
-                orderBy = 'ORDER BY CASE WHEN t.status = \'active\' THEN 0 ELSE 1 END, t.created_at DESC';
+                whereClause += " AND t.status = 'active'";
+                orderBy = 'ORDER BY t.created_at DESC';
                 break;
             case 'status_completed':
-                orderBy = 'ORDER BY CASE WHEN t.status = \'completed\' THEN 0 ELSE 1 END, t.created_at DESC';
+                whereClause += " AND t.status = 'completed'";
+                orderBy = 'ORDER BY t.created_at DESC';
                 break;
             default:
                 orderBy = 'ORDER BY t.created_at DESC';
         }
 
-        const query = `SELECT t.*
-                       FROM Tasks t
-                       WHERE t.user_id = $1 ${orderBy}`;
-        const result = await pool.query(query, [userId]);
+        const sqlQuery = `SELECT t.* FROM Tasks t WHERE ${whereClause} ${orderBy}`;
+        const result = await pool.query(sqlQuery, params);
 
         res.json({success: true, tasks: result.rows});
     } catch (err) {

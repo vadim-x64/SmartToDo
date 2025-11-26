@@ -39,7 +39,7 @@ app.get('/', (req, res) => {
     if (req.session.userId) {
         res.redirect('/home');
     } else {
-        res.sendFile(path.join(__dirname, 'public/splash.html'));
+        res.redirect('/login');
     }
 });
 
