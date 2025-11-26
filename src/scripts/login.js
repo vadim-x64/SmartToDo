@@ -37,6 +37,14 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     }
 });
 
+document.getElementById('rememberMe').addEventListener('change', function() {
+    if (this.checked) {
+        localStorage.setItem('rememberMeChecked', 'true');
+    } else {
+        localStorage.setItem('rememberMeChecked', 'false');
+    }
+});
+
 document.getElementById('togglePassword').addEventListener('click', function() {
     const passwordInput = document.getElementById('password');
     const eyeIcon = document.getElementById('eyeIcon');
@@ -62,17 +70,22 @@ function initTheme() {
 }
 
 function loadRememberedCredentials() {
-    const rememberMe = localStorage.getItem('rememberMe');
+    const rememberMeChecked = localStorage.getItem('rememberMeChecked');
 
-    if (rememberMe === 'true') {
+    if (rememberMeChecked === 'true') {
+        document.getElementById('rememberMe').checked = true;
+
         const username = localStorage.getItem('rememberedUsername');
         const password = localStorage.getItem('rememberedPassword');
 
         if (username && password) {
             document.getElementById('username').value = username;
             document.getElementById('password').value = password;
-            document.getElementById('rememberMe').checked = true;
         }
+    } else {
+        document.getElementById('rememberMe').checked = false;
+        document.getElementById('username').value = '';
+        document.getElementById('password').value = '';
     }
 }
 
