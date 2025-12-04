@@ -263,7 +263,7 @@ async function checkAuth() {
             const username = data.user.username;
 
             document.getElementById('welcomeMessage').innerHTML =
-                `Привіт, <span class="username-link">${username}</span>! Настав час організувати свій день.`;
+                `Привіт, <span class="username-link">${username}</span>! Час взяти під контроль свій день.`;
 
             document.querySelector('.username-link').addEventListener('click', () => {
                 window.location.href = '/account';
@@ -984,3 +984,66 @@ document.getElementById('completeAllSelectedBtn').addEventListener('click', asyn
 
 setMinDateTime();
 setInterval(setMinDateTime, 60000);
+
+let currentPhraseIndex = 0;
+let phrases = [];
+let typingTimeout;
+let phraseTimeout;
+
+async function loadPhrases() {
+    try {
+        const response = await fetch('/static/phrases.json');
+        const data = await response.json();
+        phrases = data.phrases;
+        phrases = phrases.sort(() => Math.random() - 0.5);
+
+        setTimeout(() => {
+            typePhrase();
+        }, 1000);
+    } catch (err) {
+        console.error('Помилка завантаження фраз: ', err);
+    }
+}
+
+function typePhrase() {
+    const element = document.querySelector('h4');
+    const phrase = phrases[currentPhraseIndex];
+    let charIndex = 0;
+    element.textContent = '';
+
+    function typeChar() {
+        if (charIndex < phrase.length) {
+            element.textContent += phrase[charIndex];
+            charIndex++;
+            typingTimeout = setTimeout(typeChar, 50);
+        } else {
+            phraseTimeout = setTimeout(() => {
+                erasePhrase();
+            }, 2000);
+        }
+    }
+
+    typeChar();
+}
+
+function erasePhrase() {
+    const element = document.querySelector('h4');
+    let text = element.textContent;
+
+    function eraseChar() {
+        if (text.length > 0) {
+            text = text.slice(0, -1);
+            element.textContent = text;
+            typingTimeout = setTimeout(eraseChar, 30);
+        } else {
+            currentPhraseIndex = (currentPhraseIndex + 1) % phrases.length;
+            phraseTimeout = setTimeout(() => {
+                typePhrase();
+            }, 1000);
+        }
+    }
+
+    eraseChar();
+}
+
+loadPhrases();
