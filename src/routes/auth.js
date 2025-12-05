@@ -211,9 +211,15 @@ router.delete('/account', async (req, res) => {
         return res.status(401).json({error: 'Не авторизовано'});
     }
 
+    const {password} = req.body;
+
+    if (!password || password.trim().length === 0) {
+        return res.status(400).json({error: 'Введіть пароль для підтвердження'});
+    }
+
     try {
         const userResult = await pool.query(
-            'SELECT customer_id FROM Users WHERE id = $1',
+            'SELECT customer_id, password FROM Users WHERE id = $1',
             [req.session.userId]
         );
 
@@ -221,7 +227,14 @@ router.delete('/account', async (req, res) => {
             return res.status(404).json({error: 'Користувач не знайдено'});
         }
 
-        const customerId = userResult.rows[0].customer_id;
+        const user = userResult.rows[0];
+        const isValidPassword = await bcrypt.compare(password, user.password);
+
+        if (!isValidPassword) {
+            return res.status(401).json({error: 'Невірний пароль'});
+        }
+
+        const customerId = user.customer_id;
 
         await pool.query('DELETE FROM Users WHERE id = $1', [req.session.userId]);
         await pool.query('DELETE FROM Customers WHERE id = $1', [customerId]);

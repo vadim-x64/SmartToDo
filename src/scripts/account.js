@@ -107,28 +107,48 @@ document.getElementById('confirmLogout').addEventListener('click', async () => {
     }
 });
 document.getElementById('deleteAccountBtn').addEventListener('click', () => {
+    document.getElementById('deletePasswordConfirm').value = '';
+    document.getElementById('deletePasswordError').classList.add('d-none');
     const deleteModal = new bootstrap.Modal(document.getElementById('deleteAccountModal'));
     deleteModal.show();
 });
 document.getElementById('confirmDeleteAccount').addEventListener('click', async () => {
+    const password = document.getElementById('deletePasswordConfirm').value;
+    const errorDiv = document.getElementById('deletePasswordError');
+
+    errorDiv.classList.add('d-none');
+
+    if (!password || password.trim().length === 0) {
+        errorDiv.textContent = 'Будь ласка, введіть пароль';
+        errorDiv.classList.remove('d-none');
+        return;
+    }
+
     try {
-        const response = await fetch('/api/auth/account', {method: 'DELETE'});
+        const response = await fetch('/api/auth/account', {
+            method: 'DELETE',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({password})
+        });
+
         const data = await response.json();
 
         if (data.success) {
             window.location.href = '/login';
         } else {
-            alert(data.error || 'Помилка видалення акаунта');
+            errorDiv.textContent = data.error || 'Помилка видалення акаунта';
+            errorDiv.classList.remove('d-none');
         }
     } catch (err) {
         console.error('Помилка видалення акаунта: ', err);
-        alert('Помилка з\'єднання');
+        errorDiv.textContent = 'Помилка з\'єднання';
+        errorDiv.classList.remove('d-none');
     }
 });
-document.getElementById('togglePassword').addEventListener('click', function () {
-    const passwordInput = document.getElementById('password');
-    const eyeIcon = document.getElementById('eyeIcon');
-    const eyeSlashIcon = document.getElementById('eyeSlashIcon');
+document.getElementById('toggleDeletePassword').addEventListener('click', function () {
+    const passwordInput = document.getElementById('deletePasswordConfirm');
+    const eyeIcon = document.getElementById('deleteEyeIcon');
+    const eyeSlashIcon = document.getElementById('deleteEyeSlashIcon');
 
     if (passwordInput.type === 'password') {
         passwordInput.type = 'text';
