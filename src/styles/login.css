@@ -59,17 +59,12 @@ body {
     text-decoration: underline;
 }
 
-.password-wrapper {
-    position: relative;
+.input-group .btn {
+    border-left: 0;
 }
 
-.password-toggle {
-    position: absolute;
-    right: 10px;
-    top: 45%;
-    transform: translateY(-45%);
-    cursor: pointer;
-    color: #000000;
+.input-group .form-control:focus + .btn {
+    border-color: #000000;
 }
 
 .form-check-input {
@@ -162,8 +157,17 @@ body.dark-theme .auth-footer p a:hover {
     color: #90CAF9;
 }
 
-body.dark-theme .password-toggle {
+body.dark-theme .input-group .btn {
+    border-color: #415A77;
     color: #E0E7FF;
+}
+
+body.dark-theme .input-group .form-control:focus + .btn {
+    border-color: #64B5F6;
+}
+
+body.dark-theme .input-group .btn:hover {
+    background-color: #415A77;
 }
 
 body.dark-theme .form-check-input {

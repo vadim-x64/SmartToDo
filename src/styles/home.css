@@ -136,7 +136,7 @@ h4::after {
 }
 
 .notification-modal {
-    position: fixed;
+    position: absolute;
     top: 130px;
     right: 50px;
     width: 400px;
