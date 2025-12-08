@@ -1,15 +1,15 @@
 const pool = require('../config/db');
-const { notifyDeadlineExpired } = require('./notificationUtility');
+const { notifyDeadlineExpired, notifyDeadlineApproaching } = require('./notificationUtility');
 
 async function checkExpiredDeadlines() {
     try {
         const now = new Date();
         const expired = await pool.query(
-            `SELECT t.id, t.user_id, t.title 
-             FROM Tasks t 
-             WHERE t.status = 'active' 
-             AND t.deadline IS NOT NULL 
-             AND t.deadline < $1`,
+            `SELECT t.id, t.user_id, t.title, t.deadline
+             FROM Tasks t
+             WHERE t.status = 'active'
+               AND t.deadline IS NOT NULL
+               AND t.deadline < $1`,
             [now]
         );
 
@@ -34,6 +34,33 @@ async function checkExpiredDeadlines() {
         if (expired.rows.length > 0) {
             console.log(`Автоматично завершено ${expired.rows.length} прострочених завдань`);
         }
+
+        const thresholds = [24, 12, 6, 3, 1];
+
+        for (const hours of thresholds) {
+            const futureTime = new Date(now.getTime() + hours * 60 * 60 * 1000);
+            const pastTime = new Date(now.getTime() + (hours - 0.5) * 60 * 60 * 1000);
+
+            const approaching = await pool.query(
+                `SELECT DISTINCT t.id, t.user_id, t.title, t.deadline
+                 FROM Tasks t 
+                 WHERE t.status = 'active' 
+                 AND t.deadline IS NOT NULL 
+                 AND t.deadline > $1
+                 AND t.deadline <= $2
+                 AND NOT EXISTS (
+                     SELECT 1 FROM Notifications n
+                     WHERE n.task_id = t.id 
+                     AND n.type = 'deadline_approaching'
+                     AND n.message LIKE '%' || $3 || ' год%'
+                 )`,
+                [pastTime, futureTime, hours]
+            );
+
+            for (const task of approaching.rows) {
+                await notifyDeadlineApproaching(task.user_id, task.title, task.id, hours);
+            }
+        }
     } catch (err) {
         console.error('Помилка перевірки прострочених завдань: ', err);
     }
@@ -41,7 +68,7 @@ async function checkExpiredDeadlines() {
 
 function startDeadlineChecker() {
     checkExpiredDeadlines();
-    setInterval(checkExpiredDeadlines, 1000);
+    setInterval(checkExpiredDeadlines, 60000);
 }
 
 module.exports = { startDeadlineChecker };

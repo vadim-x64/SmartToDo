@@ -244,6 +244,10 @@ body.dark-theme .form-control::placeholder {
     color: #778899;
 }
 
+body.dark-theme input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+}
+
 body.dark-theme .form-label {
     color: #E0E7FF;
 }

@@ -4,7 +4,8 @@ const {
     notifyTaskCreated,
     notifyTaskUpdated,
     notifyTaskCompleted,
-    notifyTaskDeleted
+    notifyTaskDeleted,
+    createNotification
 } = require('../utilities/notificationUtility');
 
 const router = express.Router();
@@ -71,10 +72,11 @@ router.get('/export', async (req, res) => {
             [userId]
         );
 
-        await pool.query(
-            'INSERT INTO Notifications (user_id, type, message) VALUES ($1, $2, $3)',
-            [userId, 'task_updated', `Експортовано ${result.rows.length} завдань.`]
-        );
+        if (result.rows.length === 0) {
+            return res.status(400).json({error: 'Немає завдань для експорту'});
+        }
+
+        await createNotification(userId, 'task_updated', `Експортовано ${result.rows.length} завдань.`);
 
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Content-Disposition', 'attachment; filename=exportedTasks.json');
@@ -132,10 +134,7 @@ router.post('/import', async (req, res) => {
             imported++;
         }
 
-        await pool.query(
-            'INSERT INTO Notifications (user_id, type, message) VALUES ($1, $2, $3)',
-            [userId, 'task_created', `Імпортовано ${imported} завдань.`]
-        );
+        await createNotification(userId, 'task_created', `Імпортовано ${imported} завдань.`);
 
         res.json({success: true, imported});
     } catch (err) {
@@ -479,10 +478,7 @@ router.delete('/', async (req, res) => {
             [userId]
         );
 
-        await pool.query(
-            'INSERT INTO Notifications (user_id, type, message) VALUES ($1, $2, $3)',
-            [userId, 'task_deleted', `Видалено всі ${count} завдань.`]
-        );
+        await createNotification(userId, 'task_deleted', `Видалено всі ${count} завдань.`);
 
         res.json({success: true, message: 'Всі завдання видалено', count});
     } catch (err) {
@@ -516,10 +512,7 @@ router.post('/delete-selected', async (req, res) => {
             [validIds, userId]
         );
 
-        await pool.query(
-            'INSERT INTO Notifications (user_id, type, message) VALUES ($1, $2, $3)',
-            [userId, 'task_deleted', `Видалено вибрані ${validIds.length} завдань.`]
-        );
+        await createNotification(userId, 'task_deleted', `Видалено вибрані ${validIds.length} завдань.`);
 
         res.json({
             success: true,

@@ -32,10 +32,7 @@ router.post('/register', async (req, res) => {
         req.session.userId = userResult.rows[0].id;
         req.session.username = userResult.rows[0].username;
 
-        await pool.query(
-            'INSERT INTO Notifications (user_id, type, message) VALUES ($1, $2, $3)',
-            [userResult.rows[0].id, 'user_login', `Здійснено вхід у програму`]
-        );
+        await notifyLogin(userResult.rows[0].id, userResult.rows[0].username);
 
         res.json({
             success: true,

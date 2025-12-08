@@ -825,6 +825,11 @@ body.dark-theme .form-control::placeholder {
     color: #778899;
 }
 
+body.dark-theme input[type="date"]::-webkit-calendar-picker-indicator,
+body.dark-theme input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+}
+
 body.dark-theme .form-check-input {
     background-color: #0B1B2A;
     border-color: #778899;
