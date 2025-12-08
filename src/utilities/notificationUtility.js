@@ -11,6 +11,21 @@ async function createNotification(userId, type, message, taskId = null) {
     }
 }
 
+async function notifyTasksExported(userId, count) {
+    const message = `Експортовано ${count} завдань.`;
+    await createNotification(userId, 'task_updated', message);
+}
+
+async function notifyTasksImported(userId, count) {
+    const message = `Імпортовано ${count} завдань.`;
+    await createNotification(userId, 'task_created', message);
+}
+
+async function notifyAccountUpdated(userId) {
+    const message = `Дані акаунта успішно оновлено.`;
+    await createNotification(userId, 'task_updated', message);
+}
+
 async function notifyLogin(userId, username) {
     const message = `Ви увійшли в систему як ${username}.`;
     await createNotification(userId, 'user_login', message);
@@ -63,5 +78,8 @@ module.exports = {
     notifyTaskUpdated,
     notifyTaskCompleted,
     notifyDeadlineApproaching,
-    notifyDeadlineExpired
+    notifyDeadlineExpired,
+    notifyTasksExported,
+    notifyTasksImported,
+    notifyAccountUpdated
 };

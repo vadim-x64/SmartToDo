@@ -1,7 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const pool = require('../config/db');
-const {notifyLogin} = require('../utilities/notificationUtility');
+const {notifyLogin, notifyAccountUpdated} = require('../utilities/notificationUtility');
 const router = express.Router();
 
 router.post('/register', async (req, res) => {
@@ -191,6 +191,8 @@ router.put('/account', async (req, res) => {
                 message: 'Дані оновлено. Необхідна повторна авторизація'
             });
         }
+
+        await notifyAccountUpdated(req.session.userId);
 
         res.json({
             success: true,

@@ -5,7 +5,9 @@ const {
     notifyTaskUpdated,
     notifyTaskCompleted,
     notifyTaskDeleted,
-    createNotification
+    createNotification,
+    notifyTasksExported,
+    notifyTasksImported
 } = require('../utilities/notificationUtility');
 
 const router = express.Router();
@@ -76,7 +78,7 @@ router.get('/export', async (req, res) => {
             return res.status(400).json({error: 'Немає завдань для експорту'});
         }
 
-        await createNotification(userId, 'task_updated', `Експортовано ${result.rows.length} завдань.`);
+        await notifyTasksExported(userId, result.rows.length);
 
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Content-Disposition', 'attachment; filename=exportedTasks.json');
@@ -134,7 +136,7 @@ router.post('/import', async (req, res) => {
             imported++;
         }
 
-        await createNotification(userId, 'task_created', `Імпортовано ${imported} завдань.`);
+        await notifyTasksImported(userId, imported);
 
         res.json({success: true, imported});
     } catch (err) {

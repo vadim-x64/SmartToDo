@@ -82,6 +82,13 @@ document.getElementById('accountForm').addEventListener('submit', async (e) => {
                 await loadAccountData();
                 document.getElementById('password').value = '';
                 document.getElementById('saveBtn').disabled = true;
+
+                try {
+                    const notificationSound = new Audio('/static/notification.mp3');
+                    await notificationSound.play();
+                } catch (err) {
+                    console.log('Не вдалося відтворити звук:', err);
+                }
             }
         } else {
             errorDiv.textContent = data.error || 'Помилка оновлення даних';
