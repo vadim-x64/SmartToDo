@@ -96,6 +96,7 @@ async function displaySearchResults(tasks, query = '', isSorting = false) {
         const isCompleted = task.status === 'completed';
         const strike = isCompleted ? 'text-decoration: line-through; color: #AAAAAA;' : '';
         const priorityStar = task.priority ? '★' : '☆';
+        const deadlineIcon = task.deadline ? '⏱' : '';
         const created = new Date(task.created_at).toLocaleString('uk-UA');
         const updated = new Date(task.updated_at).toLocaleString('uk-UA');
         const deadlineInfo = task.deadline ? `<small class="text-muted d-block">Термін: ${new Date(task.deadline).toLocaleString('uk-UA')}</small>` : '';
@@ -115,6 +116,7 @@ async function displaySearchResults(tasks, query = '', isSorting = false) {
                     <div class="mt-1">${categoryBadges}</div>
                     ${deadlineInfo}
                 </div>
+                ${deadlineIcon ? `<span class="task-deadline-icon">${deadlineIcon}</span>` : ''}
                 <button class="task-priority">${priorityStar}</button>
                 <button class="task-delete">❌️</button>
                 <div class="txt-muted">
@@ -355,6 +357,7 @@ async function loadTasksForCategory(card, categoryId) {
                 const isCompleted = task.status === 'completed';
                 const strike = isCompleted ? 'text-decoration: line-through; color: #AAAAAA;' : '';
                 const priorityStar = task.priority ? '★' : '☆';
+                const deadlineIcon = task.deadline ? '⏱' : '';
                 const created = new Date(task.created_at).toLocaleString('uk-UA');
                 const updated = new Date(task.updated_at).toLocaleString('uk-UA');
                 return `
@@ -362,6 +365,7 @@ async function loadTasksForCategory(card, categoryId) {
             <div class="task-select" data-task-id="${task.id}"></div>
             <input type="checkbox" class="form-check-input task-complete m-0" ${isCompleted ? 'checked' : ''}>
             <span class="task-title flex-grow-1" style="${strike}">${task.title}</span>
+            ${deadlineIcon ? `<span class="task-deadline-icon">${deadlineIcon}</span>` : ''}
             <button class="task-priority">${priorityStar}</button>
             <button class="task-delete">❌️</button>
             <div class="txt-muted">
@@ -522,13 +526,36 @@ checkAuth().then(async () => {
     }
 });
 
+async function deleteAllNotifications() {
+    try {
+        const response = await fetch('/api/notifications', {
+            method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            await loadNotifications();
+            await loadUnreadCount();
+
+            // Ховаємо кнопку видалення
+            document.getElementById('deleteAllNotificationsBtn').classList.add('d-none');
+        }
+    } catch (err) {
+        console.error('Помилка видалення всіх сповіщень: ', err);
+    }
+}
+
 async function loadNotifications() {
     try {
         const response = await fetch('/api/notifications');
         const data = await response.json();
         const body = document.getElementById('notificationBody');
+        const deleteBtn = document.getElementById('deleteAllNotificationsBtn');
 
         if (data.success && data.notifications.length > 0) {
+            deleteBtn.classList.remove('d-none');
+
             body.innerHTML = data.notifications.map(notif => {
                 const date = new Date(notif.created_at);
                 const timeAgo = formatTimeAgo(date);
@@ -561,6 +588,8 @@ async function loadNotifications() {
                 });
             });
         } else {
+            deleteBtn.classList.add('d-none');
+
             body.innerHTML = `
                     <div class="empty-notifications">
                         <div>📭</div>
@@ -574,6 +603,18 @@ async function loadNotifications() {
             '<p class="text-danger text-center p-3">Помилка завантаження сповіщень</p>';
     }
 }
+
+document.getElementById('deleteAllNotificationsBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const modal = new bootstrap.Modal(document.getElementById('deleteAllNotificationsModal'));
+    modal.show();
+});
+
+document.getElementById('confirmDeleteAllNotifications').addEventListener('click', async () => {
+    await deleteAllNotifications();
+    const modal = bootstrap.Modal.getInstance(document.getElementById('deleteAllNotificationsModal'));
+    if (modal) modal.hide();
+});
 
 async function markAsRead(id) {
     try {

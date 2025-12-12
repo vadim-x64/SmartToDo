@@ -74,4 +74,20 @@ router.put('/mark-all-read', async (req, res) => {
     }
 });
 
+router.delete('/', async (req, res) => {
+    try {
+        const userId = req.session.userId;
+
+        await pool.query(
+            'DELETE FROM Notifications WHERE user_id = $1',
+            [userId]
+        );
+
+        res.json({success: true, message: 'Всі сповіщення видалено'});
+    } catch (err) {
+        console.error('Помилка видалення всіх сповіщень: ', err);
+        res.status(500).json({error: 'Помилка сервера'});
+    }
+});
+
 module.exports = router;

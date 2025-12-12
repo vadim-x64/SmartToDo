@@ -45,6 +45,27 @@
                 </div>
             </div>
         </div>
+        <button class="delete-all-notifications-btn d-none" id="deleteAllNotificationsBtn" title="Видалити всі сповіщення">
+            🗑️
+        </button>
+    </div>
+    <div class="modal fade" id="deleteAllNotificationsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content modal-square">
+                <div class="modal-header">
+                    <h5 class="modal-title">Підтвердження видалення</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Ви впевнені, що хочете видалити всі сповіщення?</strong></p>
+                    <p class="text-muted mb-0">Ця дія незворотна!</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary btn-square" data-bs-dismiss="modal">Скасувати</button>
+                    <button type="button" class="btn btn-outline-danger btn-square" id="confirmDeleteAllNotifications">Видалити всі</button>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="actions-grid">
         <button class="btn btn-outline-primary btn-square" id="createTaskBtn">+</button>

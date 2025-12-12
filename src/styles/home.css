@@ -218,6 +218,24 @@ h4::after {
     text-decoration: underline;
 }
 
+.delete-all-notifications-btn {
+    position: absolute;
+    bottom: 10px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #FFFFFF;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+}
+
 .btn-square {
     border-radius: 5px;
     cursor: pointer;
@@ -327,6 +345,10 @@ h4::after {
 
 .task-title, .form-check-input, .form-check-label {
     cursor: pointer;
+}
+
+.task-deadline-icon {
+    font-size: 24px;
 }
 
 .task-priority {
@@ -491,6 +513,13 @@ h4::after {
 
     .mark-all-read {
         text-align: right;
+    }
+
+    .delete-all-notifications-btn {
+        right: 10px;
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
     }
 
     .actions-grid {
