@@ -10,8 +10,7 @@ services:
       TZ: Europe/Kiev
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - D:/Documents/SUICT/CourseProject/SmartToDo/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-#     - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./init.sql/actual_file.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
     networks:
