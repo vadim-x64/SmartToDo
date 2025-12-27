@@ -20,9 +20,9 @@ h4 {
 
 .header-card {
     background-color: #000000;
-    padding: 50px 25px;
+    padding: 130px 25px;
     margin-bottom: 50px;
-    height: 250px;
+    height: 330px;
     border-radius: 0 0 50% 50%;
     position: relative;
     overflow: hidden;
@@ -159,6 +159,7 @@ h4 {
 
 @media screen and (max-width: 768px) {
     .header-card {
+        padding: 100px 25px;
         height: auto;
         border-radius: 0 0 10% 10%;
     }

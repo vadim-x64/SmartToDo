@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const container = document.getElementById('ornamentsContainer');
-    const ornamentTypes = ['ornament-1', 'ornament-2', 'ornament-3'];
-    const ornamentCount = window.innerWidth > 768 ? 25 : 12;
+    const ornamentTypes = ['ornament-0', 'ornament-1', 'ornament-2', 'ornament-3'];
+    const ornamentCount = window.innerWidth > 768 ? 50 : 15;
 
     function random(min, max) {
         return Math.random() * (max - min) + min;
@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     for (let i = 0; i < ornamentCount; i++) {
         const ornament = document.createElement('div');
-        ornament.className = 'ornament';
+        ornament.className = 'ornament gentle-swing';
 
         const ornamentType = ornamentTypes[Math.floor(Math.random() * ornamentTypes.length)];
         ornament.classList.add(ornamentType);
@@ -41,11 +41,25 @@ document.addEventListener('DOMContentLoaded', function() {
         ornament.style.pointerEvents = 'auto';
 
         ornament.addEventListener('mouseenter', function() {
-            this.classList.remove('swinging');
+            this.classList.remove('swinging', 'gentle-swing');
             void this.offsetWidth;
             this.classList.add('swinging');
+            this.addEventListener('animationend', function handleAnimationEnd(e) {
+                if (e.animationName === 'swingWithDamping') {
+                    this.classList.remove('swinging');
+                    this.classList.add('gentle-swing');
+                    this.removeEventListener('animationend', handleAnimationEnd);
+                }
+            });
         });
 
+        const layerType = i % 2 === 0 ? 'behind' : 'front';
+
+        if (layerType === 'behind') {
+            ornament.style.zIndex = 2;
+        } else {
+            ornament.style.zIndex = 5;
+        }
         container.appendChild(ornament);
     }
 });
