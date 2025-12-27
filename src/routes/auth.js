@@ -261,7 +261,6 @@ router.post('/avatar', async (req, res) => {
             return res.status(400).json({error: 'Зображення не надано'});
         }
 
-        // Перевірка формату
         const validFormats = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/jfif'];
         const mimeTypeMatch = avatar.match(/^data:(image\/[a-zA-Z+]+);base64,/);
 
@@ -274,7 +273,6 @@ router.post('/avatar', async (req, res) => {
             return res.status(400).json({error: 'Підтримуються тільки формати: PNG, JPG, JPEG, JFIF, GIF'});
         }
 
-        // Перевірка розміру (максимум 10MB)
         const base64Data = avatar.split(',')[1] || avatar;
         const sizeInBytes = Buffer.from(base64Data, 'base64').length;
         const sizeInMB = sizeInBytes / (1024 * 1024);
@@ -312,7 +310,6 @@ router.post('/avatar', async (req, res) => {
     }
 });
 
-// Отримання аватарки
 router.get('/avatar', async (req, res) => {
     if (!req.session.userId) {
         return res.status(401).json({authenticated: false});
@@ -342,7 +339,6 @@ router.get('/avatar', async (req, res) => {
     }
 });
 
-// Видалення аватарки
 router.delete('/avatar', async (req, res) => {
     if (!req.session.userId) {
         return res.status(401).json({error: 'Не авторизовано'});

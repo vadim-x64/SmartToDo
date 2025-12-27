@@ -100,10 +100,12 @@ document.getElementById('accountForm').addEventListener('submit', async (e) => {
         errorDiv.classList.remove('d-none');
     }
 });
+
 document.getElementById('logoutBtn').addEventListener('click', () => {
     const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
     logoutModal.show();
 });
+
 document.getElementById('confirmLogout').addEventListener('click', async () => {
     try {
         await fetch('/api/auth/logout', {method: 'POST'});
@@ -113,12 +115,14 @@ document.getElementById('confirmLogout').addEventListener('click', async () => {
         alert('Помилка з\'єднання');
     }
 });
+
 document.getElementById('deleteAccountBtn').addEventListener('click', () => {
     document.getElementById('deletePasswordConfirm').value = '';
     document.getElementById('deletePasswordError').classList.add('d-none');
     const deleteModal = new bootstrap.Modal(document.getElementById('deleteAccountModal'));
     deleteModal.show();
 });
+
 document.getElementById('confirmDeleteAccount').addEventListener('click', async () => {
     const password = document.getElementById('deletePasswordConfirm').value;
     const errorDiv = document.getElementById('deletePasswordError');
@@ -152,10 +156,11 @@ document.getElementById('confirmDeleteAccount').addEventListener('click', async 
         errorDiv.classList.remove('d-none');
     }
 });
-document.getElementById('toggleDeletePassword').addEventListener('click', function () {
-    const passwordInput = document.getElementById('deletePasswordConfirm');
-    const eyeIcon = document.getElementById('deleteEyeIcon');
-    const eyeSlashIcon = document.getElementById('deleteEyeSlashIcon');
+
+document.getElementById('togglePassword').addEventListener('click', function () {
+    const passwordInput = document.getElementById('password');
+    const eyeIcon = document.getElementById('eyeIcon');
+    const eyeSlashIcon = document.getElementById('eyeSlashIcon');
 
     if (passwordInput.type === 'password') {
         passwordInput.type = 'text';
@@ -199,7 +204,6 @@ async function loadAvatar() {
     }
 }
 
-// Функція для показу помилок
 function showError(message) {
     const errorDiv = document.getElementById('errorMessage');
     const successDiv = document.getElementById('successMessage');
@@ -207,13 +211,11 @@ function showError(message) {
     errorDiv.textContent = message;
     errorDiv.classList.remove('d-none');
 
-    // Автоматично приховати через 5 секунд
     setTimeout(() => {
         errorDiv.classList.add('d-none');
     }, 5000);
 }
 
-// Функція для показу успішних повідомлень
 function showSuccess(message) {
     const errorDiv = document.getElementById('errorMessage');
     const successDiv = document.getElementById('successMessage');
@@ -221,42 +223,35 @@ function showSuccess(message) {
     successDiv.textContent = message;
     successDiv.classList.remove('d-none');
 
-    // Автоматично приховати через 3 секунди
     setTimeout(() => {
         successDiv.classList.add('d-none');
     }, 3000);
 }
 
-// Обробка кліку на аватар
 document.querySelector('.avatar-wrapper').addEventListener('click', () => {
     document.getElementById('avatarInput').click();
 });
 
-// Обробка вибору файлу
 document.getElementById('avatarInput').addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Перевірка типу файлу
     const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/jfif'];
     const validExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.jfif'];
-
     const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
 
     if (!validTypes.includes(file.type) && !validExtensions.includes(fileExtension)) {
         showError('Невірний формат файлу! Підтримуються тільки: PNG, JPG, JPEG, JFIF, GIF');
-        e.target.value = ''; // Очистити input
+        e.target.value = '';
         return;
     }
 
-    // Додаткова перевірка на відео/аудіо
     if (file.type.startsWith('video/') || file.type.startsWith('audio/')) {
         showError('Відео та аудіо файли не підтримуються! Завантажуйте тільки зображення.');
         e.target.value = '';
         return;
     }
 
-    // Перевірка розміру (10MB)
     const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
         const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
@@ -294,7 +289,6 @@ document.getElementById('avatarInput').addEventListener('change', async (e) => {
             showError('Помилка з\'єднання з сервером');
         }
 
-        // Очистити input
         e.target.value = '';
     };
 
@@ -306,7 +300,6 @@ document.getElementById('avatarInput').addEventListener('change', async (e) => {
     reader.readAsDataURL(file);
 });
 
-// Видалення аватара
 document.getElementById('deleteAvatarBtn').addEventListener('click', () => {
     const deleteModal = new bootstrap.Modal(document.getElementById('deleteAvatarModal'));
     deleteModal.show();
