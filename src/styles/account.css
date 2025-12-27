@@ -157,7 +157,94 @@ h4 {
     box-shadow: none;
 }
 
+.avatar-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #000000;
+}
+
+.avatar-container {
+    position: relative;
+}
+
+.avatar-wrapper {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+    border: 3px solid #000000;
+    transition: all 0.3s ease;
+    background-color: #f0f0f0;
+}
+
+.avatar-wrapper:hover {
+    transform: scale(1.05);
+}
+
+.avatar-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Центрує і обрізає фото */
+    object-position: center; /* Центрує по центру */
+}
+
+.avatar-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+    pointer-events: none;
+}
+
+.avatar-wrapper:hover .avatar-overlay {
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.avatar-overlay svg {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.avatar-wrapper:hover .avatar-overlay svg {
+    opacity: 1;
+}
+
+#deleteAvatarBtn {
+    min-width: 200px;
+}
+
+/* Dark theme styles */
+body.dark-theme .avatar-wrapper {
+    border-color: #415A77;
+    background-color: #0D1B2A;
+}
+
+body.dark-theme .avatar-section {
+    border-bottom-color: #415A77;
+}
+
 @media screen and (max-width: 768px) {
+    .avatar-wrapper {
+        width: 120px;
+        height: 120px;
+    }
+
+    #deleteAvatarBtn {
+        min-width: 150px;
+        font-size: 14px;
+    }
+
     .header-card {
         padding: 100px 25px;
         height: auto;

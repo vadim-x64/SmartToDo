@@ -67,3 +67,5 @@ VALUES ('Мої'),
        ('Заплановані'),
        ('Завершені')
 ON CONFLICT (name) DO NOTHING;
+
+ALTER TABLE Customers ADD COLUMN avatar BYTEA;

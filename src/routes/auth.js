@@ -249,4 +249,130 @@ router.delete('/account', async (req, res) => {
     }
 });
 
+router.post('/avatar', async (req, res) => {
+    if (!req.session.userId) {
+        return res.status(401).json({error: 'Не авторизовано'});
+    }
+
+    try {
+        const {avatar} = req.body;
+
+        if (!avatar) {
+            return res.status(400).json({error: 'Зображення не надано'});
+        }
+
+        // Перевірка формату
+        const validFormats = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/jfif'];
+        const mimeTypeMatch = avatar.match(/^data:(image\/[a-zA-Z+]+);base64,/);
+
+        if (!mimeTypeMatch) {
+            return res.status(400).json({error: 'Невірний формат файлу'});
+        }
+
+        const mimeType = mimeTypeMatch[1];
+        if (!validFormats.includes(mimeType)) {
+            return res.status(400).json({error: 'Підтримуються тільки формати: PNG, JPG, JPEG, JFIF, GIF'});
+        }
+
+        // Перевірка розміру (максимум 10MB)
+        const base64Data = avatar.split(',')[1] || avatar;
+        const sizeInBytes = Buffer.from(base64Data, 'base64').length;
+        const sizeInMB = sizeInBytes / (1024 * 1024);
+
+        if (sizeInBytes > 10 * 1024 * 1024) {
+            return res.status(400).json({error: `Файл занадто великий (${sizeInMB.toFixed(2)}MB). Максимум: 10MB`});
+        }
+
+        const userResult = await pool.query(
+            'SELECT customer_id FROM Users WHERE id = $1',
+            [req.session.userId]
+        );
+
+        if (userResult.rows.length === 0) {
+            return res.status(404).json({error: 'Користувач не знайдено'});
+        }
+
+        const customerId = userResult.rows[0].customer_id;
+        const avatarBuffer = Buffer.from(base64Data, 'base64');
+
+        await pool.query(
+            'UPDATE Customers SET avatar = $1 WHERE id = $2',
+            [avatarBuffer, customerId]
+        );
+
+        await notifyAccountUpdated(req.session.userId);
+
+        res.json({
+            success: true,
+            message: 'Аватар успішно оновлено'
+        });
+    } catch (err) {
+        console.error('Помилка завантаження аватара:', err);
+        res.status(500).json({error: 'Помилка сервера при завантаженні аватара'});
+    }
+});
+
+// Отримання аватарки
+router.get('/avatar', async (req, res) => {
+    if (!req.session.userId) {
+        return res.status(401).json({authenticated: false});
+    }
+
+    try {
+        const result = await pool.query(
+            `SELECT c.avatar
+             FROM Users u
+             INNER JOIN Customers c ON u.customer_id = c.id
+             WHERE u.id = $1`,
+            [req.session.userId]
+        );
+
+        if (result.rows.length === 0 || !result.rows[0].avatar) {
+            return res.json({success: true, avatar: null});
+        }
+
+        const avatarBase64 = result.rows[0].avatar.toString('base64');
+        res.json({
+            success: true,
+            avatar: `data:image/jpeg;base64,${avatarBase64}`
+        });
+    } catch (err) {
+        console.error('Помилка отримання аватара:', err);
+        res.status(500).json({error: 'Помилка сервера'});
+    }
+});
+
+// Видалення аватарки
+router.delete('/avatar', async (req, res) => {
+    if (!req.session.userId) {
+        return res.status(401).json({error: 'Не авторизовано'});
+    }
+
+    try {
+        const userResult = await pool.query(
+            'SELECT customer_id FROM Users WHERE id = $1',
+            [req.session.userId]
+        );
+
+        if (userResult.rows.length === 0) {
+            return res.status(404).json({error: 'Користувач не знайдено'});
+        }
+
+        const customerId = userResult.rows[0].customer_id;
+
+        await pool.query(
+            'UPDATE Customers SET avatar = NULL WHERE id = $1',
+            [customerId]
+        );
+
+        res.json({
+            success: true,
+            message: 'Аватар успішно видалено'
+        });
+    } catch (err) {
+        console.error('Помилка видалення аватара:', err);
+        res.status(500).json({error: 'Помилка сервера при видаленні аватара'});
+    }
+});
+
 module.exports = router;

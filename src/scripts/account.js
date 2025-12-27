@@ -176,7 +176,175 @@ function initTheme() {
     }
 }
 
+async function loadAvatar() {
+    try {
+        const response = await fetch('/api/auth/avatar');
+        const data = await response.json();
+
+        const avatarImg = document.getElementById('avatarImage');
+        const plusIcon = document.getElementById('avatarPlusIcon');
+        const updateIcon = document.getElementById('avatarUpdateIcon');
+
+        if (data.success && data.avatar) {
+            avatarImg.src = data.avatar;
+            plusIcon.classList.add('d-none');
+            updateIcon.classList.remove('d-none');
+        } else {
+            avatarImg.src = '/static/default.png';
+            plusIcon.classList.remove('d-none');
+            updateIcon.classList.add('d-none');
+        }
+    } catch (err) {
+        console.error('Помилка завантаження аватара:', err);
+    }
+}
+
+// Функція для показу помилок
+function showError(message) {
+    const errorDiv = document.getElementById('errorMessage');
+    const successDiv = document.getElementById('successMessage');
+    successDiv.classList.add('d-none');
+    errorDiv.textContent = message;
+    errorDiv.classList.remove('d-none');
+
+    // Автоматично приховати через 5 секунд
+    setTimeout(() => {
+        errorDiv.classList.add('d-none');
+    }, 5000);
+}
+
+// Функція для показу успішних повідомлень
+function showSuccess(message) {
+    const errorDiv = document.getElementById('errorMessage');
+    const successDiv = document.getElementById('successMessage');
+    errorDiv.classList.add('d-none');
+    successDiv.textContent = message;
+    successDiv.classList.remove('d-none');
+
+    // Автоматично приховати через 3 секунди
+    setTimeout(() => {
+        successDiv.classList.add('d-none');
+    }, 3000);
+}
+
+// Обробка кліку на аватар
+document.querySelector('.avatar-wrapper').addEventListener('click', () => {
+    document.getElementById('avatarInput').click();
+});
+
+// Обробка вибору файлу
+document.getElementById('avatarInput').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Перевірка типу файлу
+    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/jfif'];
+    const validExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.jfif'];
+
+    const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+
+    if (!validTypes.includes(file.type) && !validExtensions.includes(fileExtension)) {
+        showError('Невірний формат файлу! Підтримуються тільки: PNG, JPG, JPEG, JFIF, GIF');
+        e.target.value = ''; // Очистити input
+        return;
+    }
+
+    // Додаткова перевірка на відео/аудіо
+    if (file.type.startsWith('video/') || file.type.startsWith('audio/')) {
+        showError('Відео та аудіо файли не підтримуються! Завантажуйте тільки зображення.');
+        e.target.value = '';
+        return;
+    }
+
+    // Перевірка розміру (10MB)
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+        showError(`Файл занадто великий (${fileSizeMB}MB). Максимальний розмір: 10MB`);
+        e.target.value = '';
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+        try {
+            const response = await fetch('/api/auth/avatar', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({avatar: event.target.result})
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                showSuccess('Аватар успішно оновлено');
+                await loadAvatar();
+
+                try {
+                    const notificationSound = new Audio('/static/notification.mp3');
+                    await notificationSound.play();
+                } catch (err) {
+                    console.log('Не вдалося відтворити звук:', err);
+                }
+            } else {
+                showError(data.error || 'Помилка оновлення аватара');
+            }
+        } catch (err) {
+            console.error('Помилка завантаження аватара:', err);
+            showError('Помилка з\'єднання з сервером');
+        }
+
+        // Очистити input
+        e.target.value = '';
+    };
+
+    reader.onerror = () => {
+        showError('Помилка читання файлу');
+        e.target.value = '';
+    };
+
+    reader.readAsDataURL(file);
+});
+
+// Видалення аватара
+document.getElementById('deleteAvatarBtn').addEventListener('click', () => {
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteAvatarModal'));
+    deleteModal.show();
+});
+
+document.getElementById('confirmDeleteAvatar').addEventListener('click', async () => {
+    try {
+        const response = await fetch('/api/auth/avatar', {
+            method: 'DELETE'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showSuccess('Аватар успішно видалено');
+            await loadAvatar();
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('deleteAvatarModal'));
+            modal.hide();
+
+            try {
+                const notificationSound = new Audio('/static/notification.mp3');
+                await notificationSound.play();
+            } catch (err) {
+                console.log('Не вдалося відтворити звук:', err);
+            }
+        } else {
+            showError(data.error || 'Помилка видалення аватара');
+        }
+    } catch (err) {
+        console.error('Помилка видалення аватара:', err);
+        showError('Помилка з\'єднання');
+    }
+});
+
 document.addEventListener('DOMContentLoaded', () => {
+    loadAvatar();
+
     const blobs = document.querySelectorAll('.blob');
     const container = document.querySelector('.animated-bg-container');
 
