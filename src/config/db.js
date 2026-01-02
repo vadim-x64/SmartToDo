@@ -9,10 +9,12 @@ const pool = new Pool({
     port: process.env.DB_PORT,
     ssl: process.env.NODE_ENV === 'production' ? {
         rejectUnauthorized: false
-    } : false
+    } : false,
+    client_encoding: 'UTF8'
 });
 
 pool.on('connect', (client) => {
+    client.query("SET CLIENT_ENCODING TO 'UTF8'");
     client.query("SET timezone = 'Europe/Kiev'");
 });
 
