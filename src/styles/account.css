@@ -294,13 +294,21 @@ h4 {
     }
 
     .avatar-wrapper {
-        width: 120px;
-        height: 120px;
+        width: 200px;
+        height: 200px;
     }
 
     #deleteAvatarBtn {
         min-width: 150px;
         font-size: 14px;
+        border: none;
+    }
+
+    #deleteAvatarBtn:hover,
+    #deleteAvatarBtn:focus {
+        background: none;
+        border: none;
+        color: #EF5350;
     }
 
     .header-card {

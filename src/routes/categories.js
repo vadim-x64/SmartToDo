@@ -6,8 +6,6 @@ router.get('/', async (req, res) => {
     try {
         const userId = req.session.userId;
 
-        await pool.query("SET CLIENT_ENCODING TO 'UTF8'");
-
         const result = await pool.query(
             `SELECT c.id,
                     c.name,
