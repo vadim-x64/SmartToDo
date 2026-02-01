@@ -103,6 +103,10 @@ router.get('/export', async (req, res) => {
 });
 
 function generateTasksHTML(tasks) {
+    const completedCount = tasks.filter(t => t.status === 'completed').length;
+    const activeCount = tasks.filter(t => t.status === 'active').length;
+    const priorityCount = tasks.filter(t => t.priority).length;
+
     const taskRows = tasks.map((task, index) => {
         const status = task.status === 'completed' ? '✅ Виконано' : '⏳ Активно';
         const priority = task.priority ? '⭐ Важливе' : '-';
@@ -111,9 +115,10 @@ function generateTasksHTML(tasks) {
             : '-';
         const created = new Date(task.created_at).toLocaleString('uk-UA');
         const updated = new Date(task.updated_at).toLocaleString('uk-UA');
+        const rowClass = task.status === 'completed' ? 'completed-task' : '';
 
         return `
-            <tr>
+            <tr class="${rowClass}">
                 <td>${index + 1}</td>
                 <td><strong>${task.title}</strong></td>
                 <td>${task.description || '-'}</td>
@@ -138,20 +143,31 @@ function generateTasksHTML(tasks) {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+        
+        body {
+            background-color: #FFFFFF;
+            color: #000000;
+            padding: 20px;
+            line-height: 1.6;
         }
         
         .container {
-            margin: auto;
+            max-width: 1200px;
+            margin: 0 auto;
         }
         
         h1 {
-            color: #333;
+            color: #000000;
             margin-bottom: 10px;
             font-size: 32px;
+            border-bottom: 2px solid #000000;
+            padding-bottom: 10px;
         }
         
         .export-info {
-            color: #666;
+            color: #666666;
             margin-bottom: 30px;
             font-size: 14px;
         }
@@ -165,43 +181,117 @@ function generateTasksHTML(tasks) {
         
         .stat-card {
             padding: 20px;
-            border-radius: 10px;
-            color: white;
+            border: 2px solid #000000;
+            border-radius: 5px;
             text-align: center;
+            background-color: #F8F9FA;
         }
         
         .stat-card h3 {
             font-size: 36px;
             margin-bottom: 5px;
+            color: #000000;
         }
         
         .stat-card p {
             font-size: 14px;
+            color: #495057;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            border: 1px solid #000000;
+            border-radius: 5px;
+            margin-top: 20px;
         }
         
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            background-color: #FFFFFF;
         }
         
         th {
-            background: #f8f9fa;
+            background-color: #000000;
+            color: #FFFFFF;
             padding: 15px;
             text-align: left;
             font-weight: 600;
-            color: #333;
-            border-bottom: 2px solid #dee2e6;
+            border-bottom: 2px solid #000000;
+            white-space: nowrap;
         }
         
         td {
             padding: 15px;
-            border-bottom: 1px solid #e9ecef;
-            color: #495057;
+            border-bottom: 1px solid #CCCCCC;
+            color: #000000;
         }
         
         tr:hover {
-            background: #f8f9fa;
+            background-color: #F8F9FA;
+        }
+        
+        tr.completed-task td {
+            text-decoration: line-through;
+            color: #AAAAAA;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .stat-card {
+                padding: 15px;
+            }
+            
+            .stat-card h3 {
+                font-size: 28px;
+            }
+            
+            .table-container {
+                border: none;
+                border-radius: 0;
+            }
+            
+            table {
+                font-size: 12px;
+            }
+            
+            th, td {
+                padding: 8px;
+            }
+            
+            th {
+                font-size: 11px;
+            }
+        }
+        
+        @media print {
+            body {
+                background-color: #FFFFFF;
+            }
+            
+            .stat-card {
+                break-inside: avoid;
+            }
+            
+            tr {
+                break-inside: avoid;
+            }
         }
     </style>
 </head>
@@ -214,24 +304,38 @@ function generateTasksHTML(tasks) {
                 <h3>${tasks.length}</h3>
                 <p>Всього завдань</p>
             </div>
+            <div class="stat-card">
+                <h3>${activeCount}</h3>
+                <p>Активних</p>
+            </div>
+            <div class="stat-card">
+                <h3>${completedCount}</h3>
+                <p>Виконаних</p>
+            </div>
+            <div class="stat-card">
+                <h3>${priorityCount}</h3>
+                <p>Важливих</p>
+            </div>
         </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Назва</th>
-                    <th>Опис</th>
-                    <th>Статус</th>
-                    <th>Пріоритет</th>
-                    <th>Термін</th>
-                    <th>Створено</th>
-                    <th>Оновлено</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${taskRows}
-            </tbody>
-        </table>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Назва</th>
+                        <th>Опис</th>
+                        <th>Статус</th>
+                        <th>Пріоритет</th>
+                        <th>Термін</th>
+                        <th>Створено</th>
+                        <th>Оновлено</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${taskRows}
+                </tbody>
+            </table>
+        </div>
     </div>
 </body>
 </html>

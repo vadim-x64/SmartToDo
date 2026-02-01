@@ -1,5 +1,5 @@
 .pinned-tasks-container {
-    position: fixed;
+    position: absolute;
     top: 100px;
     left: 0;
     right: 0;
@@ -100,7 +100,7 @@
 }
 
 .export-option {
-    border: 2px solid #CCCCCC;
+    border: 1px solid #CCCCCC;
     border-radius: 10px;
     padding: 20px;
     text-align: center;
@@ -120,45 +120,14 @@
 }
 
 .format-icon {
-    width: 64px;
-    height: 64px;
-    object-fit: contain;
-}
-
-.export-option h6 {
-    margin-bottom: 10px;
-    font-weight: bold;
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
 }
 
 .export-option p {
     margin-bottom: 0;
 }
-
-body.dark-theme .export-option {
-    border-color: #415A77;
-    background-color: #1B263B;
-}
-
-body.dark-theme .export-option:hover {
-    border-color: #64B5F6;
-    background-color: #243447;
-}
-
-body.dark-theme .export-option h6 {
-    color: #E0E7FF;
-}
-
-@media screen and (max-width: 768px) {
-    .export-format-options {
-        grid-template-columns: 1fr;
-    }
-}
-
-
-
-
-
-
 
 * {
     box-sizing: border-box;
@@ -649,6 +618,17 @@ h4::after {
 }
 
 @media screen and (max-width: 768px) {
+    .export-format-options {
+        grid-template-columns: 1fr;
+    }
+
+    .export-option:hover {
+        border: 1px solid #CCCCCC;
+        background-color: #FFFFFF;
+        transform: translateY(0);
+        box-shadow: none;
+    }
+
     .pinned-tasks-container {
         display: none;
     }
@@ -1058,4 +1038,18 @@ body.dark-theme .alert-danger {
     background-color: #3D1F1F;
     border-color: #EF5350;
     color: #FFCDD2;
+}
+
+body.dark-theme .export-option {
+    border-color: #415A77;
+    background-color: #1B263B;
+}
+
+body.dark-theme .export-icon {
+    filter: invert(1);
+}
+
+body.dark-theme .export-option:hover {
+    border-color: #64B5F6;
+    background-color: #243447;
 }
