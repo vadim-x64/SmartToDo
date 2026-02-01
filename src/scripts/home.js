@@ -416,8 +416,8 @@ async function loadPinnedTasks() {
                                 top: ${position.top};">
                         <div class="pinned-task-title">${task.title}</div>
                         <div class="pinned-task-meta">
-                            ${priorityStar ? `<span class="badge">Важливе</span>` : ''}
-                            ${deadlineIcon ? `<span class="badge">Дедлайн</span>` : ''}
+                            ${priorityStar ? `<span class="badge">Важливі</span>` : ''}
+                            ${deadlineIcon ? `<span class="badge">Заплановані</span>` : ''}
                         </div>
                         <div class="pinned-task-actions">
                             <button class="task-pin-remove" data-task-id="${task.id}" title="Відкріпити">

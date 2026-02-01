@@ -154,9 +154,29 @@ h4 {
     padding: 100px 25px;
     margin-bottom: 50px;
     height: 350px;
-    border-radius: 0 0 50% 50%;
+    border-radius: 0;
     position: relative;
     overflow: hidden;
+    clip-path: path(' M 0 0 L 1000 0 L 1000 260 C 875 340, 750 180, 625 260 C 500 340, 375 180, 250 260 C 125 340, 0 180, 0 260 Z ');
+    animation: waveMove 8s ease-in-out infinite;
+}
+
+@keyframes waveMove {
+    0% {
+        clip-path: path('M 0 0 L 1000 0 L 1000 260 C 875 340, 750 180, 625 260 C 500 340, 375 180, 250 260 C 125 340, 0 180, 0 260 Z');
+    }
+    25% {
+        clip-path: path('M 0 0 L 1000 0 L 1000 260 C 875 180, 750 340, 625 260 C 500 180, 375 340, 250 260 C 125 180, 0 340, 0 260 Z');
+    }
+    50% {
+        clip-path: path('M 0 0 L 1000 0 L 1000 260 C 875 340, 750 180, 625 260 C 500 340, 375 180, 250 260 C 125 340, 0 180, 0 260 Z');
+    }
+    75% {
+        clip-path: path('M 0 0 L 1000 0 L 1000 260 C 875 180, 750 340, 625 260 C 500 180, 375 340, 250 260 C 125 180, 0 340, 0 260 Z');
+    }
+    100% {
+        clip-path: path('M 0 0 L 1000 0 L 1000 260 C 875 340, 750 180, 625 260 C 500 340, 375 180, 250 260 C 125 340, 0 180, 0 260 Z');
+    }
 }
 
 .header-content-wrapper {
@@ -618,6 +638,24 @@ h4::after {
 }
 
 @media screen and (max-width: 768px) {
+    @keyframes waveMove {
+        0% {
+            clip-path: path('M 0 0 L 1000 0 L 1000 400 C 875 480, 750 320, 625 400 C 500 480, 375 320, 250 400 C 125 480, 0 320, 0 400 Z');
+        }
+        25% {
+            clip-path: path('M 0 0 L 1000 0 L 1000 400 C 875 320, 750 480, 625 400 C 500 320, 375 480, 250 400 C 125 320, 0 480, 0 400 Z');
+        }
+        50% {
+            clip-path: path('M 0 0 L 1000 0 L 1000 400 C 875 480, 750 320, 625 400 C 500 480, 375 320, 250 400 C 125 480, 0 320, 0 400 Z');
+        }
+        75% {
+            clip-path: path('M 0 0 L 1000 0 L 1000 400 C 875 320, 750 480, 625 400 C 500 320, 375 480, 250 400 C 125 320, 0 480, 0 400 Z');
+        }
+        100% {
+            clip-path: path('M 0 0 L 1000 0 L 1000 400 C 875 480, 750 320, 625 400 C 500 480, 375 320, 250 400 C 125 480, 0 320, 0 400 Z');
+        }
+    }
+    
     .export-format-options {
         grid-template-columns: 1fr;
     }
@@ -646,6 +684,12 @@ h4::after {
 
     #welcomeMessage {
         font-size: 16px;
+    }
+
+    .notification-btn {
+        position: absolute;
+        top: -70px;
+        right: 0;
     }
 
     .notification-modal {
