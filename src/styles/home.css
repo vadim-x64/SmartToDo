@@ -1,26 +1,24 @@
-/* Оновлений CSS для закріплених тасок */
 .pinned-tasks-container {
     position: fixed;
-    top: 120px;
+    top: 100px;
     left: 0;
     right: 0;
     width: 100%;
-    height: calc(100vh - 120px);
+    height: 100vh;
     z-index: 999;
     pointer-events: none;
 }
 
 .pinned-task-note {
-    width: 200px;
-    height: 200px;
-    background-size: cover;
+    width: 220px;
+    height: 220px;
+    background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
     padding: 20px;
-    box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.3);
     position: absolute;
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.3s ease;
     pointer-events: auto;
     display: flex;
     flex-direction: column;
@@ -28,121 +26,72 @@
 }
 
 .pinned-task-note:hover {
-    transform: scale(1.05) !important;
-    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1) !important;
     z-index: 1000;
 }
 
 .pinned-task-note::before {
-    content: '📌';
+    content: '🧷';
     position: absolute;
-    top: -12px;
+    top: -15px;
     left: 50%;
     transform: translateX(-50%) rotate(-15deg);
-    font-size: 28px;
+    font-size: 24px;
 }
 
 .pinned-task-title {
     font-weight: bold;
-    font-size: 14px;
+    font-size: 18px;
     word-wrap: break-word;
-    color: #000000;
-    text-shadow: 0 0 3px rgba(255, 255, 255, 0.8);
+    color: rgba(0, 0, 0, 0.5);
     overflow: hidden;
     display: -webkit-box;
-    -webkit-line-clamp: 4;
     -webkit-box-orient: vertical;
+    margin-top: 30px;
 }
 
 .pinned-task-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 5px;
-    margin-top: 8px;
+    gap: 10px;
+    margin-top: 10px;
 }
 
 .pinned-task-meta .badge {
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 0, 0, 0.5);
     color: #FFFFFF;
-    padding: 3px 8px;
-    border-radius: 10px;
-    font-size: 10px;
+    padding: 5px 10px;
+    border-radius: 200px;
+    font-size: 8px;
 }
 
 .pinned-task-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 8px;
+    gap: 10px;
     margin-top: auto;
 }
 
 .pinned-task-actions button {
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid #000000;
-    border-radius: 3px;
-    font-size: 16px;
+    background-color: transparent;
+    border: none;
+    font-size: 18px;
     cursor: pointer;
-    padding: 5px 8px;
-    transition: background-color 0.2s ease;
-}
-
-.pinned-task-actions button:hover {
-    background: rgba(255, 255, 255, 1);
+    padding: 5px;
 }
 
 .task-pin {
     background-color: transparent;
     border: none;
-    font-size: 24px;
+    font-size: 18px;
     cursor: pointer;
     padding: 0;
-    color: #6c757d;
+    color: #6C757D;
 }
 
 .task-pin:hover {
     color: #495057;
 }
-
-/* Темна тема */
-body.dark-theme .pinned-task-note {
-    box-shadow: 3px 3px 12px rgba(0, 0, 0, 0.6);
-}
-
-body.dark-theme .pinned-task-title {
-    text-shadow: 0 0 4px rgba(255, 255, 255, 0.9);
-}
-
-body.dark-theme .pinned-task-meta .badge {
-    background-color: rgba(65, 90, 119, 0.9);
-}
-
-body.dark-theme .pinned-task-actions button {
-    background: rgba(27, 38, 59, 0.9);
-    border-color: #415A77;
-    color: #E0E7FF;
-}
-
-@media screen and (max-width: 768px) {
-    .pinned-tasks-container {
-        top: 100px;
-    }
-
-    .pinned-task-note {
-        width: 150px;
-        height: 150px;
-        padding: 15px;
-    }
-
-    .pinned-task-title {
-        font-size: 12px;
-        -webkit-line-clamp: 3;
-    }
-}
-
-
-
-
-
 
 * {
     box-sizing: border-box;
@@ -633,6 +582,10 @@ h4::after {
 }
 
 @media screen and (max-width: 768px) {
+    .pinned-tasks-container {
+        display: none;
+    }
+
     .header-card {
         padding: 100px 25px;
         height: auto;

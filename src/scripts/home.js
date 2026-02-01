@@ -172,7 +172,7 @@ function attachSearchResultsHandlers() {
             await fetch(`/api/tasks/${taskId}/complete`, {method: 'PUT'});
             const query = document.getElementById('searchInput').value.trim();
             await searchTasks(query);
-            await loadPinnedTasks(); // Додайте цей рядок
+            await loadPinnedTasks();
             await updateCategoryCounts();
             await loadUnreadCount();
         });
@@ -184,7 +184,7 @@ function attachSearchResultsHandlers() {
             await fetch(`/api/tasks/${taskId}/priority`, {method: 'PUT'});
             const query = document.getElementById('searchInput').value.trim();
             await searchTasks(query);
-            await loadPinnedTasks(); // Додайте цей рядок
+            await loadPinnedTasks();
             await updateCategoryCounts();
             await loadUnreadCount();
         });
@@ -246,7 +246,7 @@ function attachSearchResultsHandlers() {
                         deleteModal.hide();
                         const query = document.getElementById('searchInput').value.trim();
                         await searchTasks(query);
-                        await loadPinnedTasks(); // Додайте цей рядок
+                        await loadPinnedTasks();
                         await loadCategories();
                         await loadUnreadCount();
                     } else {
@@ -291,7 +291,7 @@ async function checkAuth() {
             });
 
             await loadCategories();
-            await loadPinnedTasks(); // Додайте цей рядок
+            await loadPinnedTasks();
             await loadUnreadCount();
         }
     } catch (err) {
@@ -343,16 +343,32 @@ async function loadCategories() {
 }
 
 const stickerBackgrounds = [
-    '/static/stickers/images.jpg'
+    '/static/stickers/yellow.png',
+    '/static/stickers/blue.png',
+    '/static/stickers/green.png',
+    '/static/stickers/pink.png',
 ];
 
+let shuffledStickers = [];
+
+function shuffle(array) {
+    return array
+        .map(value => ({ value, sort: Math.random() }))
+        .sort((a, b) => a.sort - b.sort)
+        .map(({ value }) => value);
+}
+
 function getRandomSticker() {
-    return stickerBackgrounds[Math.floor(Math.random() * stickerBackgrounds.length)];
+    if (shuffledStickers.length === 0) {
+        shuffledStickers = shuffle([...stickerBackgrounds]);
+    }
+
+    return shuffledStickers.pop();
 }
 
 function calculateStickerPosition(index, totalCount) {
     const isLeft = index % 2 === 0;
-    const verticalOffset = Math.floor(index / 2) * 250; // 250px між стікерами по вертикалі
+    const verticalOffset = Math.floor(index / 2) * 250;
 
     const position = {
         left: isLeft ? '30px' : 'auto',
@@ -360,10 +376,9 @@ function calculateStickerPosition(index, totalCount) {
         top: `${verticalOffset}px`
     };
 
-    // Рандомний кут повороту
     const rotation = isLeft
-        ? Math.random() * 8 - 12  // від -12 до -4 для лівих
-        : Math.random() * 8 + 4;  // від 4 до 12 для правих
+        ? Math.random() * 8 - 12
+        : Math.random() * 8 + 4;
 
     return { position, rotation };
 }
@@ -547,7 +562,6 @@ async function loadTasksForCategory(card, categoryId) {
                 const deadlineIcon = task.deadline ? '⏱' : '';
                 const created = new Date(task.created_at).toLocaleString('uk-UA');
                 const updated = new Date(task.updated_at).toLocaleString('uk-UA');
-                // Знайдіть функцію loadTasksForCategory і замініть рядок з task-pin:
                 return `
     <div class="task-item d-flex align-items-center gap-3 py-3" data-task-id="${task.id}" data-task-title="${task.title}">
         <div class="task-select" data-task-id="${task.id}"></div>
@@ -571,7 +585,7 @@ async function loadTasksForCategory(card, categoryId) {
                     const taskId = cb.closest('.task-item').dataset.taskId;
                     await fetch(`/api/tasks/${taskId}/complete`, {method: 'PUT'});
                     await loadTasksForCategory(card, categoryId);
-                    await loadPinnedTasks(); // Додайте цей рядок
+                    await loadPinnedTasks();
                     await updateCategoryCounts();
                     await loadUnreadCount();
                 });
@@ -582,7 +596,7 @@ async function loadTasksForCategory(card, categoryId) {
                     const taskId = btn.closest('.task-item').dataset.taskId;
                     await fetch(`/api/tasks/${taskId}/priority`, {method: 'PUT'});
                     await loadTasksForCategory(card, categoryId);
-                    await loadPinnedTasks(); // Додайте цей рядок
+                    await loadPinnedTasks();
                     await updateCategoryCounts();
                     await loadUnreadCount();
                 });
@@ -653,7 +667,7 @@ async function loadTasksForCategory(card, categoryId) {
                             if (data.success) {
                                 deleteModal.hide();
                                 await loadTasksForCategory(card, categoryId);
-                                await loadPinnedTasks(); // Додайте цей рядок
+                                await loadPinnedTasks();
                                 await updateCategoryCounts();
                                 await loadUnreadCount();
                             } else {
@@ -744,7 +758,6 @@ async function deleteAllNotifications() {
             await loadNotifications();
             await loadUnreadCount();
 
-            // Ховаємо кнопку видалення
             document.getElementById('deleteAllNotificationsBtn').classList.add('d-none');
         }
     } catch (err) {
@@ -930,7 +943,7 @@ document.getElementById('createTaskForm').addEventListener('submit', async (e) =
             createModal.hide();
             document.getElementById('createTaskForm').reset();
             await loadCategories();
-            await loadPinnedTasks(); // Додайте цей рядок
+            await loadPinnedTasks();
             await loadUnreadCount();
         } else {
             alert(data.error || 'Помилка створення');
@@ -956,7 +969,7 @@ document.getElementById('confirmDeleteAll').addEventListener('click', async () =
             deleteAllModal.hide();
 
             await loadCategories();
-            await loadPinnedTasks(); // Додайте цей рядок
+            await loadPinnedTasks();
             await loadUnreadCount();
         } else {
             alert(data.error || 'Помилка видалення');
@@ -1019,7 +1032,7 @@ document.getElementById('confirmDeleteSelected').addEventListener('click', async
             clearSelection();
 
             await loadCategories();
-            await loadPinnedTasks(); // Додайте цей рядок
+            await loadPinnedTasks();
             await loadUnreadCount();
         } else {
             alert(data.error || 'Помилка видалення');
@@ -1064,7 +1077,7 @@ document.getElementById('editTaskForm').addEventListener('submit', async (e) => 
             }
 
             await loadCategories();
-            await loadPinnedTasks(); // Додайте цей рядок
+            await loadPinnedTasks();
             await loadUnreadCount();
         } else {
             alert(data.error || 'Помилка оновлення');
@@ -1172,7 +1185,7 @@ document.getElementById('importBtn').addEventListener('click', () => {
 
             if (data.success) {
                 await loadCategories();
-                await loadPinnedTasks(); // Додайте цей рядок
+                await loadPinnedTasks();
                 await loadUnreadCount();
             } else {
                 alert(data.error || 'Помилка імпорту');
@@ -1232,7 +1245,7 @@ document.getElementById('completeAllSelectedBtn').addEventListener('click', asyn
         }
 
         await loadCategories();
-        await loadPinnedTasks(); // Додайте цей рядок
+        await loadPinnedTasks();
         await loadUnreadCount();
     } catch (err) {
         console.error('Помилка позначення завдань як виконаних: ', err);
