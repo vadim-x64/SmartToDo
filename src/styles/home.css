@@ -93,6 +93,73 @@
     color: #495057;
 }
 
+.export-format-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.export-option {
+    border: 2px solid #CCCCCC;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.export-option:hover {
+    border-color: #000000;
+    background-color: #F8F9FA;
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.export-icon {
+    margin-bottom: 15px;
+}
+
+.format-icon {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+}
+
+.export-option h6 {
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.export-option p {
+    margin-bottom: 0;
+}
+
+body.dark-theme .export-option {
+    border-color: #415A77;
+    background-color: #1B263B;
+}
+
+body.dark-theme .export-option:hover {
+    border-color: #64B5F6;
+    background-color: #243447;
+}
+
+body.dark-theme .export-option h6 {
+    color: #E0E7FF;
+}
+
+@media screen and (max-width: 768px) {
+    .export-format-options {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+
+
+
+
+
 * {
     box-sizing: border-box;
     font-family: Verdana, Geneva, Tahoma, sans-serif;

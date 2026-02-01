@@ -70,10 +70,11 @@ router.get('/', async (req, res) => {
 
 router.get('/export', async (req, res) => {
     const userId = req.session.userId;
+    const format = req.query.format || 'json';
 
     try {
         const result = await pool.query(
-            'SELECT title, description, deadline, priority, status FROM Tasks WHERE user_id = $1',
+            'SELECT title, description, deadline, priority, status, created_at, updated_at FROM Tasks WHERE user_id = $1 ORDER BY created_at DESC',
             [userId]
         );
 
@@ -81,16 +82,161 @@ router.get('/export', async (req, res) => {
             return res.status(400).json({error: 'Немає завдань для експорту'});
         }
 
-        await notifyTasksExported(userId, result.rows.length);
+        if (format === 'html') {
+            const html = generateTasksHTML(result.rows);
+            await notifyTasksExported(userId, result.rows.length);
 
-        res.setHeader('Content-Type', 'application/json');
-        res.setHeader('Content-Disposition', 'attachment; filename=exportedTasks.json');
-        res.json(result.rows);
+            res.setHeader('Content-Type', 'text/html; charset=utf-8');
+            res.setHeader('Content-Disposition', 'attachment; filename=tasks.html');
+            res.send(html);
+        } else {
+            await notifyTasksExported(userId, result.rows.length);
+
+            res.setHeader('Content-Type', 'application/json');
+            res.setHeader('Content-Disposition', 'attachment; filename=tasks.json');
+            res.json(result.rows);
+        }
     } catch (err) {
         console.error('Помилка експорту: ', err);
         res.status(500).json({error: 'Помилка експорту'});
     }
 });
+
+function generateTasksHTML(tasks) {
+    const taskRows = tasks.map((task, index) => {
+        const status = task.status === 'completed' ? '✅ Виконано' : '⏳ Активно';
+        const priority = task.priority ? '⭐ Важливе' : '-';
+        const deadline = task.deadline
+            ? new Date(task.deadline).toLocaleString('uk-UA')
+            : '-';
+        const created = new Date(task.created_at).toLocaleString('uk-UA');
+        const updated = new Date(task.updated_at).toLocaleString('uk-UA');
+
+        return `
+            <tr>
+                <td>${index + 1}</td>
+                <td><strong>${task.title}</strong></td>
+                <td>${task.description || '-'}</td>
+                <td>${status}</td>
+                <td>${priority}</td>
+                <td>${deadline}</td>
+                <td>${created}</td>
+                <td>${updated}</td>
+            </tr>
+        `;
+    }).join('');
+
+    return `
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartToDo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        .container {
+            margin: auto;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        
+        .export-info {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            font-size: 36px;
+            margin-bottom: 5px;
+        }
+        
+        .stat-card p {
+            font-size: 14px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+            color: #495057;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SmartToDo</h1>
+        <p class="export-info">Дата експорту: ${new Date().toLocaleString('uk-UA')}</p>
+        <div class="stats">
+            <div class="stat-card">
+                <h3>${tasks.length}</h3>
+                <p>Всього завдань</p>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Назва</th>
+                    <th>Опис</th>
+                    <th>Статус</th>
+                    <th>Пріоритет</th>
+                    <th>Термін</th>
+                    <th>Створено</th>
+                    <th>Оновлено</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${taskRows}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
+    `;
+}
 
 router.post('/import', async (req, res) => {
     const userId = req.session.userId;

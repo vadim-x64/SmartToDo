@@ -1139,8 +1139,23 @@ document.getElementById('themeToggleBtn').addEventListener('click', () => {
 initTheme();
 
 document.getElementById('exportBtn').addEventListener('click', async () => {
+    const exportModal = new bootstrap.Modal(document.getElementById('exportFormatModal'));
+    exportModal.show();
+});
+
+document.querySelectorAll('.export-option').forEach(option => {
+    option.addEventListener('click', async function() {
+        const format = this.dataset.format;
+        const exportModal = bootstrap.Modal.getInstance(document.getElementById('exportFormatModal'));
+        exportModal.hide();
+
+        await exportTasks(format);
+    });
+});
+
+async function exportTasks(format) {
     try {
-        const response = await fetch('/api/tasks/export');
+        const response = await fetch(`/api/tasks/export?format=${format}`);
 
         if (!response.ok) {
             return;
@@ -1150,7 +1165,12 @@ document.getElementById('exportBtn').addEventListener('click', async () => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `tasks_${new Date().toISOString().split('T')[0]}.json`;
+
+        const date = new Date().toISOString().split('T')[0];
+        a.download = format === 'json'
+            ? `tasks_${date}.json`
+            : `tasks_${date}.html`;
+
         document.body.appendChild(a);
         a.click();
         a.remove();
@@ -1159,7 +1179,7 @@ document.getElementById('exportBtn').addEventListener('click', async () => {
     } catch (err) {
         console.error('Помилка експорту: ', err);
     }
-});
+}
 
 document.getElementById('importBtn').addEventListener('click', () => {
     const input = document.createElement('input');
