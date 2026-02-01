@@ -35,12 +35,15 @@ async function removeCategory(taskId, catId) {
 router.get('/', async (req, res) => {
     const userId = req.session.userId;
     const categoryId = req.query.category_id;
+    const pinnedOnly = req.query.pinned === 'true';
 
     try {
         let query = 'SELECT t.* FROM Tasks t';
         let params = [userId];
 
-        if (categoryId) {
+        if (pinnedOnly) {
+            query += ' WHERE t.user_id = $1 AND t.pinned = true AND t.status = \'active\'';
+        } else if (categoryId) {
             const catCheck = await pool.query('SELECT name FROM Categories WHERE id = $1', [categoryId]);
             const isCompletedCategory = catCheck.rows[0]?.name === 'Завершені';
 
@@ -54,7 +57,7 @@ router.get('/', async (req, res) => {
             query += ' WHERE t.user_id = $1';
         }
 
-        query += ' ORDER BY t.priority DESC, t.created_at DESC';
+        query += ' ORDER BY t.pinned DESC, t.priority DESC, t.created_at DESC';
 
         const result = await pool.query(query, params);
 
@@ -523,6 +526,32 @@ router.post('/delete-selected', async (req, res) => {
         });
     } catch (err) {
         console.error('Помилка видалення вибраних завдань: ', err);
+        res.status(500).json({error: 'Помилка сервера'});
+    }
+});
+
+router.put('/:id/pin', async (req, res) => {
+    const taskId = req.params.id;
+    const userId = req.session.userId;
+
+    try {
+        const currentRes = await pool.query(
+            'SELECT pinned, title FROM Tasks WHERE id = $1 AND user_id = $2',
+            [taskId, userId]
+        );
+
+        if (currentRes.rows.length === 0) return res.status(404).json({error: 'Завдання не знайдено'});
+
+        const newPinned = !currentRes.rows[0].pinned;
+
+        await pool.query(
+            'UPDATE Tasks SET pinned = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+            [newPinned, taskId]
+        );
+
+        res.json({success: true, newPinned});
+    } catch (err) {
+        console.error('Помилка оновлення закріплення: ', err);
         res.status(500).json({error: 'Помилка сервера'});
     }
 });

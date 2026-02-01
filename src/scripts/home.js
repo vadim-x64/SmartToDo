@@ -117,6 +117,9 @@ async function displaySearchResults(tasks, query = '', isSorting = false) {
                     ${deadlineInfo}
                 </div>
                 ${deadlineIcon ? `<span class="task-deadline-icon">${deadlineIcon}</span>` : ''}
+                <button class="task-pin" data-pinned="${task.pinned || false}">
+                    <i class="bi ${task.pinned ? 'bi-pin-fill' : 'bi-pin'}"></i>
+                </button>
                 <button class="task-priority">${priorityStar}</button>
                 <button class="task-delete">❌️</button>
                 <div class="txt-muted">
@@ -169,6 +172,7 @@ function attachSearchResultsHandlers() {
             await fetch(`/api/tasks/${taskId}/complete`, {method: 'PUT'});
             const query = document.getElementById('searchInput').value.trim();
             await searchTasks(query);
+            await loadPinnedTasks(); // Додайте цей рядок
             await updateCategoryCounts();
             await loadUnreadCount();
         });
@@ -180,10 +184,12 @@ function attachSearchResultsHandlers() {
             await fetch(`/api/tasks/${taskId}/priority`, {method: 'PUT'});
             const query = document.getElementById('searchInput').value.trim();
             await searchTasks(query);
+            await loadPinnedTasks(); // Додайте цей рядок
             await updateCategoryCounts();
             await loadUnreadCount();
         });
     });
+
 
     searchResultsList.querySelectorAll('.task-title').forEach(title => {
         title.addEventListener('click', async () => {
@@ -240,16 +246,29 @@ function attachSearchResultsHandlers() {
                         deleteModal.hide();
                         const query = document.getElementById('searchInput').value.trim();
                         await searchTasks(query);
+                        await loadPinnedTasks(); // Додайте цей рядок
                         await loadCategories();
                         await loadUnreadCount();
                     } else {
-                        alert(data.error || 'Помилка видалення');
+                        alert(data.error || 'ПомилкА видалення');
                     }
                 } catch (err) {
                     console.error('Помилка видалення: ', err);
                     alert('Помилка з\'єднання');
                 }
             };
+        });
+    });
+
+    searchResultsList.querySelectorAll('.task-pin').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const taskId = btn.closest('.task-item').dataset.taskId;
+            await fetch(`/api/tasks/${taskId}/pin`, {method: 'PUT'});
+            const query = document.getElementById('searchInput').value.trim();
+            await searchTasks(query);
+            await loadPinnedTasks();
+            await updateCategoryCounts();
+            await loadUnreadCount();
         });
     });
 }
@@ -272,6 +291,7 @@ async function checkAuth() {
             });
 
             await loadCategories();
+            await loadPinnedTasks(); // Додайте цей рядок
             await loadUnreadCount();
         }
     } catch (err) {
@@ -322,6 +342,139 @@ async function loadCategories() {
     }
 }
 
+async function loadPinnedTasks() {
+    try {
+        const response = await fetch('/api/tasks?pinned=true');
+        const data = await response.json();
+
+        let pinnedContainer = document.getElementById('pinnedTasksContainer');
+
+        if (!pinnedContainer) {
+            pinnedContainer = document.createElement('div');
+            pinnedContainer.id = 'pinnedTasksContainer';
+            pinnedContainer.className = 'pinned-tasks-container';
+            document.body.appendChild(pinnedContainer);
+        }
+
+        if (data.success && data.tasks.length > 0) {
+            const pinnedTasks = data.tasks.filter(task => task.pinned);
+
+            pinnedContainer.innerHTML = pinnedTasks.map(task => {
+                const priorityStar = task.priority ? '⭐' : '';
+                const deadlineIcon = task.deadline ? '⏱' : '';
+
+                return `
+                    <div class="pinned-task-note" data-task-id="${task.id}">
+                        <div class="pinned-task-title">${task.title}</div>
+                        <div class="pinned-task-meta">
+                            ${priorityStar ? `<span class="badge">Важливе</span>` : ''}
+                            ${deadlineIcon ? `<span class="badge">Дедлайн</span>` : ''}
+                        </div>
+                        <div class="pinned-task-actions">
+                            <button class="task-pin-remove" data-task-id="${task.id}" title="Відкріпити">
+                                <i class="bi bi-pin-fill"></i>
+                            </button>
+                            <button class="task-delete-pinned" data-task-id="${task.id}" title="Видалити">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            attachPinnedTaskHandlers();
+        } else {
+            pinnedContainer.innerHTML = '';
+        }
+    } catch (err) {
+        console.error('Помилка завантаження закріплених завдань: ', err);
+    }
+}
+
+function attachPinnedTaskHandlers() {
+    document.querySelectorAll('.pinned-task-note').forEach(note => {
+        const taskId = note.dataset.taskId;
+
+        note.addEventListener('click', async (e) => {
+            if (e.target.closest('.task-pin-remove') || e.target.closest('.task-delete-pinned')) {
+                return;
+            }
+
+            try {
+                const resp = await fetch(`/api/tasks/${taskId}`);
+                const d = await resp.json();
+
+                if (d.success) {
+                    document.getElementById('editTaskId').value = d.task.id;
+                    document.getElementById('editTaskTitle').value = d.task.title;
+                    document.getElementById('editTaskDescription').value = d.task.description || '';
+
+                    if (d.task.deadline) {
+                        const deadlineDate = new Date(d.task.deadline);
+                        const localDateTime = new Date(deadlineDate.getTime() - deadlineDate.getTimezoneOffset() * 60000)
+                            .toISOString()
+                            .slice(0, 16);
+                        document.getElementById('editTaskDeadline').value = localDateTime;
+                    } else {
+                        document.getElementById('editTaskDeadline').value = '';
+                    }
+
+                    document.getElementById('editTaskPriority').checked = d.task.priority;
+
+                    const editModal = new bootstrap.Modal(document.getElementById('taskDetailModal'));
+                    editModal.show();
+                }
+            } catch (err) {
+                console.error('Помилка завантаження деталей: ', err);
+            }
+        });
+    });
+
+    document.querySelectorAll('.task-pin-remove').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const taskId = btn.dataset.taskId;
+            await fetch(`/api/tasks/${taskId}/pin`, {method: 'PUT'});
+            await loadPinnedTasks();
+            await loadCategories();
+        });
+    });
+
+    document.querySelectorAll('.task-delete-pinned').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const taskId = btn.dataset.taskId;
+
+            const taskItem = document.querySelector(`.pinned-task-note[data-task-id="${taskId}"]`);
+            const taskTitle = taskItem.querySelector('.pinned-task-title').textContent;
+
+            document.getElementById('deleteTaskTitle').textContent = taskTitle;
+
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteTaskModal'));
+            deleteModal.show();
+
+            document.getElementById('confirmDeleteTask').onclick = async () => {
+                try {
+                    const response = await fetch(`/api/tasks/${taskId}`, {method: 'DELETE'});
+                    const data = await response.json();
+
+                    if (data.success) {
+                        deleteModal.hide();
+                        await loadPinnedTasks();
+                        await loadCategories();
+                        await loadUnreadCount();
+                    } else {
+                        alert(data.error || 'Помилка видалення');
+                    }
+                } catch (err) {
+                    console.error('Помилка видалення: ', err);
+                    alert('Помилка з\'єднання');
+                }
+            };
+        });
+    });
+}
+
 async function updateCategoryCounts() {
     try {
         const response = await fetch('/api/categories');
@@ -360,26 +513,31 @@ async function loadTasksForCategory(card, categoryId) {
                 const deadlineIcon = task.deadline ? '⏱' : '';
                 const created = new Date(task.created_at).toLocaleString('uk-UA');
                 const updated = new Date(task.updated_at).toLocaleString('uk-UA');
+                // Знайдіть функцію loadTasksForCategory і замініть рядок з task-pin:
                 return `
-        <div class="task-item d-flex align-items-center gap-3 py-3" data-task-id="${task.id}" data-task-title="${task.title}">
-            <div class="task-select" data-task-id="${task.id}"></div>
-            <input type="checkbox" class="form-check-input task-complete m-0" ${isCompleted ? 'checked' : ''}>
-            <span class="task-title flex-grow-1" style="${strike}">${task.title}</span>
-            ${deadlineIcon ? `<span class="task-deadline-icon">${deadlineIcon}</span>` : ''}
-            <button class="task-priority">${priorityStar}</button>
-            <button class="task-delete">❌️</button>
-            <div class="txt-muted">
-                <small class="text-muted ms-auto">Створено: ${created}</small>
-                <small class="text-muted ms-auto">Оновлено: ${updated}</small>
-            </div>
+    <div class="task-item d-flex align-items-center gap-3 py-3" data-task-id="${task.id}" data-task-title="${task.title}">
+        <div class="task-select" data-task-id="${task.id}"></div>
+        <input type="checkbox" class="form-check-input task-complete m-0" ${isCompleted ? 'checked' : ''}>
+        <span class="task-title flex-grow-1" style="${strike}">${task.title}</span>
+        ${deadlineIcon ? `<span class="task-deadline-icon">${deadlineIcon}</span>` : ''}
+        <button class="task-pin" data-pinned="${task.pinned || false}">
+            <i class="bi ${task.pinned ? 'bi-pin-fill' : 'bi-pin'}"></i>
+        </button>
+        <button class="task-priority">${priorityStar}</button>
+        <button class="task-delete">❌️</button>
+        <div class="txt-muted">
+            <small class="text-muted ms-auto">Створено: ${created}</small>
+            <small class="text-muted ms-auto">Оновлено: ${updated}</small>
         </div>
-    `;}).join('') : '<p class="text-muted text-center py-3">Немає завдань у цій категорії.</p>';
+    </div>
+`;;;}).join('') : '<p class="text-muted text-center py-3">Немає завдань у цій категорії.</p>';
 
             tasksList.querySelectorAll('.task-complete').forEach(cb => {
                 cb.addEventListener('change', async () => {
                     const taskId = cb.closest('.task-item').dataset.taskId;
                     await fetch(`/api/tasks/${taskId}/complete`, {method: 'PUT'});
                     await loadTasksForCategory(card, categoryId);
+                    await loadPinnedTasks(); // Додайте цей рядок
                     await updateCategoryCounts();
                     await loadUnreadCount();
                 });
@@ -390,6 +548,18 @@ async function loadTasksForCategory(card, categoryId) {
                     const taskId = btn.closest('.task-item').dataset.taskId;
                     await fetch(`/api/tasks/${taskId}/priority`, {method: 'PUT'});
                     await loadTasksForCategory(card, categoryId);
+                    await loadPinnedTasks(); // Додайте цей рядок
+                    await updateCategoryCounts();
+                    await loadUnreadCount();
+                });
+            });
+
+            tasksList.querySelectorAll('.task-pin').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const taskId = btn.closest('.task-item').dataset.taskId;
+                    await fetch(`/api/tasks/${taskId}/pin`, {method: 'PUT'});
+                    await loadTasksForCategory(card, categoryId);
+                    await loadPinnedTasks();
                     await updateCategoryCounts();
                     await loadUnreadCount();
                 });
@@ -449,6 +619,7 @@ async function loadTasksForCategory(card, categoryId) {
                             if (data.success) {
                                 deleteModal.hide();
                                 await loadTasksForCategory(card, categoryId);
+                                await loadPinnedTasks(); // Додайте цей рядок
                                 await updateCategoryCounts();
                                 await loadUnreadCount();
                             } else {
@@ -459,6 +630,7 @@ async function loadTasksForCategory(card, categoryId) {
                             alert('Помилка з\'єднання');
                         }
                     };
+
                 });
             });
 
@@ -724,6 +896,7 @@ document.getElementById('createTaskForm').addEventListener('submit', async (e) =
             createModal.hide();
             document.getElementById('createTaskForm').reset();
             await loadCategories();
+            await loadPinnedTasks(); // Додайте цей рядок
             await loadUnreadCount();
         } else {
             alert(data.error || 'Помилка створення');
@@ -749,6 +922,7 @@ document.getElementById('confirmDeleteAll').addEventListener('click', async () =
             deleteAllModal.hide();
 
             await loadCategories();
+            await loadPinnedTasks(); // Додайте цей рядок
             await loadUnreadCount();
         } else {
             alert(data.error || 'Помилка видалення');
@@ -811,6 +985,7 @@ document.getElementById('confirmDeleteSelected').addEventListener('click', async
             clearSelection();
 
             await loadCategories();
+            await loadPinnedTasks(); // Додайте цей рядок
             await loadUnreadCount();
         } else {
             alert(data.error || 'Помилка видалення');
@@ -855,6 +1030,7 @@ document.getElementById('editTaskForm').addEventListener('submit', async (e) => 
             }
 
             await loadCategories();
+            await loadPinnedTasks(); // Додайте цей рядок
             await loadUnreadCount();
         } else {
             alert(data.error || 'Помилка оновлення');
@@ -962,6 +1138,7 @@ document.getElementById('importBtn').addEventListener('click', () => {
 
             if (data.success) {
                 await loadCategories();
+                await loadPinnedTasks(); // Додайте цей рядок
                 await loadUnreadCount();
             } else {
                 alert(data.error || 'Помилка імпорту');
@@ -1021,6 +1198,7 @@ document.getElementById('completeAllSelectedBtn').addEventListener('click', asyn
         }
 
         await loadCategories();
+        await loadPinnedTasks(); // Додайте цей рядок
         await loadUnreadCount();
     } catch (err) {
         console.error('Помилка позначення завдань як виконаних: ', err);
