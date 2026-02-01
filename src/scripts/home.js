@@ -342,6 +342,32 @@ async function loadCategories() {
     }
 }
 
+const stickerBackgrounds = [
+    '/static/stickers/images.jpg'
+];
+
+function getRandomSticker() {
+    return stickerBackgrounds[Math.floor(Math.random() * stickerBackgrounds.length)];
+}
+
+function calculateStickerPosition(index, totalCount) {
+    const isLeft = index % 2 === 0;
+    const verticalOffset = Math.floor(index / 2) * 250; // 250px між стікерами по вертикалі
+
+    const position = {
+        left: isLeft ? '30px' : 'auto',
+        right: isLeft ? 'auto' : '30px',
+        top: `${verticalOffset}px`
+    };
+
+    // Рандомний кут повороту
+    const rotation = isLeft
+        ? Math.random() * 8 - 12  // від -12 до -4 для лівих
+        : Math.random() * 8 + 4;  // від 4 до 12 для правих
+
+    return { position, rotation };
+}
+
 async function loadPinnedTasks() {
     try {
         const response = await fetch('/api/tasks?pinned=true');
@@ -359,12 +385,20 @@ async function loadPinnedTasks() {
         if (data.success && data.tasks.length > 0) {
             const pinnedTasks = data.tasks.filter(task => task.pinned);
 
-            pinnedContainer.innerHTML = pinnedTasks.map(task => {
+            pinnedContainer.innerHTML = pinnedTasks.map((task, index) => {
                 const priorityStar = task.priority ? '⭐' : '';
                 const deadlineIcon = task.deadline ? '⏱' : '';
+                const randomBg = getRandomSticker();
+                const { position, rotation } = calculateStickerPosition(index, pinnedTasks.length);
 
                 return `
-                    <div class="pinned-task-note" data-task-id="${task.id}">
+                    <div class="pinned-task-note" 
+                         data-task-id="${task.id}"
+                         style="background-image: url('${randomBg}'); 
+                                transform: rotate(${rotation}deg);
+                                left: ${position.left};
+                                right: ${position.right};
+                                top: ${position.top};">
                         <div class="pinned-task-title">${task.title}</div>
                         <div class="pinned-task-meta">
                             ${priorityStar ? `<span class="badge">Важливе</span>` : ''}

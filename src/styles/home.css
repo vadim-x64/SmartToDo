@@ -1,59 +1,64 @@
+/* Оновлений CSS для закріплених тасок */
 .pinned-tasks-container {
     position: fixed;
     top: 120px;
-    right: 30px;
-    width: 280px;
-    max-height: calc(100vh - 200px);
-    overflow-y: auto;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: calc(100vh - 120px);
     z-index: 999;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+    pointer-events: none;
 }
 
 .pinned-task-note {
-    background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTUzKEv4Ri6W-zawlotun_jdGFIV5kNvGVdfg&s'); /* Додайте своє фото тут */
+    width: 200px;
+    height: 200px;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    border: 1px solid #000000;
-    border-radius: 5px;
-    padding: 15px;
-    box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
-    position: relative;
+    padding: 20px;
+    box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.3);
+    position: absolute;
     cursor: pointer;
-    transition: transform 0.2s ease;
-    min-height: 150px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .pinned-task-note:hover {
-    transform: translateY(-3px);
-    box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.3);
+    transform: scale(1.05) !important;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.4);
+    z-index: 1000;
 }
 
 .pinned-task-note::before {
-    content: '📎';
+    content: '📌';
     position: absolute;
-    top: -8px;
-    left: 10px;
-    font-size: 24px;
-    transform: rotate(-45deg);
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-15deg);
+    font-size: 28px;
 }
 
 .pinned-task-title {
     font-weight: bold;
-    margin-bottom: 10px;
-    padding-top: 10px;
+    font-size: 14px;
     word-wrap: break-word;
     color: #000000;
     text-shadow: 0 0 3px rgba(255, 255, 255, 0.8);
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
 }
 
 .pinned-task-meta {
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
-    margin-bottom: 10px;
+    margin-top: 8px;
 }
 
 .pinned-task-meta .badge {
@@ -61,21 +66,21 @@
     color: #FFFFFF;
     padding: 3px 8px;
     border-radius: 10px;
-    font-size: 11px;
+    font-size: 10px;
 }
 
 .pinned-task-actions {
     display: flex;
     justify-content: flex-end;
     gap: 8px;
-    margin-top: 10px;
+    margin-top: auto;
 }
 
 .pinned-task-actions button {
-    background: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.9);
     border: 1px solid #000000;
     border-radius: 3px;
-    font-size: 18px;
+    font-size: 16px;
     cursor: pointer;
     padding: 5px 8px;
     transition: background-color 0.2s ease;
@@ -98,37 +103,40 @@
     color: #495057;
 }
 
-/* Темна тема для закріплених */
+/* Темна тема */
 body.dark-theme .pinned-task-note {
-    border-color: #415A77;
+    box-shadow: 3px 3px 12px rgba(0, 0, 0, 0.6);
 }
 
 body.dark-theme .pinned-task-title {
-    color: #000000;
-    text-shadow: 0 0 3px rgba(255, 255, 255, 0.9);
+    text-shadow: 0 0 4px rgba(255, 255, 255, 0.9);
 }
 
 body.dark-theme .pinned-task-meta .badge {
     background-color: rgba(65, 90, 119, 0.9);
-    color: #E0E7FF;
 }
 
 body.dark-theme .pinned-task-actions button {
-    background: rgba(27, 38, 59, 0.8);
+    background: rgba(27, 38, 59, 0.9);
     border-color: #415A77;
     color: #E0E7FF;
 }
 
-body.dark-theme .pinned-task-actions button:hover {
-    background: rgba(27, 38, 59, 1);
-}
+@media screen and (max-width: 768px) {
+    .pinned-tasks-container {
+        top: 100px;
+    }
 
-body.dark-theme .task-pin {
-    color: #B0C4DE;
-}
+    .pinned-task-note {
+        width: 150px;
+        height: 150px;
+        padding: 15px;
+    }
 
-body.dark-theme .task-pin:hover {
-    color: #E0E7FF;
+    .pinned-task-title {
+        font-size: 12px;
+        -webkit-line-clamp: 3;
+    }
 }
 
 
