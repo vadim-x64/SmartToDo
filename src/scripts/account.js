@@ -185,19 +185,21 @@ async function loadAvatar() {
     try {
         const response = await fetch('/api/auth/avatar');
         const data = await response.json();
-
         const avatarImg = document.getElementById('avatarImage');
         const plusIcon = document.getElementById('avatarPlusIcon');
         const updateIcon = document.getElementById('avatarUpdateIcon');
+        const deleteBtn = document.getElementById('deleteAvatarBtn');
 
         if (data.success && data.avatar) {
             avatarImg.src = data.avatar;
             plusIcon.classList.add('d-none');
             updateIcon.classList.remove('d-none');
+            deleteBtn.disabled = false;
         } else {
             avatarImg.src = '/static/default.png';
             plusIcon.classList.remove('d-none');
             updateIcon.classList.add('d-none');
+            deleteBtn.disabled = true;
         }
     } catch (err) {
         console.error('Помилка завантаження аватара:', err);
