@@ -497,9 +497,23 @@ function attachPinnedTaskHandlers() {
         btn.addEventListener('click', async (e) => {
             e.stopPropagation();
             const taskId = btn.dataset.taskId;
-            await fetch(`/api/tasks/${taskId}/pin`, {method: 'PUT'});
-            await loadPinnedTasks();
-            await loadCategories();
+            const noteElement = btn.closest('.pinned-task-note');
+
+            // ОДРАЗУ ховаємо таску і запускаємо вибух
+            explodeTask(noteElement);
+            let taskColors = JSON.parse(localStorage.getItem('taskStickerColors') || '{}');
+            delete taskColors[taskId];
+            localStorage.setItem('taskStickerColors', JSON.stringify(taskColors));
+            // Після анімації відкріплюємо завдання
+            fetch(`/api/tasks/${taskId}/pin`, {method: 'PUT'})
+                .then(() => {
+                    // Оновлюємо тільки категорії, БЕЗ loadPinnedTasks()
+                    loadCategories();
+                });
+
+            setTimeout(async () => {
+                noteElement.remove();
+            }, 0);
         });
     });
 
@@ -524,12 +538,16 @@ function attachPinnedTaskHandlers() {
                     if (data.success) {
                         deleteModal.hide();
 
-                        // Видаляємо колір стікера для видаленого завдання
+                        explodeTask(taskItem);
+
                         let taskColors = JSON.parse(localStorage.getItem('taskStickerColors') || '{}');
                         delete taskColors[taskId];
                         localStorage.setItem('taskStickerColors', JSON.stringify(taskColors));
 
-                        await loadPinnedTasks();
+                        setTimeout(() => {
+                            taskItem.remove();
+                        }, 0);
+
                         await loadCategories();
                         await loadUnreadCount();
                     } else {
@@ -542,6 +560,84 @@ function attachPinnedTaskHandlers() {
             };
         });
     });
+}
+
+function getStickerColor(backgroundImageUrl) {
+    if (backgroundImageUrl.includes('yellow')) {
+        return ['#FFE87C', '#FFD700', '#FFC107', '#FFEB3B', '#FFF59D'];
+    } else if (backgroundImageUrl.includes('blue')) {
+        return ['#81D4FA', '#4FC3F7', '#29B6F6', '#03A9F4', '#B3E5FC'];
+    } else if (backgroundImageUrl.includes('green')) {
+        return ['#A5D6A7', '#81C784', '#66BB6A', '#4CAF50', '#C8E6C9'];
+    } else if (backgroundImageUrl.includes('pink')) {
+        return ['#F48FB1', '#F06292', '#EC407A', '#E91E63', '#F8BBD0'];
+    }
+    return ['#FFE87C', '#FFD700', '#FFC107'];
+}
+
+function explodeTask(element) {
+    const rect = element.getBoundingClientRect();
+    const bgImage = window.getComputedStyle(element).backgroundImage;
+    const colors = getStickerColor(bgImage);
+
+    // ОДРАЗУ ховаємо оригінальну таску
+    element.classList.add('exploding');
+
+    const particleCount = 80;
+    const gridSize = Math.ceil(Math.sqrt(particleCount));
+    const cellWidth = rect.width / gridSize;
+    const cellHeight = rect.height / gridSize;
+
+    // Розбиваємо таску на сітку шматків
+    for (let row = 0; row < gridSize; row++) {
+        for (let col = 0; col < gridSize; col++) {
+            const particle = document.createElement('div');
+            particle.className = 'dissolve-particle';
+
+            // Розмір шматка
+            const size = Math.random() * 10 + 8;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+
+            // Колір з палітри стікера
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            particle.style.backgroundColor = color;
+
+            // Позиція шматка = позиція в сітці оригінальної таски
+            const startX = rect.left + col * cellWidth + cellWidth / 2;
+            const startY = rect.top + row * cellHeight + cellHeight / 2;
+
+            particle.style.left = `${startX}px`;
+            particle.style.top = `${startY}px`;
+
+            // Вектор вибуху від центру таски
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            const dx = startX - centerX;
+            const dy = startY - centerY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            // Нормалізуємо і додаємо випадковість
+            const explosionForce = 200 + Math.random() * 150;
+            const tx = (dx / (distance || 1)) * explosionForce + (Math.random() - 0.5) * 50;
+            const ty = (dy / (distance || 1)) * explosionForce + (Math.random() - 0.5) * 50 + Math.random() * 80;
+
+            particle.style.setProperty('--tx', `${tx}px`);
+            particle.style.setProperty('--ty', `${ty}px`);
+            particle.style.setProperty('--rotation', `${Math.random() * 720 - 360}deg`);
+
+            // Невелика затримка для ефекту хвилі
+            const delay = (distance / 2) + Math.random() * 50;
+            particle.style.animationDelay = `${delay}ms`;
+
+            document.body.appendChild(particle);
+
+            setTimeout(() => {
+                particle.remove();
+            }, 2000);
+        }
+    }
 }
 
 async function updateCategoryCounts() {
