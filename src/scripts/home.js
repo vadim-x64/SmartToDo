@@ -284,7 +284,7 @@ async function checkAuth() {
             const username = data.user.username;
 
             document.getElementById('welcomeMessage').innerHTML =
-                `Привіт, <span class="username-link">${username}</span>! Час взяти під контроль свій день.`;
+                `Привіт, <span class="username-link">${username}</span>!`;
 
             document.querySelector('.username-link').addEventListener('click', () => {
                 window.location.href = '/account';
