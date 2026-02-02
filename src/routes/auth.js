@@ -119,7 +119,7 @@ router.get('/account', async (req, res) => {
 
     try {
         const result = await pool.query(
-            `SELECT c.first_name, c.last_name, c.email, c.date_of_birth, u.username
+            `SELECT c.first_name, c.last_name, c.email, c.date_of_birth, u.username, u.is_oauth
              FROM Users u
                       INNER JOIN Customers c ON u.customer_id = c.id
              WHERE u.id = $1`,
@@ -149,7 +149,7 @@ router.put('/account', async (req, res) => {
 
     try {
         const userResult = await pool.query(
-            'SELECT customer_id, username FROM Users WHERE id = $1',
+            'SELECT customer_id, username, is_oauth FROM Users WHERE id = $1',
             [req.session.userId]
         );
 
@@ -159,6 +159,7 @@ router.put('/account', async (req, res) => {
 
         const customerId = userResult.rows[0].customer_id;
         const oldUsername = userResult.rows[0].username;
+        const isOAuth = userResult.rows[0].is_oauth;
 
         // Перевіряємо username
         if (username !== oldUsername) {
@@ -205,11 +206,16 @@ router.put('/account', async (req, res) => {
                 'UPDATE Users SET username = $1 WHERE id = $2',
                 [username, req.session.userId]
             );
-            requiresReauth = true;
+            // Для OAuth користувачів НЕ потрібна реавторизація
+            if (!isOAuth) {
+                requiresReauth = true;
+            } else {
+                req.session.username = username; // Оновлюємо сесію
+            }
         }
 
-        // Оновлюємо пароль якщо вказано
-        if (password && password.length >= 8) {
+        // Оновлюємо пароль якщо вказано (тільки для НЕ OAuth)
+        if (!isOAuth && password && password.length >= 8) {
             const hashedPassword = await bcrypt.hash(password, 10);
             await pool.query(
                 'UPDATE Users SET password = $1 WHERE id = $2',
@@ -247,13 +253,9 @@ router.delete('/account', async (req, res) => {
 
     const {password} = req.body;
 
-    if (!password || password.trim().length === 0) {
-        return res.status(400).json({error: 'Введіть пароль для підтвердження'});
-    }
-
     try {
         const userResult = await pool.query(
-            'SELECT customer_id, password FROM Users WHERE id = $1',
+            'SELECT customer_id, password, is_oauth FROM Users WHERE id = $1',
             [req.session.userId]
         );
 
@@ -262,10 +264,18 @@ router.delete('/account', async (req, res) => {
         }
 
         const user = userResult.rows[0];
-        const isValidPassword = await bcrypt.compare(password, user.password);
 
-        if (!isValidPassword) {
-            return res.status(401).json({error: 'Невірний пароль'});
+        // Якщо НЕ OAuth - перевіряємо пароль
+        if (!user.is_oauth) {
+            if (!password || password.trim().length === 0) {
+                return res.status(400).json({error: 'Введіть пароль для підтвердження'});
+            }
+
+            const isValidPassword = await bcrypt.compare(password, user.password);
+
+            if (!isValidPassword) {
+                return res.status(401).json({error: 'Невірний пароль'});
+            }
         }
 
         const customerId = user.customer_id;

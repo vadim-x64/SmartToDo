@@ -1,4 +1,5 @@
 let originalData = {};
+let isOAuthUser = false;
 
 async function loadAccountData() {
     try {
@@ -6,6 +7,14 @@ async function loadAccountData() {
         const data = await response.json();
 
         if (data.success) {
+            isOAuthUser = data.account.is_oauth || false; // Зберігаємо статус OAuth
+
+            // Ховаємо поле пароля для OAuth користувачів
+            const passwordSection = document.getElementById('passwordSection');
+            if (isOAuthUser && passwordSection) {
+                passwordSection.style.display = 'none';
+            }
+
             // Форматуємо дату для input type="date"
             let formattedDate = '';
             if (data.account.date_of_birth) {
@@ -44,7 +53,8 @@ function checkForChanges() {
     const email = document.getElementById('email').value;
     const dateOfBirth = document.getElementById('dateOfBirth').value;
     const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
+    const password = isOAuthUser ? '' : document.getElementById('password').value;
+
     const hasChanges =
         firstName !== originalData.firstName ||
         lastName !== originalData.lastName ||
@@ -71,7 +81,8 @@ document.getElementById('accountForm').addEventListener('submit', async (e) => {
     const email = document.getElementById('email').value;
     const dateOfBirth = document.getElementById('dateOfBirth').value || null;
     const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
+    const password = isOAuthUser ? '' : document.getElementById('password').value; // Не відправляємо пароль для OAuth
+
     const errorDiv = document.getElementById('errorMessage');
     const successDiv = document.getElementById('successMessage');
     errorDiv.classList.add('d-none');
@@ -97,7 +108,9 @@ document.getElementById('accountForm').addEventListener('submit', async (e) => {
                 successDiv.textContent = 'Дані успішно оновлено';
                 successDiv.classList.remove('d-none');
                 await loadAccountData();
-                document.getElementById('password').value = '';
+                if (!isOAuthUser) {
+                    document.getElementById('password').value = '';
+                }
                 document.getElementById('saveBtn').disabled = true;
 
                 try {
@@ -136,20 +149,34 @@ document.getElementById('confirmLogout').addEventListener('click', async () => {
 document.getElementById('deleteAccountBtn').addEventListener('click', () => {
     document.getElementById('deletePasswordConfirm').value = '';
     document.getElementById('deletePasswordError').classList.add('d-none');
+
+    // Ховаємо секцію пароля для OAuth користувачів
+    const deletePasswordSection = document.getElementById('deletePasswordSection');
+    if (isOAuthUser && deletePasswordSection) {
+        deletePasswordSection.style.display = 'none';
+    } else if (deletePasswordSection) {
+        deletePasswordSection.style.display = 'block';
+    }
+
     const deleteModal = new bootstrap.Modal(document.getElementById('deleteAccountModal'));
     deleteModal.show();
 });
 
 document.getElementById('confirmDeleteAccount').addEventListener('click', async () => {
-    const password = document.getElementById('deletePasswordConfirm').value;
     const errorDiv = document.getElementById('deletePasswordError');
-
     errorDiv.classList.add('d-none');
 
-    if (!password || password.trim().length === 0) {
-        errorDiv.textContent = 'Будь ласка, введіть пароль';
-        errorDiv.classList.remove('d-none');
-        return;
+    let password = '';
+
+    // Для не-OAuth користувачів вимагаємо пароль
+    if (!isOAuthUser) {
+        password = document.getElementById('deletePasswordConfirm').value;
+
+        if (!password || password.trim().length === 0) {
+            errorDiv.textContent = 'Будь ласка, введіть пароль';
+            errorDiv.classList.remove('d-none');
+            return;
+        }
     }
 
     try {

@@ -53,8 +53,8 @@ passport.use(new GoogleStrategy({
         }
 
         const userResult = await pool.query(
-            'INSERT INTO users (customer_id, username, password) VALUES ($1, $2, $3) RETURNING *',
-            [customerId, username, 'google_oauth'] // Пароль не потрібен для OAuth
+            'INSERT INTO users (customer_id, username, password, is_oauth) VALUES ($1, $2, $3, $4) RETURNING *',
+            [customerId, username, 'google_oauth', true] // Додали is_oauth
         );
 
         done(null, userResult.rows[0]);
