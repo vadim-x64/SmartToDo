@@ -6,11 +6,21 @@ async function loadAccountData() {
         const data = await response.json();
 
         if (data.success) {
+            // Форматуємо дату для input type="date"
+            let formattedDate = '';
+            if (data.account.date_of_birth) {
+                const date = new Date(data.account.date_of_birth);
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                formattedDate = `${year}-${month}-${day}`;
+            }
+
             originalData = {
                 firstName: data.account.first_name,
                 lastName: data.account.last_name,
                 email: data.account.email || '',
-                dateOfBirth: data.account.date_of_birth || '',
+                dateOfBirth: formattedDate,
                 username: data.account.username
             };
 
@@ -234,7 +244,7 @@ function showSuccess(message) {
 
     setTimeout(() => {
         successDiv.classList.add('d-none');
-    }, 3000);
+    }, 5000);
 }
 
 document.querySelector('.avatar-wrapper').addEventListener('click', () => {

@@ -4,7 +4,6 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
     const rememberMe = document.getElementById('rememberMe').checked;
-    const errorDiv = document.getElementById('errorMessage');
 
     try {
         const response = await fetch('/api/auth/login', {
@@ -28,12 +27,10 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 
             window.location.href = '/home';
         } else {
-            errorDiv.textContent = data.error;
-            errorDiv.classList.remove('d-none');
+            showError(data.error);
         }
     } catch (err) {
-        errorDiv.textContent = 'Помилка з\'єднання з сервером';
-        errorDiv.classList.remove('d-none');
+        showError('Помилка з\'єднання з сервером');
     }
 });
 
@@ -87,6 +84,16 @@ function loadRememberedCredentials() {
         document.getElementById('username').value = '';
         document.getElementById('password').value = '';
     }
+}
+
+function showError(message) {
+    const errorDiv = document.getElementById('errorMessage');
+    errorDiv.textContent = message;
+    errorDiv.classList.remove('d-none');
+
+    setTimeout(() => {
+        errorDiv.classList.add('d-none');
+    }, 5000);
 }
 
 initTheme();

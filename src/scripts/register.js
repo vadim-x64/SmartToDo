@@ -10,8 +10,6 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
         password: document.getElementById('password').value
     };
 
-    const errorDiv = document.getElementById('errorMessage');
-
     try {
         const response = await fetch('/api/auth/register', {
             method: 'POST',
@@ -24,12 +22,10 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
         if (response.ok) {
             window.location.href = '/home';
         } else {
-            errorDiv.textContent = data.error;
-            errorDiv.classList.remove('d-none');
+            showError(data.error);
         }
     } catch (err) {
-        errorDiv.textContent = 'Помилка з\'єднання з сервером';
-        errorDiv.classList.remove('d-none');
+        showError('Помилка з\'єднання з сервером');
     }
 });
 
@@ -55,6 +51,16 @@ function initTheme() {
     if (savedTheme === 'dark') {
         document.body.classList.add('dark-theme');
     }
+}
+
+function showError(message) {
+    const errorDiv = document.getElementById('errorMessage');
+    errorDiv.textContent = message;
+    errorDiv.classList.remove('d-none');
+
+    setTimeout(() => {
+        errorDiv.classList.add('d-none');
+    }, 5000);
 }
 
 initTheme();
