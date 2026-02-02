@@ -10,6 +10,7 @@ const { requireAuth } = require('./src/middleware/authMiddleware');
 const { startDeadlineChecker } = require('./src/utilities/deadlineChecker');
 require('dotenv').config();
 
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
