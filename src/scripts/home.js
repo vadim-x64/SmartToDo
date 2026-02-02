@@ -244,6 +244,12 @@ function attachSearchResultsHandlers() {
 
                     if (data.success) {
                         deleteModal.hide();
+
+                        // Видаляємо колір стікера для видаленого завдання
+                        let taskColors = JSON.parse(localStorage.getItem('taskStickerColors') || '{}');
+                        delete taskColors[taskId];
+                        localStorage.setItem('taskStickerColors', JSON.stringify(taskColors));
+
                         const query = document.getElementById('searchInput').value.trim();
                         await searchTasks(query);
                         await loadPinnedTasks();
@@ -400,10 +406,17 @@ async function loadPinnedTasks() {
         if (data.success && data.tasks.length > 0) {
             const pinnedTasks = data.tasks.filter(task => task.pinned);
 
+            let taskColors = JSON.parse(localStorage.getItem('taskStickerColors') || '{}');
+
             pinnedContainer.innerHTML = pinnedTasks.map((task, index) => {
                 const priorityStar = task.priority ? '⭐' : '';
                 const deadlineIcon = task.deadline ? '⏱' : '';
-                const randomBg = getRandomSticker();
+
+                if (!taskColors[task.id]) {
+                    taskColors[task.id] = getRandomSticker();
+                }
+
+                const randomBg = taskColors[task.id];
                 const { position, rotation } = calculateStickerPosition(index, pinnedTasks.length);
 
                 return `
@@ -431,6 +444,7 @@ async function loadPinnedTasks() {
                 `;
             }).join('');
 
+            localStorage.setItem('taskStickerColors', JSON.stringify(taskColors));
             attachPinnedTaskHandlers();
         } else {
             pinnedContainer.innerHTML = '';
@@ -509,6 +523,12 @@ function attachPinnedTaskHandlers() {
 
                     if (data.success) {
                         deleteModal.hide();
+
+                        // Видаляємо колір стікера для видаленого завдання
+                        let taskColors = JSON.parse(localStorage.getItem('taskStickerColors') || '{}');
+                        delete taskColors[taskId];
+                        localStorage.setItem('taskStickerColors', JSON.stringify(taskColors));
+
                         await loadPinnedTasks();
                         await loadCategories();
                         await loadUnreadCount();
@@ -666,6 +686,10 @@ async function loadTasksForCategory(card, categoryId) {
 
                             if (data.success) {
                                 deleteModal.hide();
+                                let taskColors = JSON.parse(localStorage.getItem('taskStickerColors') || '{}');
+                                delete taskColors[taskId];
+                                localStorage.setItem('taskStickerColors', JSON.stringify(taskColors));
+
                                 await loadTasksForCategory(card, categoryId);
                                 await loadPinnedTasks();
                                 await updateCategoryCounts();
