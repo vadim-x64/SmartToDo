@@ -3,11 +3,13 @@ const bcrypt = require('bcrypt');
 const pool = require('../config/db');
 const {notifyLogin, notifyAccountUpdated} = require('../utilities/notificationUtility');
 const router = express.Router();
+const passport = require('../config/passport');
 
 router.post('/register', async (req, res) => {
-    const {firstName, lastName, dateOfBirth, username, password} = req.body;
+    const {firstName, lastName, email, dateOfBirth, username, password} = req.body;
 
     try {
+        // Перевіряємо чи користувач з таким username вже існує
         const userCheck = await pool.query(
             'SELECT * FROM users WHERE username = $1',
             [username]
@@ -17,10 +19,20 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({error: 'Користувач з таким іменем вже існує'});
         }
 
+        // Перевіряємо чи email вже використовується
+        const emailCheck = await pool.query(
+            'SELECT * FROM customers WHERE email = $1',
+            [email]
+        );
+
+        if (emailCheck.rows.length > 0) {
+            return res.status(400).json({error: 'Цей email вже зареєстрований'});
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
         const customerResult = await pool.query(
-            'INSERT INTO customers (first_name, last_name, date_of_birth) VALUES ($1, $2, $3) RETURNING id',
-            [firstName, lastName, dateOfBirth || null]
+            'INSERT INTO customers (first_name, last_name, email, date_of_birth) VALUES ($1, $2, $3, $4) RETURNING id',
+            [firstName, lastName, email, dateOfBirth || null]
         );
 
         const customerId = customerResult.rows[0].id;
@@ -107,7 +119,7 @@ router.get('/account', async (req, res) => {
 
     try {
         const result = await pool.query(
-            `SELECT c.first_name, c.last_name, c.date_of_birth, u.username
+            `SELECT c.first_name, c.last_name, c.email, c.date_of_birth, u.username
              FROM Users u
                       INNER JOIN Customers c ON u.customer_id = c.id
              WHERE u.id = $1`,
@@ -133,7 +145,7 @@ router.put('/account', async (req, res) => {
         return res.status(401).json({error: 'Не авторизовано'});
     }
 
-    const {firstName, lastName, dateOfBirth, username, password} = req.body;
+    const {firstName, lastName, email, dateOfBirth, username, password} = req.body;
 
     try {
         const userResult = await pool.query(
@@ -148,6 +160,7 @@ router.put('/account', async (req, res) => {
         const customerId = userResult.rows[0].customer_id;
         const oldUsername = userResult.rows[0].username;
 
+        // Перевіряємо username
         if (username !== oldUsername) {
             const usernameCheck = await pool.query(
                 'SELECT id FROM Users WHERE username = $1 AND id != $2',
@@ -159,13 +172,34 @@ router.put('/account', async (req, res) => {
             }
         }
 
+        // Перевіряємо email
+        const currentEmailResult = await pool.query(
+            'SELECT email FROM Customers WHERE id = $1',
+            [customerId]
+        );
+
+        const currentEmail = currentEmailResult.rows[0].email;
+
+        if (email !== currentEmail) {
+            const emailCheck = await pool.query(
+                'SELECT id FROM Customers WHERE email = $1 AND id != $2',
+                [email, customerId]
+            );
+
+            if (emailCheck.rows.length > 0) {
+                return res.status(400).json({error: 'Цей email вже використовується'});
+            }
+        }
+
+        // Оновлюємо дані Customer
         await pool.query(
-            'UPDATE Customers SET first_name = $1, last_name = $2, date_of_birth = $3 WHERE id = $4',
-            [firstName, lastName, dateOfBirth || null, customerId]
+            'UPDATE Customers SET first_name = $1, last_name = $2, email = $3, date_of_birth = $4 WHERE id = $5',
+            [firstName, lastName, email, dateOfBirth || null, customerId]
         );
 
         let requiresReauth = false;
 
+        // Оновлюємо username якщо змінився
         if (username !== oldUsername) {
             await pool.query(
                 'UPDATE Users SET username = $1 WHERE id = $2',
@@ -174,6 +208,7 @@ router.put('/account', async (req, res) => {
             requiresReauth = true;
         }
 
+        // Оновлюємо пароль якщо вказано
         if (password && password.length >= 8) {
             const hashedPassword = await bcrypt.hash(password, 10);
             await pool.query(
@@ -370,5 +405,22 @@ router.delete('/avatar', async (req, res) => {
         res.status(500).json({error: 'Помилка сервера при видаленні аватара'});
     }
 });
+
+router.get('/google',
+    passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+
+router.get('/google/callback',
+    passport.authenticate('google', { failureRedirect: '/login' }),
+    async (req, res) => {
+        // Успішна авторизація
+        req.session.userId = req.user.id;
+        req.session.username = req.user.username;
+
+        await notifyLogin(req.user.id, req.user.username);
+
+        res.redirect('/home');
+    }
+);
 
 module.exports = router;

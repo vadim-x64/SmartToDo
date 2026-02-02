@@ -4,6 +4,7 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
     const formData = {
         firstName: document.getElementById('firstName').value,
         lastName: document.getElementById('lastName').value,
+        email: document.getElementById('email').value,
         dateOfBirth: document.getElementById('dateOfBirth').value || null,
         username: document.getElementById('username').value,
         password: document.getElementById('password').value

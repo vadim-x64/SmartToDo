@@ -1,3 +1,28 @@
+.btn-outline-dark {
+    border: 1px solid #000000;
+    color: #000000;
+}
+
+.btn-outline-dark:hover {
+    background-color: #000000;
+    color: #FFFFFF;
+}
+
+body.dark-theme .btn-outline-dark {
+    border-color: #415A77;
+    color: #E0E7FF;
+}
+
+body.dark-theme .btn-outline-dark:hover {
+    background-color: #415A77;
+    color: #E0E7FF;
+}
+
+
+
+
+
+
 * {
     box-sizing: border-box;
     font-family: Verdana, Geneva, Tahoma, sans-serif;

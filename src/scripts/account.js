@@ -9,12 +9,14 @@ async function loadAccountData() {
             originalData = {
                 firstName: data.account.first_name,
                 lastName: data.account.last_name,
+                email: data.account.email || '',
                 dateOfBirth: data.account.date_of_birth || '',
                 username: data.account.username
             };
 
             document.getElementById('firstName').value = originalData.firstName;
             document.getElementById('lastName').value = originalData.lastName;
+            document.getElementById('email').value = originalData.email;
             document.getElementById('dateOfBirth').value = originalData.dateOfBirth;
             document.getElementById('username').value = originalData.username;
         } else {
@@ -29,12 +31,14 @@ async function loadAccountData() {
 function checkForChanges() {
     const firstName = document.getElementById('firstName').value;
     const lastName = document.getElementById('lastName').value;
+    const email = document.getElementById('email').value;
     const dateOfBirth = document.getElementById('dateOfBirth').value;
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
     const hasChanges =
         firstName !== originalData.firstName ||
         lastName !== originalData.lastName ||
+        email !== originalData.email ||
         dateOfBirth !== originalData.dateOfBirth ||
         username !== originalData.username ||
         password.length > 0;
@@ -44,14 +48,17 @@ function checkForChanges() {
 
 document.getElementById('firstName').addEventListener('input', checkForChanges);
 document.getElementById('lastName').addEventListener('input', checkForChanges);
+document.getElementById('email').addEventListener('input', checkForChanges);
 document.getElementById('dateOfBirth').addEventListener('input', checkForChanges);
 document.getElementById('username').addEventListener('input', checkForChanges);
 document.getElementById('password').addEventListener('input', checkForChanges);
+
 document.getElementById('accountForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const firstName = document.getElementById('firstName').value;
     const lastName = document.getElementById('lastName').value;
+    const email = document.getElementById('email').value;
     const dateOfBirth = document.getElementById('dateOfBirth').value || null;
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
@@ -64,7 +71,7 @@ document.getElementById('accountForm').addEventListener('submit', async (e) => {
         const response = await fetch('/api/auth/account', {
             method: 'PUT',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({firstName, lastName, dateOfBirth, username, password})
+            body: JSON.stringify({firstName, lastName, email, dateOfBirth, username, password})
         });
 
         const data = await response.json();

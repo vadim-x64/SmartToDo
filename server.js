@@ -1,6 +1,7 @@
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
+const passport = require('./src/config/passport');
 const authRoutes = require('./src/routes/auth');
 const categoryRoutes = require('./src/routes/categories');
 const notificationRoutes = require('./src/routes/notifications');
@@ -29,6 +30,10 @@ app.use(session({
         maxAge: 30 * 24 * 60 * 60 * 1000
     }
 }));
+
+// Ініціалізація Passport
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
