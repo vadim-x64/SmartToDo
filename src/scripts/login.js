@@ -18,11 +18,9 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
             if (rememberMe) {
                 localStorage.setItem('rememberedUsername', username);
                 localStorage.setItem('rememberedPassword', password);
-                localStorage.setItem('rememberMe', 'true');
             } else {
                 localStorage.removeItem('rememberedUsername');
                 localStorage.removeItem('rememberedPassword');
-                localStorage.removeItem('rememberMe');
             }
 
             window.location.href = '/home';
@@ -34,12 +32,15 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     }
 });
 
+// Логика чекбокса — при снятии сразу чистим данные и поля
 document.getElementById('rememberMe').addEventListener('change', function() {
-    if (this.checked) {
-        localStorage.setItem('rememberMeChecked', 'true');
-    } else {
-        localStorage.setItem('rememberMeChecked', 'false');
+    if (!this.checked) {
+        localStorage.removeItem('rememberedUsername');
+        localStorage.removeItem('rememberedPassword');
+        document.getElementById('username').value = '';
+        document.getElementById('password').value = '';
     }
+    // При постановке чекбокса ничего не делаем — данные сохранятся только после submit
 });
 
 document.getElementById('togglePassword').addEventListener('click', function() {
@@ -66,23 +67,17 @@ function initTheme() {
     }
 }
 
+// При загрузке страницы — если есть сохраненные данные, подставляем их и ставим чекбокс
 function loadRememberedCredentials() {
-    const rememberMeChecked = localStorage.getItem('rememberMeChecked');
+    const username = localStorage.getItem('rememberedUsername');
+    const password = localStorage.getItem('rememberedPassword');
 
-    if (rememberMeChecked === 'true') {
+    if (username && password) {
+        document.getElementById('username').value = username;
+        document.getElementById('password').value = password;
         document.getElementById('rememberMe').checked = true;
-
-        const username = localStorage.getItem('rememberedUsername');
-        const password = localStorage.getItem('rememberedPassword');
-
-        if (username && password) {
-            document.getElementById('username').value = username;
-            document.getElementById('password').value = password;
-        }
     } else {
         document.getElementById('rememberMe').checked = false;
-        document.getElementById('username').value = '';
-        document.getElementById('password').value = '';
     }
 }
 

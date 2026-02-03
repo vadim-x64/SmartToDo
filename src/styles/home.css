@@ -640,7 +640,7 @@ h4::after {
 
 #taskDescription,
 #editTaskDescription {
-    min-height: 100px;
+    min-height: 200px;
 }
 
 .form-control:focus, .form-check-input:focus {
