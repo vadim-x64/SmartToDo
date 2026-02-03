@@ -1,3 +1,39 @@
+#errorMessage,
+#successMessage {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    max-width: 400px;
+    z-index: 9999;
+    padding: 15px 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+#errorMessage {
+    background-color: #f8d7da;
+    border: 1px solid #f5c2c7;
+    color: #842029;
+}
+
+#successMessage {
+    background-color: #d1e7dd;
+    border: 1px solid #badbcc;
+    color: #0f5132;
+}
+
 .myprofile {
     position: fixed;
     bottom: 20px;
@@ -695,6 +731,14 @@ h4::after {
 }
 
 @media screen and (max-width: 768px) {
+    #errorMessage,
+    #successMessage {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+
     .myprofile {
         position: absolute;
         top: 30px;
@@ -1164,4 +1208,16 @@ body.dark-theme .export-icon {
 body.dark-theme .export-option:hover {
     border-color: #64B5F6;
     background-color: #243447;
+}
+
+body.dark-theme #errorMessage {
+    background-color: #3D1F1F;
+    border-color: #EF5350;
+    color: #FFCDD2;
+}
+
+body.dark-theme #successMessage {
+    background-color: #1F3D1F;
+    border-color: #66BB6A;
+    color: #C8E6C9;
 }

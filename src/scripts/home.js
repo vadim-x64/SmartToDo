@@ -6,6 +6,34 @@ let currentSort = '';
 const notificationSound = new Audio('/static/notification.mp3');
 let lastNotificationCount = 0;
 
+function showError(message) {
+    const errorDiv = document.getElementById('errorMessage');
+    const successDiv = document.getElementById('successMessage');
+
+    if (successDiv) successDiv.classList.add('d-none');
+
+    errorDiv.textContent = message;
+    errorDiv.classList.remove('d-none');
+
+    setTimeout(() => {
+        errorDiv.classList.add('d-none');
+    }, 5000);
+}
+
+function showSuccess(message) {
+    const errorDiv = document.getElementById('errorMessage');
+    const successDiv = document.getElementById('successMessage');
+
+    if (errorDiv) errorDiv.classList.add('d-none');
+
+    successDiv.textContent = message;
+    successDiv.classList.remove('d-none');
+
+    setTimeout(() => {
+        successDiv.classList.add('d-none');
+    }, 5000);
+}
+
 async function loadUserAvatar() {
     try {
         const response = await fetch('/api/auth/avatar');
@@ -281,11 +309,11 @@ function attachSearchResultsHandlers() {
                         await loadCategories();
                         await loadUnreadCount();
                     } else {
-                        alert(data.error || 'ПомилкА видалення');
+                        showError(data.error || 'Помилка видалення');
                     }
                 } catch (err) {
                     console.error('Помилка видалення: ', err);
-                    alert('Помилка з\'єднання');
+                    showError('Помилка з\'єднання');
                 }
             };
         });
@@ -583,11 +611,11 @@ function attachPinnedTaskHandlers() {
                         await loadCategories();
                         await loadUnreadCount();
                     } else {
-                        alert(data.error || 'Помилка видалення');
+                        showError(data.error || 'Помилка видалення');
                     }
                 } catch (err) {
                     console.error('Помилка видалення: ', err);
-                    alert('Помилка з\'єднання');
+                    showError('Помилка з\'єднання');
                 }
             };
         });
@@ -614,7 +642,7 @@ function explodeTask(element) {
 
     // Відтворюємо звук вибуху
     const explosionSound = new Audio('/static/pop.mp3');
-    explosionSound.volume = 0.3;
+    explosionSound.volume = 1;
     explosionSound.play().catch(err => console.log('Звук не відтворився:', err));
 
     // ОДРАЗУ ховаємо оригінальну таску
@@ -839,11 +867,11 @@ async function loadTasksForCategory(card, categoryId) {
                                 await updateCategoryCounts();
                                 await loadUnreadCount();
                             } else {
-                                alert(data.error || 'Помилка видалення');
+                                showError(data.error || 'Помилка видалення');
                             }
                         } catch (err) {
                             console.error('Помилка видалення: ', err);
-                            alert('Помилка з\'єднання');
+                            showError('Помилка з\'єднання');
                         }
                     };
 
@@ -1078,7 +1106,7 @@ document.getElementById('confirmLogout').addEventListener('click', async () => {
         console.error('Помилка виходу: ', err);
         const logoutModal = bootstrap.Modal.getInstance(document.getElementById('logoutModal'));
         if (logoutModal) logoutModal.hide();
-        alert('Помилка з\'єднання');
+        showError('Помилка з\'єднання');
     }
 });
 
@@ -1097,7 +1125,7 @@ document.getElementById('createTaskForm').addEventListener('submit', async (e) =
     const deadline = document.getElementById('taskDeadline').value;
     const priority = document.getElementById('taskPriority').checked;
 
-    if (!title) return alert('Назва обов\'язкова');
+    if (!title) return showError('Назва обов\'язкова');
 
     try {
         const response = await fetch('/api/tasks', {
@@ -1116,11 +1144,11 @@ document.getElementById('createTaskForm').addEventListener('submit', async (e) =
             await loadPinnedTasks();
             await loadUnreadCount();
         } else {
-            alert(data.error || 'Помилка створення');
+            showError(data.error || 'Помилка створення');
         }
     } catch (err) {
         console.error('Помилка створення: ', err);
-        alert('Помилка з\'єднання');
+        showError('Помилка з\'єднання');
     }
 });
 
@@ -1142,11 +1170,11 @@ document.getElementById('confirmDeleteAll').addEventListener('click', async () =
             await loadPinnedTasks();
             await loadUnreadCount();
         } else {
-            alert(data.error || 'Помилка видалення');
+            showError(data.error || 'Помилка видалення');
         }
     } catch (err) {
         console.error('Помилка видалення всіх завдань: ', err);
-        alert('Помилка з\'єднання');
+        showError('Помилка з\'єднання');
     }
 });
 
@@ -1205,11 +1233,11 @@ document.getElementById('confirmDeleteSelected').addEventListener('click', async
             await loadPinnedTasks();
             await loadUnreadCount();
         } else {
-            alert(data.error || 'Помилка видалення');
+            showError(data.error || 'Помилка видалення');
         }
     } catch (err) {
         console.error('Помилка видалення вибраних завдань: ', err);
-        alert('Помилка з\'єднання');
+        showError('Помилка з\'єднання');
     }
 });
 
@@ -1224,7 +1252,7 @@ document.getElementById('editTaskForm').addEventListener('submit', async (e) => 
     const deadline = document.getElementById('editTaskDeadline').value;
     const priority = document.getElementById('editTaskPriority').checked;
 
-    if (!title) return alert('Назва обов\'язкова');
+    if (!title) return showError('Назва обов\'язкова');
 
     try {
         const response = await fetch(`/api/tasks/${taskId}`, {
@@ -1250,11 +1278,11 @@ document.getElementById('editTaskForm').addEventListener('submit', async (e) => 
             await loadPinnedTasks();
             await loadUnreadCount();
         } else {
-            alert(data.error || 'Помилка оновлення');
+            showError(data.error || 'Помилка оновлення');
         }
     } catch (err) {
         console.error('Помилка оновлення: ', err);
-        alert('Помилка з\'єднання');
+        showError('Помилка з\'єднання');
     }
 });
 
@@ -1378,7 +1406,7 @@ document.getElementById('importBtn').addEventListener('click', () => {
                 await loadPinnedTasks();
                 await loadUnreadCount();
             } else {
-                alert(data.error || 'Помилка імпорту');
+                showError(data.error || 'Помилка імпорту');
             }
         } catch (err) {
             console.error('Помилка імпорту: ', err);
@@ -1439,7 +1467,7 @@ document.getElementById('completeAllSelectedBtn').addEventListener('click', asyn
         await loadUnreadCount();
     } catch (err) {
         console.error('Помилка позначення завдань як виконаних: ', err);
-        alert('Помилка з\'єднання');
+        showError('Помилка з\'єднання');
     }
 });
 
