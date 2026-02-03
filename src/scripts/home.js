@@ -205,11 +205,19 @@ function attachSearchResultsHandlers() {
                     document.getElementById('editTaskDescription').value = d.task.description || '';
 
                     if (d.task.deadline) {
-                        const deadlineDate = new Date(d.task.deadline);
-                        const localDateTime = new Date(deadlineDate.getTime() - deadlineDate.getTimezoneOffset() * 60000)
-                            .toISOString()
-                            .slice(0, 16);
+                        let localDateTime = '';
+                        if (d.task.deadline) {
+                            const deadlineDate = new Date(d.task.deadline);
+                            // Форматуємо для input type="datetime-local"
+                            const year = deadlineDate.getFullYear();
+                            const month = String(deadlineDate.getMonth() + 1).padStart(2, '0');
+                            const day = String(deadlineDate.getDate()).padStart(2, '0');
+                            const hours = String(deadlineDate.getHours()).padStart(2, '0');
+                            const minutes = String(deadlineDate.getMinutes()).padStart(2, '0');
+                            localDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+                        }
                         document.getElementById('editTaskDeadline').value = localDateTime;
+
                     } else {
                         document.getElementById('editTaskDeadline').value = '';
                     }
@@ -473,11 +481,19 @@ function attachPinnedTaskHandlers() {
                     document.getElementById('editTaskDescription').value = d.task.description || '';
 
                     if (d.task.deadline) {
-                        const deadlineDate = new Date(d.task.deadline);
-                        const localDateTime = new Date(deadlineDate.getTime() - deadlineDate.getTimezoneOffset() * 60000)
-                            .toISOString()
-                            .slice(0, 16);
+                        let localDateTime = '';
+                        if (d.task.deadline) {
+                            const deadlineDate = new Date(d.task.deadline);
+                            // Форматуємо для input type="datetime-local"
+                            const year = deadlineDate.getFullYear();
+                            const month = String(deadlineDate.getMonth() + 1).padStart(2, '0');
+                            const day = String(deadlineDate.getDate()).padStart(2, '0');
+                            const hours = String(deadlineDate.getHours()).padStart(2, '0');
+                            const minutes = String(deadlineDate.getMinutes()).padStart(2, '0');
+                            localDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+                        }
                         document.getElementById('editTaskDeadline').value = localDateTime;
+
                     } else {
                         document.getElementById('editTaskDeadline').value = '';
                     }
@@ -743,10 +759,18 @@ async function loadTasksForCategory(card, categoryId) {
                             document.getElementById('editTaskDescription').value = d.task.description || '';
 
                             if (d.task.deadline) {
-                                const deadlineDate = new Date(d.task.deadline);
-                                const localDateTime = new Date(deadlineDate.getTime() - deadlineDate.getTimezoneOffset() * 60000)
-                                    .toISOString()
-                                    .slice(0, 16);
+                                let localDateTime = '';
+                                if (d.task.deadline) {
+                                    const deadlineDate = new Date(d.task.deadline);
+                                    // Форматуємо для input type="datetime-local"
+                                    const year = deadlineDate.getFullYear();
+                                    const month = String(deadlineDate.getMonth() + 1).padStart(2, '0');
+                                    const day = String(deadlineDate.getDate()).padStart(2, '0');
+                                    const hours = String(deadlineDate.getHours()).padStart(2, '0');
+                                    const minutes = String(deadlineDate.getMinutes()).padStart(2, '0');
+                                    localDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+                                }
+
                                 document.getElementById('editTaskDeadline').value = localDateTime;
                             } else {
                                 document.getElementById('editTaskDeadline').value = '';

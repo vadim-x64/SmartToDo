@@ -539,7 +539,7 @@ router.post('/', async (req, res) => {
     try {
         const result = await pool.query(
             'INSERT INTO Tasks (user_id, title, description, deadline, priority) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-            [userId, title, description || null, deadline ? new Date(deadline) : null, !!priority]
+            [userId, title, description || null, deadline || null, !!priority]
         );
 
         const task = result.rows[0];
@@ -585,7 +585,7 @@ router.put('/:id', async (req, res) => {
 
         await pool.query(
             'UPDATE Tasks SET title = $1, description = $2, deadline = $3, priority = $4, updated_at = CURRENT_TIMESTAMP WHERE id = $5',
-            [title, description || null, deadline ? new Date(deadline) : null, !!priority, taskId]
+            [title, description || null, deadline || null, !!priority, taskId] // ✅ БЕЗ new Date()
         );
 
         const plannedCatId = await getCategoryId('Заплановані');
