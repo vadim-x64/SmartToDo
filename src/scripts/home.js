@@ -351,7 +351,7 @@ async function loadCategories() {
 
             document.querySelectorAll('.category-card').forEach(card => {
                 card.addEventListener('click', async (e) => {
-                    if (e.target.closest('.task-complete, .task-priority, .task-title')) return;
+                    if (e.target.closest('.task-complete, .task-priority, .task-title, .task-pin, .task-delete, .task-select')) return;
 
                     const tasksList = card.querySelector('.tasks-list');
                     const id = card.dataset.categoryId;
@@ -407,9 +407,8 @@ function calculateStickerPosition(index, totalCount) {
         top: `${verticalOffset}px`
     };
 
-    const rotation = isLeft
-        ? Math.random() * 8 - 12
-        : Math.random() * 8 + 4;
+    // Повністю випадковий кут нахилу від -15 до +15 градусів
+    const rotation = Math.random() * 30 - 15;
 
     return { position, rotation };
 }
@@ -613,10 +612,17 @@ function explodeTask(element) {
     const bgImage = window.getComputedStyle(element).backgroundImage;
     const colors = getStickerColor(bgImage);
 
-    // ОДРАЗУ ховаємо оригінальну таску
-    element.classList.add('exploding');
+    // Відтворюємо звук вибуху
+    const explosionSound = new Audio('/static/pop.mp3');
+    explosionSound.volume = 0.3;
+    explosionSound.play().catch(err => console.log('Звук не відтворився:', err));
 
-    const particleCount = 80;
+    // ОДРАЗУ ховаємо оригінальну таску
+    element.style.transition = 'opacity 0.15s ease-out, transform 0.15s ease-out';
+    element.style.opacity = '0';
+    element.style.transform = 'scale(0.8)';
+
+    const particleCount = 120; // Більше частинок для круцього ефекту
     const gridSize = Math.ceil(Math.sqrt(particleCount));
     const cellWidth = rect.width / gridSize;
     const cellHeight = rect.height / gridSize;
@@ -628,7 +634,7 @@ function explodeTask(element) {
             particle.className = 'dissolve-particle';
 
             // Розмір шматка
-            const size = Math.random() * 10 + 8;
+            const size = Math.random() * 12 + 6;
             particle.style.width = `${size}px`;
             particle.style.height = `${size}px`;
 
@@ -651,21 +657,22 @@ function explodeTask(element) {
             const dy = startY - centerY;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            // Нормалізуємо і додаємо випадковість
-            const explosionForce = 200 + Math.random() * 150;
-            const tx = (dx / (distance || 1)) * explosionForce + (Math.random() - 0.5) * 50;
-            const ty = (dy / (distance || 1)) * explosionForce + (Math.random() - 0.5) * 50 + Math.random() * 80;
+            // Нормалізуємо і додаємо випадковість + гравітацію
+            const explosionForce = 250 + Math.random() * 200;
+            const tx = (dx / (distance || 1)) * explosionForce + (Math.random() - 0.5) * 80;
+            const ty = (dy / (distance || 1)) * explosionForce + (Math.random() - 0.5) * 80 + Math.random() * 120;
 
             particle.style.setProperty('--tx', `${tx}px`);
             particle.style.setProperty('--ty', `${ty}px`);
-            particle.style.setProperty('--rotation', `${Math.random() * 720 - 360}deg`);
+            particle.style.setProperty('--rotation', `${Math.random() * 1080 - 540}deg`);
 
-            // Невелика затримка для ефекту хвилі
-            const delay = (distance / 2) + Math.random() * 50;
-            particle.style.animationDelay = `${delay}ms`;
+            // Без затримки - всі частинки летять одночасно
+            particle.style.animationDelay = '0ms';
+            particle.style.animationDuration = `${0.8 + Math.random() * 0.4}s`; // Різна тривалість для природності
 
             document.body.appendChild(particle);
 
+            // Видаляємо частинку після анімації
             setTimeout(() => {
                 particle.remove();
             }, 2000);
