@@ -743,6 +743,8 @@ h4::after {
         position: absolute;
         top: 30px;
         left: 30px;
+        width: 70px;
+        height: 70px;
     }
 
     .myprofile a {
@@ -780,7 +782,7 @@ h4::after {
     }
 
     .pinned-tasks-container {
-        visibility: hidden;
+        display: none;
     }
 
     .header-card {
