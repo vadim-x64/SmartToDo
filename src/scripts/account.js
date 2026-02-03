@@ -413,5 +413,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+document.getElementById('toggleDeletePassword').addEventListener('click', function () {
+    const passwordInput = document.getElementById('deletePasswordConfirm');
+    const eyeIcon = document.getElementById('deleteEyeIcon');
+    const eyeSlashIcon = document.getElementById('deleteEyeSlashIcon');
+
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.classList.add('d-none');
+        eyeSlashIcon.classList.remove('d-none');
+    } else {
+        passwordInput.type = 'password';
+        eyeIcon.classList.remove('d-none');
+        eyeSlashIcon.classList.add('d-none');
+    }
+});
+
 initTheme();
 loadAccountData();
