@@ -6,6 +6,23 @@ let currentSort = '';
 const notificationSound = new Audio('/static/notification.mp3');
 let lastNotificationCount = 0;
 
+async function loadUserAvatar() {
+    try {
+        const response = await fetch('/api/auth/avatar');
+        const data = await response.json();
+        const avatarImg = document.getElementById('userProfileAvatar');
+
+        if (data.success && data.avatar) {
+            avatarImg.src = data.avatar;
+        } else {
+            avatarImg.src = '/static/default.png';
+        }
+    } catch (err) {
+        console.error('Помилка завантаження аватара:', err);
+        document.getElementById('userProfileAvatar').src = '/static/default.png';
+    }
+}
+
 document.getElementById('sortSelect').addEventListener('change', async (e) => {
     clearTimeout(sortTimeout);
     const sortValue = e.target.value;
@@ -300,9 +317,9 @@ async function checkAuth() {
             document.getElementById('welcomeMessage').innerHTML =
                 `Привіт, <span class="username-link">${username}</span>!`;
 
-            document.querySelector('.username-link').addEventListener('click', () => {
-                window.location.href = '/account';
-            });
+            // document.querySelector('.username-link').addEventListener('click', () => {
+            //     window.location.href = '/account';
+            // });
 
             await loadCategories();
             await loadPinnedTasks();
@@ -876,6 +893,8 @@ async function loadUnreadCount() {
 }
 
 checkAuth().then(async () => {
+    await loadUserAvatar();
+
     const response = await fetch('/api/notifications/unread-count');
     const data = await response.json();
     const badge = document.getElementById('notificationBadge');

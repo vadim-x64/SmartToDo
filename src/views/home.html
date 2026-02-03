@@ -10,6 +10,13 @@
     <link rel="icon" href="/static/icon.png" type="image/png">
 </head>
 <body>
+
+<div class="myprofile">
+    <a href="/account">
+        <img id="userProfileAvatar" src="/static/default.png" alt="...">
+    </a>
+</div>
+
 <div class="christmas-container">
     <div class="branches-background back"></div>
     <div class="ornaments-container" id="ornamentsContainer"></div>
@@ -51,7 +58,8 @@
                 </div>
             </div>
         </div>
-        <button class="delete-all-notifications-btn d-none" id="deleteAllNotificationsBtn" title="Видалити всі сповіщення">
+        <button class="delete-all-notifications-btn d-none" id="deleteAllNotificationsBtn"
+                title="Видалити всі сповіщення">
             🗑️
         </button>
     </div>
@@ -67,8 +75,12 @@
                     <p class="text-muted mb-0">Ця дія незворотна!</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary btn-square" data-bs-dismiss="modal">Скасувати</button>
-                    <button type="button" class="btn btn-outline-danger btn-square" id="confirmDeleteAllNotifications">Видалити всі</button>
+                    <button type="button" class="btn btn-outline-secondary btn-square" data-bs-dismiss="modal">
+                        Скасувати
+                    </button>
+                    <button type="button" class="btn btn-outline-danger btn-square" id="confirmDeleteAllNotifications">
+                        Видалити всі
+                    </button>
                 </div>
             </div>
         </div>
@@ -84,8 +96,11 @@
     <div class="selection-toolbar" id="selectionToolbar">
         <span class="selection-count">Вибрано: <span id="selectedCount">0</span></span>
         <div class="select-btns">
-            <button class="btn btn-sm btn-secondary btn-square" id="selectAllBtn" title="Вибрати всі завдання.">▣</button>
-            <button class="btn btn-sm btn-success btn-square" id="completeAllSelectedBtn" title="Позначити як виконані.">🗹️</button>
+            <button class="btn btn-sm btn-secondary btn-square" id="selectAllBtn" title="Вибрати всі завдання.">▣
+            </button>
+            <button class="btn btn-sm btn-success btn-square" id="completeAllSelectedBtn"
+                    title="Позначити як виконані.">🗹️
+            </button>
         </div>
         <div class="selection-buttons">
             <button class="btn btn-sm btn-outline-secondary btn-square" id="cancelSelectionBtn">Скасувати</button>
