@@ -780,7 +780,7 @@ h4::after {
     }
 
     .pinned-tasks-container {
-        display: none;
+        visibility: hidden;
     }
 
     .header-card {
