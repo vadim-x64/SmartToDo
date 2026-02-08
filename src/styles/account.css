@@ -258,36 +258,24 @@ h4 {
     object-position: center;
 }
 
-.avatar-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
+.user-info-card {
+    text-align: center;
+    padding: 20px 15px 0 15px;
     width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.3s ease;
-    pointer-events: none;
 }
 
-.avatar-wrapper:hover .avatar-overlay {
-    background-color: rgba(0, 0, 0, 0.6);
+.user-full-name {
+    font-size: 20px;
+    font-weight: 600;
+    color: #000000;
+    margin: 0;
+    word-wrap: break-word;
 }
 
-.avatar-overlay svg {
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.avatar-wrapper:hover .avatar-overlay svg {
-    opacity: 1;
-}
-
-#deleteAvatarBtn {
-    min-width: 200px;
-    margin: 10px;
+.user-username {
+    font-size: 14px;
+    color: #6c757d;
+    margin: 5px 0 15px 0;
 }
 
 #errorMessage,
@@ -380,19 +368,6 @@ h4 {
         padding: 0;
     }
 
-    #deleteAvatarBtn {
-        min-width: 150px;
-        font-size: 14px;
-        border: none;
-    }
-
-    #deleteAvatarBtn:hover,
-    #deleteAvatarBtn:focus {
-        background: none;
-        border: none;
-        color: #EF5350;
-    }
-
     .header-card {
         padding: 100px 25px;
         height: auto;
@@ -433,6 +408,18 @@ h4 {
 
     .btn-square {
         font-size: 16px;
+    }
+
+    .user-info-card {
+        padding: 15px 10px 0 10px;
+    }
+
+    .user-full-name {
+        font-size: 18px;
+    }
+
+    .user-username {
+        font-size: 13px;
     }
 }
 
@@ -585,4 +572,12 @@ body.dark-theme .home-btn-mobile {
 
 body.dark-theme .home-btn-mobile:hover {
     background-color: rgba(224, 231, 255, 0.2);
+}
+
+body.dark-theme .user-full-name {
+    color: #E0E7FF;
+}
+
+body.dark-theme .user-username {
+    color: #778899;
 }

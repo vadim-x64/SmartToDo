@@ -16,6 +16,31 @@
     <div class="ornaments-container" id="ornamentsContainer"></div>
     <div class="branches-background front"></div>
 </div>
+
+<div class="modal fade" id="avatarActionsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content modal-square">
+            <div class="modal-header">
+                <h5 class="modal-title">Дії з аватаром</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-outline-secondary btn-square" id="setAvatarBtn">
+                        Встановити аватар
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-square" id="replaceAvatarBtn">
+                        Замінити аватар
+                    </button>
+                    <button type="button" class="btn btn-outline-danger btn-square" id="deleteAvatarBtnModal">
+                        Видалити аватар
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="container main-container">
     <div class="header-card">
         <div class="animated-bg-container">
@@ -47,26 +72,15 @@
             <div class="avatar-block">
                 <div class="avatar-section">
                     <div class="avatar-container">
-                        <div class="avatar-wrapper">
+                        <div class="avatar-wrapper" id="avatarWrapper">
                             <img id="avatarImage" src="/static/default.jpg" alt="...">
-                            <div class="avatar-overlay" id="avatarOverlay">
-                                <svg id="avatarPlusIcon" xmlns="http://www.w3.org/2000/svg" width="70" height="70"
-                                     fill="white" viewBox="0 0 16 16">
-                                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-                                </svg>
-                                <svg id="avatarUpdateIcon" class="d-none" xmlns="http://www.w3.org/2000/svg" width="70"
-                                     height="70" fill="white" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd"
-                                          d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
-                                    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
-                                </svg>
-                            </div>
                             <input type="file" id="avatarInput" accept="image/*" class="d-none">
                         </div>
                     </div>
-                    <button type="button" class="btn btn-outline-danger btn-square" id="deleteAvatarBtn">
-                        Видалити аватар
-                    </button>
+                    <div class="user-info-card">
+                        <h5 class="user-full-name mb-1" id="userFullName">Ім'я Прізвище</h5>
+                        <p class="user-username text-muted mb-2" id="userUsernameDisplay">@username</p>
+                    </div>
                 </div>
             </div>
             <form id="accountForm">
