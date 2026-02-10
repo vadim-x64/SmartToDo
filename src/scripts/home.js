@@ -225,6 +225,7 @@ function attachSearchResultsHandlers() {
 
     searchResultsList.querySelectorAll('.task-priority').forEach(btn => {
         btn.addEventListener('click', async () => {
+            createStarExplosion(btn);
             const taskId = btn.closest('.task-item').dataset.taskId;
             await fetch(`/api/tasks/${taskId}/priority`, {method: 'PUT'});
             const query = document.getElementById('searchInput').value.trim();
@@ -777,6 +778,7 @@ async function loadTasksForCategory(card, categoryId) {
 
             tasksList.querySelectorAll('.task-priority').forEach(btn => {
                 btn.addEventListener('click', async () => {
+                    createStarExplosion(btn);
                     const taskId = btn.closest('.task-item').dataset.taskId;
                     await fetch(`/api/tasks/${taskId}/priority`, {method: 'PUT'});
                     await loadTasksForCategory(card, categoryId);
@@ -1533,6 +1535,47 @@ function erasePhrase() {
     }
 
     eraseChar();
+}
+
+function createStarExplosion(element) {
+    const rect = element.getBoundingClientRect();
+    // Центр кнопки
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    const particleCount = 12; // Кількість зірочок
+
+    for (let i = 0; i < particleCount; i++) {
+        const star = document.createElement('i');
+        // Використовуємо іконку Bootstrap
+        star.classList.add('bi', 'bi-star-fill', 'star-particle');
+
+        // Випадковий кут розльоту
+        const angle = Math.random() * Math.PI * 2;
+        // Випадкова дистанція польоту (від 30px до 80px)
+        const velocity = 30 + Math.random() * 50;
+
+        const tx = Math.cos(angle) * velocity;
+        const ty = Math.sin(angle) * velocity;
+        const rotation = Math.random() * 360;
+
+        // Встановлюємо змінні для CSS
+        star.style.left = `${centerX}px`;
+        star.style.top = `${centerY}px`;
+        star.style.setProperty('--tx', `${tx}px`);
+        star.style.setProperty('--ty', `${ty}px`);
+        star.style.setProperty('--rot', `${rotation}deg`);
+
+        // Різний розмір для різноманіття
+        star.style.fontSize = `${10 + Math.random() * 10}px`;
+
+        document.body.appendChild(star);
+
+        // Видаляємо елемент після завершення анімації
+        setTimeout(() => {
+            star.remove();
+        }, 1200);
+    }
 }
 
 loadPhrases();
