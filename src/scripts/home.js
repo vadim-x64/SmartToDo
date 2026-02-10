@@ -140,8 +140,8 @@ async function displaySearchResults(tasks, query = '', isSorting = false) {
     searchResultsList.innerHTML = tasksWithCategories.map(task => {
         const isCompleted = task.status === 'completed';
         const strike = isCompleted ? 'text-decoration: line-through; color: #AAAAAA;' : '';
-        const priorityStar = task.priority ? '★' : '☆';
-        const deadlineIcon = task.deadline ? '⏱' : '';
+        const priorityStar = task.priority ? '<i class="bi bi-star-fill"></i>' : '<i class="bi bi-star"></i>';
+        const deadlineIcon = task.deadline ? '<i class="bi bi-clock"></i>' : '';
         const created = new Date(task.created_at).toLocaleString('uk-UA');
         const updated = new Date(task.updated_at).toLocaleString('uk-UA');
         const deadlineInfo = task.deadline ? `<small class="text-muted d-block">Термін: ${new Date(task.deadline).toLocaleString('uk-UA')}</small>` : '';
@@ -166,7 +166,7 @@ async function displaySearchResults(tasks, query = '', isSorting = false) {
                     <i class="bi ${task.pinned ? 'bi-pin-fill' : 'bi-pin'}"></i>
                 </button>
                 <button class="task-priority">${priorityStar}</button>
-                <button class="task-delete">❌️</button>
+                <button class="task-delete"><i class="bi bi-x-lg"></i></button>
                 <div class="txt-muted">
                     <small class="text-muted">Створено: ${created}</small>
                     <small class="text-muted">Оновлено: ${updated}</small>
@@ -462,7 +462,7 @@ async function loadPinnedTasks() {
 
             pinnedContainer.innerHTML = pinnedTasks.map((task, index) => {
                 const priorityStar = task.priority ? '⭐' : '';
-                const deadlineIcon = task.deadline ? '⏱' : '';
+                const deadlineIcon = task.deadline ? '<i class="bi bi-clock"></i>' : '';
 
                 if (!taskColors[task.id]) {
                     taskColors[task.id] = getRandomSticker();
@@ -742,8 +742,8 @@ async function loadTasksForCategory(card, categoryId) {
             tasksList.innerHTML = data.tasks.length > 0 ? data.tasks.map(task => {
                 const isCompleted = task.status === 'completed';
                 const strike = isCompleted ? 'text-decoration: line-through; color: #AAAAAA;' : '';
-                const priorityStar = task.priority ? '★' : '☆';
-                const deadlineIcon = task.deadline ? '⏱' : '';
+                const priorityStar = task.priority ? '<i class="bi bi-star-fill"></i>' : '<i class="bi bi-star"></i>';
+                const deadlineIcon = task.deadline ? '<i class="bi bi-clock"></i>' : '';
                 const created = new Date(task.created_at).toLocaleString('uk-UA');
                 const updated = new Date(task.updated_at).toLocaleString('uk-UA');
                 return `
@@ -756,7 +756,7 @@ async function loadTasksForCategory(card, categoryId) {
             <i class="bi ${task.pinned ? 'bi-pin-fill' : 'bi-pin'}"></i>
         </button>
         <button class="task-priority">${priorityStar}</button>
-        <button class="task-delete">❌️</button>
+        <button class="task-delete"><i class="bi bi-x-lg"></i></button>
         <div class="txt-muted">
             <small class="text-muted ms-auto">Створено: ${created}</small>
             <small class="text-muted ms-auto">Оновлено: ${updated}</small>
