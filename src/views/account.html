@@ -62,7 +62,8 @@
                 <span>Мій профіль</span>
             </div>
             <div class="d-flex align-items-center gap-3">
-                <button class="btn btn-outline-light home-btn-desktop" onclick="window.location.href='/home'">Головна</button>
+                <button class="btn btn-outline-light home-btn-desktop" onclick="window.location.href='/home'">Головна
+                </button>
             </div>
         </div>
     </div>
@@ -77,9 +78,15 @@
                             <input type="file" id="avatarInput" accept="image/*" class="d-none">
                         </div>
                     </div>
-                    <div class="user-info-card">
-                        <h5 class="user-full-name mb-1" id="userFullName">Ім'я Прізвище</h5>
-                        <p class="user-username text-muted mb-2" id="userUsernameDisplay">@username</p>
+                    <div class="hanging-container">
+                        <div class="nail"></div>
+                        <div class="swing-wrapper">
+                            <div class="strings"></div>
+                            <div class="user-info-card sign-board">
+                                <h5 class="user-full-name mb-1" id="userFullName">Ім'я</h5>
+                                <p class="user-username text-muted mb-2" id="userUsernameDisplay">@username</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -105,7 +112,8 @@
                 <div class="mb-3">
                     <label class="form-label">Ім'я користувача *</label>
                     <input type="text" class="form-control input-square" id="username" required>
-                    <small class="text-muted" id="usernameHint">Зміна імені користувача вимагає повторного входу.</small>
+                    <small class="text-muted" id="usernameHint">Зміна імені користувача вимагає повторного
+                        входу.</small>
                 </div>
                 <div class="mb-3" id="passwordSection">
                     <label class="form-label">Новий пароль</label>

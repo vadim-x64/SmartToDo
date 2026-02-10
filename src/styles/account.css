@@ -260,22 +260,18 @@ h4 {
 
 .user-info-card {
     text-align: center;
-    padding: 20px 15px 0 15px;
-    width: 100%;
 }
 
 .user-full-name {
-    font-size: 20px;
-    font-weight: 600;
-    color: #000000;
-    margin: 0;
+    font-size: 32px;
+    font-weight: bold;
+    color: #422200;
     word-wrap: break-word;
 }
 
 .user-username {
-    font-size: 14px;
-    color: #6c757d;
-    margin: 5px 0 15px 0;
+    font-size: 18px;
+    color: #6b7075;
 }
 
 #errorMessage,
@@ -312,6 +308,107 @@ h4 {
     background-color: #d1e7dd;
     border: 1px solid #badbcc;
     color: #0f5132;
+}
+
+.hanging-container {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    z-index: 10;
+    top: 10px;
+}
+
+.nail {
+    width: 10px;
+    height: 10px;
+    background: radial-gradient(circle at 30% 30%, #e6e6e6, #222);
+    border-radius: 50%;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    box-shadow: 0 4px 5px rgba(0,0,0,0.5);
+    border: 1px solid #333;
+}
+
+.swing-wrapper {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    transform-origin: 50% 0;
+    animation: gentleSwing 3s ease-in-out infinite;
+    top: -15px;
+}
+
+.strings {
+    width: 100%;
+    height: 150px;
+    position: relative;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.strings::before,
+.strings::after {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    width: 2px;
+    height: 200px;
+    background: #333;
+    transform-origin: top center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    z-index: -1;
+}
+
+.strings::before {
+    transform: translateX(-50%) rotate(40deg);
+}
+
+.strings::after {
+    transform: translateX(-50%) rotate(-40deg);
+}
+
+.sign-board {
+    width: 100%;
+    height: 148px;
+    background-image: url('/static/table.png');
+    background-size: cover; /* Розтягує картинку точно по розміру блока */
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 15px 25px rgba(0,0,0,0.5);
+    position: relative;
+    z-index: 10;
+    transform: rotate(5deg);
+}
+
+@keyframes gentleSwing {
+    0% { transform: rotate(1.5deg); }
+    50% { transform: rotate(-1.5deg); }
+    100% { transform: rotate(1.5deg); }
+}
+
+body.dark-theme .nail {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.9);
+}
+
+body.dark-theme .strings::before,
+body.dark-theme .strings::after {
+    background: #555; /* Трохи світліші нитки в темряві */
+    box-shadow: 0 0 2px rgba(255,255,255,0.1);
+}
+
+body.dark-theme .sign-board {
+    box-shadow: 0 15px 35px rgba(0,0,0,0.7);
 }
 
 @media screen and (max-width: 768px) {
@@ -410,16 +507,8 @@ h4 {
         font-size: 16px;
     }
 
-    .user-info-card {
-        padding: 15px 10px 0 10px;
-    }
-
-    .user-full-name {
-        font-size: 18px;
-    }
-
-    .user-username {
-        font-size: 13px;
+    .hanging-container {
+        display: none;
     }
 }
 
@@ -572,12 +661,4 @@ body.dark-theme .home-btn-mobile {
 
 body.dark-theme .home-btn-mobile:hover {
     background-color: rgba(224, 231, 255, 0.2);
-}
-
-body.dark-theme .user-full-name {
-    color: #E0E7FF;
-}
-
-body.dark-theme .user-username {
-    color: #778899;
 }

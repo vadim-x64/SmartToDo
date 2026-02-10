@@ -266,7 +266,7 @@ async function updateUserInfoCard() {
         const lastName = document.getElementById('lastName').value || '';
         const username = document.getElementById('username').value || '';
 
-        document.getElementById('userFullName').textContent = `${firstName} ${lastName}`.trim() || 'Ім\'я Прізвище';
+        document.getElementById('userFullName').textContent = `${firstName}`.trim() || 'Ім\'я';
         document.getElementById('userUsernameDisplay').textContent = `@${username}`;
 
         // Завантажуємо статистику завдань
