@@ -543,11 +543,35 @@ h4::after {
 }
 
 .search-wrapper {
+    position: relative;
     min-width: 0;
 }
 
+.search-wrapper i,
+.sort-wrapper i {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #000000;
+    font-size: 18px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.search-wrapper .form-control,
+.sort-wrapper .form-select {
+    padding-left: 40px;
+}
+
 .sort-wrapper {
+    position: relative;
     min-width: 250px;
+}
+
+body.dark-theme .search-wrapper i,
+body.dark-theme .sort-wrapper i {
+    color: #E0E7FF;
 }
 
 .form-select {
