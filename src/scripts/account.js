@@ -15,6 +15,11 @@ async function loadAccountData() {
                 passwordSection.style.display = 'none';
             }
 
+            const usernameHint = document.getElementById('usernameHint');
+            if (isOAuthUser && usernameHint) {
+                usernameHint.style.display = 'none';
+            }
+
             let formattedDate = '';
             if (data.account.date_of_birth) {
                 const date = new Date(data.account.date_of_birth);
