@@ -43,6 +43,7 @@ body {
     justify-content: center;
     margin: 0;
     padding: 20px;
+    overflow-y: scroll;
 }
 
 .container {
@@ -53,7 +54,7 @@ body {
 .auth-card {
     border-radius: 5px;
     padding: 50px;
-    box-shadow: 0 -10px 50px 5px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 20px 5px rgba(0, 0, 0, 0.5);
 }
 
 .auth-header {
