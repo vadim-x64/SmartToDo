@@ -112,18 +112,32 @@
         </button>
     </div>
     <div class="selection-toolbar" id="selectionToolbar">
-        <span class="selection-count">Вибрано: <span id="selectedCount">0</span></span>
-        <div class="select-btns">
-            <button class="btn btn-sm btn-secondary btn-square" id="selectAllBtn" title="Вибрати всі завдання.">
-                <i class="bi bi-square"></i>
+        <div class="toolbar-content">
+            <div class="selection-info">
+                <span class="selection-label">Вибрано</span>
+                <span class="selection-count" id="selectedCount">0</span>
+
+            </div>
+
+            <div class="vertical-divider"></div>
+
+            <div class="toolbar-actions">
+                <button class="btn-icon" id="selectAllBtn" title="Вибрати всі">
+                    <i class="bi bi-check-all"></i>
+                </button>
+                <button class="btn-icon" id="completeAllSelectedBtn" title="Завершити">
+                    <i class="bi bi-check2-circle"></i>
+                </button>
+                <button class="btn-icon danger" id="deleteSelectedBtn" title="Видалити">
+                    <i class="bi bi-trash3"></i>
+                </button>
+            </div>
+
+            <div class="vertical-divider"></div>
+
+            <button class="btn-close-toolbar" id="cancelSelectionBtn">
+                <i class="bi bi-x-lg"></i>
             </button>
-            <button class="btn btn-sm btn-success btn-square" id="completeAllSelectedBtn"
-                    title="Позначити як виконані."><i class="bi bi-check2-square"></i>
-            </button>
-        </div>
-        <div class="selection-buttons">
-            <button class="btn btn-sm btn-outline-secondary btn-square" id="cancelSelectionBtn">Скасувати</button>
-            <button class="btn btn-sm btn-outline-danger btn-square" id="deleteSelectedBtn">Видалити</button>
         </div>
     </div>
     <h4 class="mb-3"></h4>
