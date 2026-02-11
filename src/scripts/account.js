@@ -1,6 +1,13 @@
 let originalData = {};
 let isOAuthUser = false;
 let hasAvatar = false;
+let cropper = null;
+
+// Елементи для кропера
+const imageToCrop = document.getElementById('imageToCrop');
+const cropModalElement = document.getElementById('cropModal');
+// Перевірка на існування елементів, щоб уникнути помилок, якщо HTML ще не оновлено
+const cropModal = cropModalElement ? new bootstrap.Modal(cropModalElement) : null;
 
 async function loadAccountData() {
     try {
@@ -72,11 +79,11 @@ function checkForChanges() {
     document.getElementById('saveBtn').disabled = !hasChanges;
 }
 
+// --- Слухачі подій форми ---
 document.getElementById('firstName').addEventListener('input', () => {
     checkForChanges();
     updateUserInfoCard();
 });
-
 document.getElementById('lastName').addEventListener('input', () => {
     checkForChanges();
     updateUserInfoCard();
@@ -91,6 +98,7 @@ if (!isOAuthUser) {
     document.getElementById('password').addEventListener('input', checkForChanges);
 }
 
+// --- Відправка форми оновлення даних ---
 document.getElementById('accountForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -149,6 +157,7 @@ document.getElementById('accountForm').addEventListener('submit', async (e) => {
     }
 });
 
+// --- Логіка виходу та видалення ---
 document.getElementById('logoutBtn').addEventListener('click', () => {
     const logoutModal = new bootstrap.Modal(document.getElementById('logoutModal'));
     logoutModal.show();
@@ -217,6 +226,7 @@ document.getElementById('confirmDeleteAccount').addEventListener('click', async 
     }
 });
 
+// --- Показати/Сховати пароль ---
 document.getElementById('togglePassword').addEventListener('click', function () {
     const passwordInput = document.getElementById('password');
     const eyeIcon = document.getElementById('eyeIcon');
@@ -233,9 +243,25 @@ document.getElementById('togglePassword').addEventListener('click', function () 
     }
 });
 
+document.getElementById('toggleDeletePassword').addEventListener('click', function () {
+    const passwordInput = document.getElementById('deletePasswordConfirm');
+    const eyeIcon = document.getElementById('deleteEyeIcon');
+    const eyeSlashIcon = document.getElementById('deleteEyeSlashIcon');
+
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.classList.add('d-none');
+        eyeSlashIcon.classList.remove('d-none');
+    } else {
+        passwordInput.type = 'password';
+        eyeIcon.classList.remove('d-none');
+        eyeSlashIcon.classList.add('d-none');
+    }
+});
+
+// --- Ініціалізація та утиліти ---
 function initTheme() {
     const savedTheme = localStorage.getItem('theme');
-
     if (savedTheme === 'dark') {
         document.body.classList.add('dark-theme');
     }
@@ -263,20 +289,10 @@ async function loadAvatar() {
 async function updateUserInfoCard() {
     try {
         const firstName = document.getElementById('firstName').value || '';
-        const lastName = document.getElementById('lastName').value || '';
         const username = document.getElementById('username').value || '';
 
         document.getElementById('userFullName').textContent = `${firstName}`.trim() || 'Ім\'я';
         document.getElementById('userUsernameDisplay').textContent = `@${username}`;
-
-        // Завантажуємо статистику завдань
-        const statsResponse = await fetch('/api/tasks/stats');
-        const statsData = await statsResponse.json();
-
-        if (statsData.success) {
-            document.getElementById('taskCount').textContent = statsData.total || 0;
-            document.getElementById('completedCount').textContent = statsData.completed || 0;
-        }
     } catch (err) {
         console.error('Помилка оновлення інформації користувача:', err);
     }
@@ -306,45 +322,59 @@ function showSuccess(message) {
     }, 5000);
 }
 
-// Відкриття модального вікна при кліку на аватар
+// ==========================================
+// ЛОГІКА АВАТАРА (ЗМІНЕНО ДЛЯ CROPPER.JS)
+// ==========================================
+
+// Відкриття модального вікна дій при кліку на аватар
 document.getElementById('avatarWrapper').addEventListener('click', () => {
     const setBtn = document.getElementById('setAvatarBtn');
     const replaceBtn = document.getElementById('replaceAvatarBtn');
     const deleteBtn = document.getElementById('deleteAvatarBtnModal');
+    const editBtn = document.getElementById('editAvatarBtn'); // Кнопка "Редагувати"
 
+    // Якщо ми ще не додали кнопку в HTML, цей код не впаде, але кнопка не з'явиться
     if (hasAvatar) {
         setBtn.style.display = 'none';
         replaceBtn.style.display = 'block';
         deleteBtn.style.display = 'block';
+        if (editBtn) editBtn.style.display = 'block';
     } else {
         setBtn.style.display = 'block';
         replaceBtn.style.display = 'none';
         deleteBtn.style.display = 'none';
+        if (editBtn) editBtn.style.display = 'none';
     }
 
     const avatarModal = new bootstrap.Modal(document.getElementById('avatarActionsModal'));
     avatarModal.show();
 });
 
-// Встановити аватар
+// Кнопки виклику input file
 document.getElementById('setAvatarBtn').addEventListener('click', () => {
     document.getElementById('avatarInput').click();
     bootstrap.Modal.getInstance(document.getElementById('avatarActionsModal')).hide();
 });
 
-// Замінити аватар
 document.getElementById('replaceAvatarBtn').addEventListener('click', () => {
     document.getElementById('avatarInput').click();
     bootstrap.Modal.getInstance(document.getElementById('avatarActionsModal')).hide();
 });
 
-// Видалити аватар (з модального вікна)
-document.getElementById('deleteAvatarBtnModal').addEventListener('click', () => {
-    bootstrap.Modal.getInstance(document.getElementById('avatarActionsModal')).hide();
-    const deleteModal = new bootstrap.Modal(document.getElementById('deleteAvatarModal'));
-    deleteModal.show();
-});
+// Кнопка редагування поточного
+const editAvatarBtn = document.getElementById('editAvatarBtn');
+if (editAvatarBtn) {
+    editAvatarBtn.addEventListener('click', () => {
+        const currentSrc = document.getElementById('avatarImage').src;
+        bootstrap.Modal.getInstance(document.getElementById('avatarActionsModal')).hide();
 
+        // Відкриваємо кропер з поточним зображенням
+        imageToCrop.src = currentSrc;
+        openCropModal();
+    });
+}
+
+// Обробка вибору файлу
 document.getElementById('avatarInput').addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -374,35 +404,11 @@ document.getElementById('avatarInput').addEventListener('change', async (e) => {
     }
 
     const reader = new FileReader();
-    reader.onload = async (event) => {
-        try {
-            const response = await fetch('/api/auth/avatar', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({avatar: event.target.result})
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                showSuccess('Аватар успішно оновлено');
-                await loadAvatar();
-
-                try {
-                    const notificationSound = new Audio('/static/notification.mp3');
-                    await notificationSound.play();
-                } catch (err) {
-                    console.log('Не вдалося відтворити звук:', err);
-                }
-            } else {
-                showError(data.error || 'Помилка оновлення аватара');
-            }
-        } catch (err) {
-            console.error('Помилка завантаження аватара:', err);
-            showError('Помилка з\'єднання з сервером');
-        }
-
-        e.target.value = '';
+    reader.onload = (event) => {
+        // Замість негайного завантаження, відкриваємо модалку кропу
+        imageToCrop.src = event.target.result;
+        openCropModal();
+        e.target.value = ''; // Скидаємо input, щоб можна було обрати той самий файл
     };
 
     reader.onerror = () => {
@@ -413,6 +419,111 @@ document.getElementById('avatarInput').addEventListener('change', async (e) => {
     reader.readAsDataURL(file);
 });
 
+// Функція відкриття модалки кропу
+function openCropModal() {
+    if (!cropModal) return;
+    cropModal.show();
+
+    // Ініціалізація кропера тільки коли модалка показана (щоб коректно розрахувати розміри)
+    cropModalElement.addEventListener('shown.bs.modal', initCropperOnce);
+}
+
+function initCropperOnce() {
+    // Якщо кропер вже існує, знищуємо його перед створенням нового
+    if (cropper) {
+        cropper.destroy();
+    }
+
+    cropper = new Cropper(imageToCrop, {
+        aspectRatio: 1, // Квадрат
+        viewMode: 1,    // Обмежити рамку розмірами картинки
+        dragMode: 'move',
+        autoCropArea: 0.8,
+        restore: false,
+        guides: true,
+        center: true,
+        highlight: false,
+        cropBoxMovable: true,
+        cropBoxResizable: true,
+        toggleDragModeOnDblclick: false,
+    });
+
+    // Видаляємо слухач, щоб він не спрацьовував багаторазово
+    cropModalElement.removeEventListener('shown.bs.modal', initCropperOnce);
+}
+
+// Кнопка "Зберегти" в модалці кропу
+const cropAndSaveBtn = document.getElementById('cropAndSaveBtn');
+if (cropAndSaveBtn) {
+    cropAndSaveBtn.addEventListener('click', async () => {
+        if (!cropper) return;
+
+        // Отримуємо обрізане зображення
+        const canvas = cropper.getCroppedCanvas({
+            width: 400,
+            height: 400,
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high',
+        });
+
+        if (!canvas) {
+            showError('Не вдалося обробити зображення');
+            return;
+        }
+
+        // Конвертуємо в Base64
+        const base64Image = canvas.toDataURL('image/jpeg', 0.9);
+
+        // Відправляємо на сервер
+        await uploadAvatar(base64Image);
+
+        // Закриваємо модалку
+        cropModal.hide();
+    });
+}
+
+// Очищення при закритті модалки
+if (cropModalElement) {
+    cropModalElement.addEventListener('hidden.bs.modal', () => {
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        imageToCrop.src = '';
+    });
+}
+
+// Функція завантаження на сервер (винесена окремо)
+async function uploadAvatar(base64Data) {
+    try {
+        const response = await fetch('/api/auth/avatar', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({avatar: base64Data})
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showSuccess('Аватар успішно оновлено');
+            await loadAvatar();
+
+            try {
+                const notificationSound = new Audio('/static/notification.mp3');
+                await notificationSound.play();
+            } catch (err) {
+                console.log('Не вдалося відтворити звук:', err);
+            }
+        } else {
+            showError(data.error || 'Помилка оновлення аватара');
+        }
+    } catch (err) {
+        console.error('Помилка завантаження аватара:', err);
+        showError('Помилка з\'єднання з сервером');
+    }
+}
+
+// Видалення аватара (стандартна логіка)
 document.getElementById('confirmDeleteAvatar').addEventListener('click', async () => {
     try {
         const response = await fetch('/api/auth/avatar', {
@@ -443,12 +554,15 @@ document.getElementById('confirmDeleteAvatar').addEventListener('click', async (
     }
 });
 
+// --- Анімація Blobs ---
 document.addEventListener('DOMContentLoaded', () => {
     loadAvatar();
     updateUserInfoCard();
 
     const blobs = document.querySelectorAll('.blob');
     const container = document.querySelector('.animated-bg-container');
+
+    if (!container) return;
 
     function getRandom(min, max) {
         return Math.random() * (max - min) + min;
@@ -476,21 +590,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-document.getElementById('toggleDeletePassword').addEventListener('click', function () {
-    const passwordInput = document.getElementById('deletePasswordConfirm');
-    const eyeIcon = document.getElementById('deleteEyeIcon');
-    const eyeSlashIcon = document.getElementById('deleteEyeSlashIcon');
-
-    if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        eyeIcon.classList.add('d-none');
-        eyeSlashIcon.classList.remove('d-none');
-    } else {
-        passwordInput.type = 'password';
-        eyeIcon.classList.remove('d-none');
-        eyeSlashIcon.classList.add('d-none');
-    }
-});
-
 initTheme();
 loadAccountData();
+
+// Виправлення для backdrop при закритті модалок
+document.querySelectorAll('.modal').forEach(modal => {
+    modal.addEventListener('hidden.bs.modal', () => {
+        // Видаляємо всі backdrop'и якщо немає відкритих модалок
+        setTimeout(() => {
+            if (!document.querySelector('.modal.show')) {
+                document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+                    backdrop.remove();
+                });
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+            }
+        }, 100);
+    });
+});

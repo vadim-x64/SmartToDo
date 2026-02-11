@@ -412,6 +412,27 @@ body.dark-theme .sign-board {
     box-shadow: 0 15px 35px rgba(0,0,0,0.7);
 }
 
+/* Додати в кінець файлу */
+.img-container {
+    max-height: 500px; /* Обмеження висоти редактора */
+    width: 100%;
+    background-color: #f7f7f7;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+}
+
+.img-container img {
+    max-width: 100%;
+    display: block; /* Важливо для Cropper.js */
+}
+
+/* Виправлення круглої рамки при попередньому перегляді в cropper.js, якщо захочеш додати */
+.cropper-view-box,
+.cropper-face {
+    border-radius: 50%;
+}
+
 @media screen and (max-width: 768px) {
     .home-btn-desktop {
         display: none;
