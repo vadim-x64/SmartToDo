@@ -247,7 +247,7 @@ h4 {
     overflow: hidden;
     cursor: pointer;
     padding: 10px;
-    background: linear-gradient(270deg, #29CAFF, #00d1d5, #00d1d5);
+    background: linear-gradient(270deg, #29CAFF, #29CAFF, #29CAFF, #000000, #000000);
     background-size: 200% 200%;
     animation: gradientFlow 15s ease infinite alternate;
 }
