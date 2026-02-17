@@ -361,6 +361,16 @@ document.getElementById('replaceAvatarBtn').addEventListener('click', () => {
     bootstrap.Modal.getInstance(document.getElementById('avatarActionsModal')).hide();
 });
 
+// Кнопка видалення аватара
+document.getElementById('deleteAvatarBtnModal').addEventListener('click', () => {
+    // Закриваємо модалку з діями
+    bootstrap.Modal.getInstance(document.getElementById('avatarActionsModal')).hide();
+
+    // Відкриваємо модалку підтвердження видалення
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteAvatarModal'));
+    deleteModal.show();
+});
+
 // Кнопка редагування поточного
 const editAvatarBtn = document.getElementById('editAvatarBtn');
 if (editAvatarBtn) {
