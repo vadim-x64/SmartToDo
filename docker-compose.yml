@@ -1,6 +1,9 @@
 services:
   postgres_db:
     image: postgres:15-alpine
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres
     container_name: smarttodo_postgres
     restart: no
     environment:
@@ -10,7 +13,6 @@ services:
       TZ: Europe/Kiev
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
     networks:

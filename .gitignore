@@ -1,2 +1,10 @@
+.idea
+node_modules
 .env
 .env.docker
+
+.dockerignore
+Dockerfile
+docker-compose.yml
+Dockerfile.postgres
+init.sql
